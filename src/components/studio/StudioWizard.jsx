@@ -2949,7 +2949,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                           Your photos
                         </h4>
                         <p className="text-xs text-stone-500 font-light mt-1.5 leading-relaxed">
-                          The full-screen photos this template is built on: your cover, a moment of you two, and one behind your story.
+                          The key photos for your invitation: your opening cover and bride & groom portraits.
                         </p>
                       </div>
                     </div>
@@ -3016,119 +3016,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                         </p>
                       </div>
 
-                      {/* 2. COUPLE PHOTO */}
-                      <div className="space-y-2">
-                        <span className="text-[11px] font-bold tracking-wider uppercase text-stone-600 block">
-                          COUPLE PHOTO
-                        </span>
-                        <div className="flex items-start gap-3 sm:gap-4">
-                          {/* Portrait Thumbnail */}
-                          <div className="w-14 h-20 sm:w-16 sm:h-24 rounded-lg overflow-hidden border border-stone-200 bg-stone-100 shadow-xs shrink-0 flex items-center justify-center">
-                            {data.photos?.couple || data.photos?.bride ? (
-                              <img 
-                                src={data.photos?.couple || data.photos?.bride} 
-                                alt="Couple Photo" 
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <span className="text-[10px] text-stone-400">No photo</span>
-                            )}
-                          </div>
-
-                          {/* Action Button Row */}
-                          <div className="flex flex-wrap items-center gap-2 pt-1">
-                            <label className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-[#D5C2AA] hover:border-[#8B6F47] hover:bg-[#FAF5ED] text-stone-700 font-semibold text-[10px] sm:text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs">
-                              <Plus className="w-3.5 h-3.5 text-[#8B6F47]" />
-                              <span>CHANGE PHOTO</span>
-                              <input 
-                                type="file" 
-                                accept="image/*" 
-                                className="hidden" 
-                                onChange={e => handleFileUpload(e, 'couple')} 
-                              />
-                            </label>
-
-                            <button
-                              type="button"
-                              onClick={() => setGalleryPickerField('couple')}
-                              className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-stone-300 hover:border-[#8B6F47] hover:bg-[#FAF5ED] text-stone-700 font-semibold text-[10px] sm:text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
-                            >
-                              <Eye className="w-3.5 h-3.5 text-stone-500" />
-                              <span>GALLERY</span>
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => updatePhotos('couple', '')}
-                              className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-stone-300 hover:border-red-400 hover:bg-red-50 hover:text-red-600 text-stone-700 font-semibold text-[10px] sm:text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
-                            >
-                              <Trash2 className="w-3.5 h-3.5 text-stone-400" />
-                              <span>REMOVE</span>
-                            </button>
-                          </div>
-                        </div>
-                        <p className="text-xs text-stone-400 font-light leading-relaxed">
-                          A full-width moment between the couple cards and the date reveal, with your quote drifting over it. Optional.
-                        </p>
-                      </div>
-
-                      {/* 3. STORY PHOTO */}
-                      <div className="space-y-2">
-                        <span className="text-[11px] font-bold tracking-wider uppercase text-stone-600 block">
-                          STORY PHOTO
-                        </span>
-                        <div className="flex items-start gap-3 sm:gap-4">
-                          {/* Portrait Thumbnail */}
-                          <div className="w-14 h-20 sm:w-16 sm:h-24 rounded-lg overflow-hidden border border-stone-200 bg-stone-100 shadow-xs shrink-0 flex items-center justify-center">
-                            {data.photos?.storyPhoto || data.photos?.story ? (
-                              <img 
-                                src={data.photos?.storyPhoto || data.photos?.story || './images/couple-landscape-1.webp'} 
-                                alt="Story Photo" 
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <span className="text-[10px] text-stone-400">No photo</span>
-                            )}
-                          </div>
-
-                          {/* Action Button Row */}
-                          <div className="flex flex-wrap items-center gap-2 pt-1">
-                            <label className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-[#D5C2AA] hover:border-[#8B6F47] hover:bg-[#FAF5ED] text-stone-700 font-semibold text-[10px] sm:text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs">
-                              <Plus className="w-3.5 h-3.5 text-[#8B6F47]" />
-                              <span>CHANGE PHOTO</span>
-                              <input 
-                                type="file" 
-                                accept="image/*" 
-                                className="hidden" 
-                                onChange={e => handleFileUpload(e, 'storyPhoto')} 
-                              />
-                            </label>
-
-                            <button
-                              type="button"
-                              onClick={() => setGalleryPickerField('storyPhoto')}
-                              className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-stone-300 hover:border-[#8B6F47] hover:bg-[#FAF5ED] text-stone-700 font-semibold text-[10px] sm:text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
-                            >
-                              <Eye className="w-3.5 h-3.5 text-stone-500" />
-                              <span>GALLERY</span>
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => updatePhotos('storyPhoto', '')}
-                              className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-stone-300 hover:border-red-400 hover:bg-red-50 hover:text-red-600 text-stone-700 font-semibold text-[10px] sm:text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
-                            >
-                              <Trash2 className="w-3.5 h-3.5 text-stone-400" />
-                              <span>REMOVE</span>
-                            </button>
-                          </div>
-                        </div>
-                        <p className="text-xs text-stone-400 font-light leading-relaxed">
-                          Sits behind your love story, zooming gently as you scroll. Optional.
-                        </p>
-                      </div>
-
-                      {/* 4. BRIDE & GROOM PROFILE PHOTOS */}
+                      {/* 2. BRIDE & GROOM PROFILE PHOTOS */}
                       <div className="pt-3 border-t border-[#F0E6D8] space-y-6">
                         {/* BRIDE PHOTO */}
                         <div className="space-y-2">
