@@ -3,12 +3,13 @@ import {
   Palette, BookOpen, Sparkles, Globe, Download, Printer, Video, 
   Smartphone, Tablet, Monitor, Plus, Trash2, Check, ArrowRight, ArrowLeft,
   Volume2, VolumeX, Shield, CircleDot, Bell, MessageSquare, ChevronDown, ChevronUp,
-  Image, Mail, Stamp, PartyPopper, Music as MusicIcon, Compass, MapPin, Upload, Camera,
+  Image, Mail, Stamp, PartyPopper, Music as MusicIcon, Compass, MapPin, Upload, Camera, Crop,
   RotateCcw, Share2, Copy, CheckCheck, Phone, Video as VideoIcon, MoreVertical,
   Calendar, Clock, Eye, Lock, Users, Play, PhoneCall, Feather, CreditCard, Package,
   Train, Link, Flower2, Flower, Scroll, Bird, Lamp, Key, DoorClosed, Building2,
   Film, Heart, DoorOpen, Truck, Flame, Star
 } from 'lucide-react';
+import PhotoAdjustCropModal from './PhotoAdjustCropModal';
 import { OCCASIONS, TEMPLATES, REVEAL_STYLES, PALETTES, MUSIC_TRACKS, CELEBRATION_EFFECTS } from '../../data/presets';
 import InvitationExperience from '../invitation/InvitationExperience';
 import { soundManager } from '../../utils/audio';
@@ -72,6 +73,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
   const [copiedLink, setCopiedLink] = useState(false);
   const [isExportingHtml, setIsExportingHtml] = useState(false);
   const [galleryPickerField, setGalleryPickerField] = useState(null);
+  const [cropModalConfig, setCropModalConfig] = useState(null);
 
   // Accordion expanded row state
   const [openRow, setOpenRow] = useState('template');
@@ -193,8 +195,43 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
   const handleFileUpload = async (e, targetField) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const base64Url = await compressImageFile(file, 900, 0.8);
-    updatePhotos(targetField, base64Url);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const rawSrc = event.target.result;
+      const aspect = targetField === 'cover' ? 9 / 16 : 3 / 4;
+      const fieldTitle =
+        targetField === 'cover'
+          ? 'Hero Cover Photo'
+          : targetField === 'bride'
+          ? 'Bride Photo'
+          : 'Groom Photo';
+      setCropModalConfig({
+        isOpen: true,
+        imageSrc: rawSrc,
+        title: `Adjust & Crop - ${fieldTitle}`,
+        targetField,
+        defaultAspect: aspect,
+      });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleApplyCrop = (croppedDataUrl) => {
+    if (!cropModalConfig?.targetField) return;
+    const target = cropModalConfig.targetField;
+    if (typeof target === 'object' && target.type === 'galleryItem') {
+      setData(prev => {
+        const g = [...(prev.gallery || [])];
+        if (g[target.index]) {
+          g[target.index] = { ...g[target.index], url: croppedDataUrl };
+        }
+        return { ...prev, gallery: g };
+      });
+    } else {
+      updatePhotos(target, croppedDataUrl);
+    }
+    setCropModalConfig(null);
   };
 
   const addGalleryPhoto = (url, caption = '', tag = 'General') => {
@@ -255,14 +292,18 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
 
   const handleChangeSingleGalleryPhoto = async (index, file) => {
     if (!file) return;
-    const dataUrl = await compressImageFile(file, 900, 0.8);
-    setData(prev => {
-      const g = [...(prev.gallery || [])];
-      if (g[index]) {
-        g[index] = { ...g[index], url: dataUrl };
-      }
-      return { ...prev, gallery: g };
-    });
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const rawSrc = event.target.result;
+      setCropModalConfig({
+        isOpen: true,
+        imageSrc: rawSrc,
+        title: `Adjust & Crop - Gallery Memory #${index + 1}`,
+        targetField: { type: 'galleryItem', index },
+        defaultAspect: 4 / 5,
+      });
+    };
+    reader.readAsDataURL(file);
   };
 
   const resetGalleryToDefault = () => {
@@ -289,18 +330,28 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
 
   const handlePickAsset = (url) => {
     if (!galleryPickerField) return;
-    if (typeof galleryPickerField === 'object' && galleryPickerField.type === 'galleryItem') {
-      setData(prev => {
-        const g = [...(prev.gallery || [])];
-        if (g[galleryPickerField.index]) {
-          g[galleryPickerField.index] = { ...g[galleryPickerField.index], url };
-        }
-        return { ...prev, gallery: g };
-      });
-    } else {
-      updatePhotos(galleryPickerField, url);
-    }
+    const currentTarget = galleryPickerField;
     setGalleryPickerField(null);
+
+    const isCover = currentTarget === 'cover';
+    const isBride = currentTarget === 'bride';
+    const isGroom = currentTarget === 'groom';
+    const fieldTitle = isCover
+      ? 'Hero Cover Photo'
+      : isBride
+      ? 'Bride Photo'
+      : isGroom
+      ? 'Groom Photo'
+      : 'Gallery Photo';
+    const aspect = isCover ? 9 / 16 : 3 / 4;
+
+    setCropModalConfig({
+      isOpen: true,
+      imageSrc: url,
+      title: `Adjust & Crop - ${fieldTitle}`,
+      targetField: currentTarget,
+      defaultAspect: aspect,
+    });
   };
 
   const applyVenuePreset = (eventId, venueName, address) => {
@@ -2992,6 +3043,25 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                               />
                             </label>
 
+                            {data.photos?.cover && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setCropModalConfig({
+                                    isOpen: true,
+                                    imageSrc: data.photos.cover,
+                                    title: 'Adjust & Crop - Hero Cover Photo',
+                                    targetField: 'cover',
+                                    defaultAspect: 9 / 16,
+                                  });
+                                }}
+                                className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-[#D5C2AA] hover:border-[#8B6F47] hover:bg-[#FAF5ED] text-stone-700 font-semibold text-[10px] sm:text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                              >
+                                <Crop className="w-3.5 h-3.5 text-[#8B6F47]" />
+                                <span>ADJUST / CROP</span>
+                              </button>
+                            )}
+
                             <button
                               type="button"
                               onClick={() => setGalleryPickerField('cover')}
@@ -3037,6 +3107,26 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                                 <span>CHANGE PHOTO</span>
                                 <input type="file" accept="image/*" className="hidden" onChange={e => handleFileUpload(e, 'bride')} />
                               </label>
+
+                              {data.photos?.bride && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setCropModalConfig({
+                                      isOpen: true,
+                                      imageSrc: data.photos.bride,
+                                      title: 'Adjust & Crop - Bride Photo',
+                                      targetField: 'bride',
+                                      defaultAspect: 3 / 4,
+                                    });
+                                  }}
+                                  className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-[#D5C2AA] hover:border-[#8B6F47] hover:bg-[#FAF5ED] text-stone-700 font-semibold text-[10px] sm:text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                                >
+                                  <Crop className="w-3.5 h-3.5 text-[#8B6F47]" />
+                                  <span>ADJUST / CROP</span>
+                                </button>
+                              )}
+
                               <button
                                 type="button"
                                 onClick={() => setGalleryPickerField('bride')}
@@ -3079,6 +3169,26 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                                 <span>CHANGE PHOTO</span>
                                 <input type="file" accept="image/*" className="hidden" onChange={e => handleFileUpload(e, 'groom')} />
                               </label>
+
+                              {data.photos?.groom && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setCropModalConfig({
+                                      isOpen: true,
+                                      imageSrc: data.photos.groom,
+                                      title: 'Adjust & Crop - Groom Photo',
+                                      targetField: 'groom',
+                                      defaultAspect: 3 / 4,
+                                    });
+                                  }}
+                                  className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-[#D5C2AA] hover:border-[#8B6F47] hover:bg-[#FAF5ED] text-stone-700 font-semibold text-[10px] sm:text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                                >
+                                  <Crop className="w-3.5 h-3.5 text-[#8B6F47]" />
+                                  <span>ADJUST / CROP</span>
+                                </button>
+                              )}
+
                               <button
                                 type="button"
                                 onClick={() => setGalleryPickerField('groom')}
@@ -3253,7 +3363,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                                   <div className="flex items-center gap-1.5">
                                     <label className="px-2.5 py-1 rounded-md border border-[#D5C2AA] hover:border-[#8B6F47] hover:bg-[#FAF5ED] text-stone-700 font-semibold text-[10px] uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer">
                                       <Plus className="w-3 h-3 text-[#8B6F47]" />
-                                      <span>Change Photo</span>
+                                      <span>Change</span>
                                       <input
                                         type="file"
                                         accept="image/*"
@@ -3264,6 +3374,25 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                                         }}
                                       />
                                     </label>
+
+                                    {(pic.url || pic.img) && (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setCropModalConfig({
+                                            isOpen: true,
+                                            imageSrc: pic.url || pic.img,
+                                            title: `Adjust & Crop - Memory #${idx + 1}`,
+                                            targetField: { type: 'galleryItem', index: idx },
+                                            defaultAspect: 4 / 5,
+                                          });
+                                        }}
+                                        className="px-2.5 py-1 rounded-md border border-[#D5C2AA] hover:border-[#8B6F47] hover:bg-[#FAF5ED] text-stone-700 font-semibold text-[10px] uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer"
+                                      >
+                                        <Crop className="w-3 h-3 text-[#8B6F47]" />
+                                        <span>Crop</span>
+                                      </button>
+                                    )}
 
                                     <button
                                       type="button"
@@ -4496,6 +4625,18 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
             </div>
           </div>
         </div>
+      )}
+
+      {/* PHOTO ADJUST & CROP MODAL */}
+      {cropModalConfig && (
+        <PhotoAdjustCropModal
+          isOpen={cropModalConfig.isOpen}
+          imageSrc={cropModalConfig.imageSrc}
+          title={cropModalConfig.title}
+          defaultAspect={cropModalConfig.defaultAspect}
+          onApply={handleApplyCrop}
+          onCancel={() => setCropModalConfig(null)}
+        />
       )}
     </div>
   );
