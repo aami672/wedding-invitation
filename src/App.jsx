@@ -59,6 +59,14 @@ export default function App() {
         if (!parsed.atmosphere) {
           parsed.atmosphere = { style: parsed.effect || 'petals', intensity: 'medium' };
         }
+        if (!parsed.typography) {
+          parsed.typography = {
+            preset: 'heritage',
+            headingFont: 'Cinzel',
+            bodyFont: 'Cormorant Garamond',
+            scriptFont: 'Great Vibes',
+          };
+        }
         return parsed;
       } catch (e) {
         console.error(e);

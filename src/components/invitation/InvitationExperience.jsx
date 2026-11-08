@@ -178,7 +178,10 @@ export default function InvitationExperience({
       }`}
       style={{ 
         backgroundColor: isPichwai ? '#071A1E' : isZardozi ? '#FAF7F0' : (palette?.colors?.[0] || '#FAF7F2'), 
-        color: isPichwai ? '#F4ECDE' : isNewspaper ? '#1E1E1E' : (palette?.colors?.[1] || '#2B1E17') 
+        color: isPichwai ? '#F4ECDE' : isNewspaper ? '#1E1E1E' : (palette?.colors?.[1] || '#2B1E17'),
+        '--font-serif': data.typography?.bodyFont ? `"${data.typography.bodyFont}", Georgia, serif` : undefined,
+        '--font-royal': data.typography?.headingFont ? `"${data.typography.headingFont}", serif` : undefined,
+        '--font-script': data.typography?.scriptFont ? `"${data.typography.scriptFont}", cursive` : undefined,
       }}
     >
       {/* FULL-PAGE CONTINUOUS ANIMATED ATMOSPHERE (Canvas 60fps confined to invitation screen) */}

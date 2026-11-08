@@ -8,19 +8,19 @@
 }
 
 .font-serif {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: var(--font-serif, 'Cormorant Garamond', Georgia, serif);
 }
 
 .font-royal {
-  font-family: 'Cinzel', serif;
+  font-family: var(--font-royal, 'Cinzel', serif);
 }
 
 .font-script {
-  font-family: 'Great Vibes', cursive;
+  font-family: var(--font-script, 'Great Vibes', cursive);
 }
 
 .font-sans {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans, 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif);
 }
 
 /* Custom scrollbars */

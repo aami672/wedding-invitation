@@ -7,10 +7,14 @@ import {
   RotateCcw, Share2, Copy, CheckCheck, Phone, Video as VideoIcon, MoreVertical,
   Calendar, Clock, Eye, Lock, Users, Play, PhoneCall, Feather, CreditCard, Package,
   Train, Link, Flower2, Flower, Scroll, Bird, Lamp, Key, DoorClosed, Building2,
-  Film, Heart, DoorOpen, Truck, Flame, Star
+  Film, Heart, DoorOpen, Truck, Flame, Star, Type
 } from 'lucide-react';
 import PhotoAdjustCropModal from './PhotoAdjustCropModal';
-import { OCCASIONS, TEMPLATES, REVEAL_STYLES, PALETTES, MUSIC_TRACKS, CELEBRATION_EFFECTS, ATMOSPHERE_STYLES, ATMOSPHERE_INTENSITIES } from '../../data/presets';
+import { 
+  OCCASIONS, TEMPLATES, REVEAL_STYLES, PALETTES, MUSIC_TRACKS, 
+  CELEBRATION_EFFECTS, ATMOSPHERE_STYLES, ATMOSPHERE_INTENSITIES,
+  TYPOGRAPHY_SUITES, HEADING_FONTS, BODY_FONTS, SCRIPT_FONTS 
+} from '../../data/presets';
 import InvitationExperience from '../invitation/InvitationExperience';
 import { soundManager } from '../../utils/audio';
 import { triggerCelebration } from '../../utils/confetti';
@@ -640,12 +644,14 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
   <title>${data.hosts?.bride} & ${data.hosts?.groom} — Wedding Invitation</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Great+Vibes&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Alex+Brush&family=Allura&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Great+Vibes&family=Italianno&family=Lora:ital,wght@0,400..700;1,400..700&family=Marcellus&family=Montserrat:wght@300;400;500;600;700&family=Parisienne&family=Philosopher:ital,wght@0,400;0,700;1,400&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400..800;1,400..800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Prata&family=Rozha+One&family=Satisfy&family=Tangerine:wght@700&display=swap" rel="stylesheet" />
   <style>
     body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: ${isPichwai ? '#071A1E' : isZardozi ? '#FAF7F0' : isNewspaper ? '#F6F1E5' : isCaricature ? '#FAF7F2' : '#FDFBF7'}; color: ${isPichwai ? '#F4ECDE' : '#2B1E17'}; }
-    .font-serif { font-family: 'Cormorant Garamond', Georgia, serif; }
-    .font-royal { font-family: 'Cinzel', serif; }
-    .font-script { font-family: 'Great Vibes', cursive; }
+    .font-serif { font-family: "${data.typography?.bodyFont || 'Cormorant Garamond'}", Georgia, serif; }
+    .font-royal { font-family: "${data.typography?.headingFont || 'Cinzel'}", serif; }
+    .font-script { font-family: "${data.typography?.scriptFont || 'Great Vibes'}", cursive; }
 
     @keyframes swayGentle { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
     @keyframes swayToran { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(2px) rotate(1deg); } }
@@ -2490,7 +2496,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
   <title>${data.hosts?.groom || 'Groom'} & ${data.hosts?.bride || 'Bride'} — Wedding Invitation</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Alex+Brush&family=Allura&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Great+Vibes&family=Italianno&family=Lora:ital,wght@0,400..700;1,400..700&family=Marcellus&family=Montserrat:wght@300;400;500;600;700&family=Parisienne&family=Philosopher:ital,wght@0,400;0,700;1,400&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400..800;1,400..800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Prata&family=Rozha+One&family=Satisfy&family=Tangerine:wght@700&display=swap" rel="stylesheet" />
   <style>
     @page {
       size: A4 portrait;
@@ -2952,6 +2958,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
   const selectedEffect = CELEBRATION_EFFECTS.find(e => e.id === data.effect) || CELEBRATION_EFFECTS[0];
   const selectedAtmosphereStyle = ATMOSPHERE_STYLES.find(s => s.id === (data.atmosphere?.style || 'petals')) || ATMOSPHERE_STYLES[0];
   const selectedAtmosphereIntensity = ATMOSPHERE_INTENSITIES.find(i => i.id === (data.atmosphere?.intensity || 'medium')) || ATMOSPHERE_INTENSITIES[2];
+  const selectedTypographySuite = TYPOGRAPHY_SUITES.find(s => s.id === (data.typography?.preset || 'heritage')) || TYPOGRAPHY_SUITES[0];
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] flex flex-col">
@@ -3803,7 +3810,239 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                   )}
                 </div>
 
-                {/* ROW 6: ATMOSPHERE & CELEBRATION EFFECTS */}
+                {/* ROW 6: TYPOGRAPHY & FONTS */}
+                <div className="bg-white rounded-2xl border border-[#E6D5BF] overflow-hidden shadow-xs">
+                  <button
+                    type="button"
+                    onClick={() => toggleRow('typography')}
+                    className="w-full p-4 sm:p-5 flex justify-between items-center text-left hover:bg-stone-50/70 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-10 h-10 rounded-xl bg-[#FAF5ED] border border-[#E6D5BF] flex items-center justify-center text-[#8B6F47]">
+                        <Type className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-serif text-2xl font-light text-[#2B1E17]">Typography & Fonts</h4>
+                        {openRow !== 'typography' && (
+                          <p className="text-xs text-stone-500 font-light mt-0.5">
+                            {selectedTypographySuite?.name || 'Royal Heritage'} • {data.typography?.headingFont || 'Cinzel'} & {data.typography?.bodyFont || 'Cormorant Garamond'}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    {openRow === 'typography' ? <ChevronUp className="w-4 h-4 text-stone-400" /> : <ChevronDown className="w-4 h-4 text-stone-400" />}
+                  </button>
+
+                  {openRow === 'typography' && (
+                    <div className="p-4 sm:p-6 border-t border-[#E6D5BF] bg-[#FAF8F5]/60 space-y-6">
+                      
+                      {/* SECTION 1: CURATED DESIGNER FONT SUITES */}
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h5 className="font-serif text-lg font-normal text-[#2B1E17] flex items-center gap-2">
+                              <span>✨</span> Designer Typography Suites
+                            </h5>
+                            <p className="text-xs text-stone-500 font-light mt-0.5">
+                              Handpicked font pairings curated for luxury Indian & modern wedding invitations.
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {TYPOGRAPHY_SUITES.map(suite => {
+                            const isSelected = (data.typography?.preset === suite.id) || 
+                              (!data.typography?.preset && suite.id === 'heritage');
+
+                            return (
+                              <button
+                                key={suite.id}
+                                type="button"
+                                onClick={() => {
+                                  setData(prev => ({
+                                    ...prev,
+                                    typography: {
+                                      preset: suite.id,
+                                      headingFont: suite.headingFont,
+                                      bodyFont: suite.bodyFont,
+                                      scriptFont: suite.scriptFont,
+                                    }
+                                  }));
+                                }}
+                                className={`p-4 rounded-2xl border text-left cursor-pointer transition-all flex flex-col justify-between group relative overflow-hidden ${
+                                  isSelected 
+                                    ? 'border-2 border-[#8B6F47] bg-white shadow-md ring-1 ring-[#C5A880]/50' 
+                                    : 'border border-stone-200/90 bg-white hover:border-stone-300 hover:shadow-xs'
+                                }`}
+                              >
+                                <div className="flex items-center justify-between w-full mb-2">
+                                  <span className="text-[9px] uppercase font-bold tracking-widest text-[#8B6F47] bg-[#FAF5ED] px-2 py-0.5 rounded-md border border-[#E6D5BF]/60">
+                                    {suite.badge}
+                                  </span>
+                                  {isSelected && (
+                                    <div className="w-5 h-5 rounded-full bg-[#8B6F47] text-white flex items-center justify-center shadow-xs">
+                                      <Check className="w-3.5 h-3.5" />
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Live Font Preview */}
+                                <div className="space-y-1 my-1.5 py-1 px-2.5 rounded-xl bg-[#FAF8F5]/80 border border-stone-100">
+                                  <p 
+                                    style={{ fontFamily: `"${suite.headingFont}", serif` }} 
+                                    className="text-base text-[#2B1E17] font-semibold tracking-wide truncate"
+                                  >
+                                    {data.hosts?.bride || 'Preeti'} & {data.hosts?.groom || 'Ashish'}
+                                  </p>
+                                  <p 
+                                    style={{ fontFamily: `"${suite.scriptFont}", cursive` }} 
+                                    className="text-sm text-[#8B6F47] truncate leading-tight"
+                                  >
+                                    {suite.previewText}
+                                  </p>
+                                  <p 
+                                    style={{ fontFamily: `"${suite.bodyFont}", Georgia, serif` }} 
+                                    className="text-[11px] text-stone-500 font-light truncate"
+                                  >
+                                    Together with their families
+                                  </p>
+                                </div>
+
+                                <div className="mt-2 pt-2 border-t border-stone-100 flex items-center justify-between">
+                                  <span className="text-xs font-semibold text-stone-800">{suite.name}</span>
+                                  <span className="text-[10px] text-stone-400 font-light">
+                                    {suite.headingFont} + {suite.bodyFont}
+                                  </span>
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <div className="w-full h-px bg-[#E6D5BF]/80 my-4" />
+
+                      {/* SECTION 2: CUSTOM FONT PICKERS (FINE-GRAINED CONTROL) */}
+                      <div className="space-y-4">
+                        <div>
+                          <h5 className="font-serif text-lg font-normal text-[#2B1E17] flex items-center gap-2">
+                            <span>🖋️</span> Custom Font Styling
+                          </h5>
+                          <p className="text-xs text-stone-500 font-light mt-0.5">
+                            Mix and match heading, body, and signature script fonts individually.
+                          </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                          {/* Heading Font */}
+                          <div className="space-y-1.5">
+                            <label className="text-[10px] uppercase font-bold tracking-wider text-stone-500 block">
+                              Headings & Titles
+                            </label>
+                            <select
+                              value={data.typography?.headingFont || 'Cinzel'}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setData(prev => ({
+                                  ...prev,
+                                  typography: {
+                                    ...prev.typography,
+                                    preset: 'custom',
+                                    headingFont: val,
+                                  }
+                                }));
+                              }}
+                              className="w-full p-2.5 bg-white border border-stone-200 rounded-xl text-xs font-medium text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#8B6F47] cursor-pointer shadow-xs"
+                            >
+                              {HEADING_FONTS.map(f => (
+                                <option key={f.id} value={f.id} style={{ fontFamily: f.family }}>
+                                  {f.name}
+                                </option>
+                              ))}
+                            </select>
+                            <p 
+                              style={{ fontFamily: `"${data.typography?.headingFont || 'Cinzel'}", serif` }} 
+                              className="text-sm font-semibold text-[#8B6F47] truncate px-1 pt-0.5"
+                            >
+                              Sample: {data.hosts?.bride || 'Bride'} & {data.hosts?.groom || 'Groom'}
+                            </p>
+                          </div>
+
+                          {/* Body / Subtitle Font */}
+                          <div className="space-y-1.5">
+                            <label className="text-[10px] uppercase font-bold tracking-wider text-stone-500 block">
+                              Body Text & Cards
+                            </label>
+                            <select
+                              value={data.typography?.bodyFont || 'Cormorant Garamond'}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setData(prev => ({
+                                  ...prev,
+                                  typography: {
+                                    ...prev.typography,
+                                    preset: 'custom',
+                                    bodyFont: val,
+                                  }
+                                }));
+                              }}
+                              className="w-full p-2.5 bg-white border border-stone-200 rounded-xl text-xs font-medium text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#8B6F47] cursor-pointer shadow-xs"
+                            >
+                              {BODY_FONTS.map(f => (
+                                <option key={f.id} value={f.id} style={{ fontFamily: f.family }}>
+                                  {f.name}
+                                </option>
+                              ))}
+                            </select>
+                            <p 
+                              style={{ fontFamily: `"${data.typography?.bodyFont || 'Cormorant Garamond'}", Georgia, serif` }} 
+                              className="text-xs text-stone-600 truncate px-1 pt-0.5"
+                            >
+                              Sample: Together with their families
+                            </p>
+                          </div>
+
+                          {/* Script Font */}
+                          <div className="space-y-1.5">
+                            <label className="text-[10px] uppercase font-bold tracking-wider text-stone-500 block">
+                              Signature Calligraphy Script
+                            </label>
+                            <select
+                              value={data.typography?.scriptFont || 'Great Vibes'}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setData(prev => ({
+                                  ...prev,
+                                  typography: {
+                                    ...prev.typography,
+                                    preset: 'custom',
+                                    scriptFont: val,
+                                  }
+                                }));
+                              }}
+                              className="w-full p-2.5 bg-white border border-stone-200 rounded-xl text-xs font-medium text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#8B6F47] cursor-pointer shadow-xs"
+                            >
+                              {SCRIPT_FONTS.map(f => (
+                                <option key={f.id} value={f.id} style={{ fontFamily: f.family }}>
+                                  {f.name}
+                                </option>
+                              ))}
+                            </select>
+                            <p 
+                              style={{ fontFamily: `"${data.typography?.scriptFont || 'Great Vibes'}", cursive` }} 
+                              className="text-base text-[#8B6F47] truncate px-1"
+                            >
+                              Sample: Two Hearts As One
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+                  )}
+                </div>
+
+                {/* ROW 7: ATMOSPHERE & CELEBRATION EFFECTS */}
                 <div className="bg-white rounded-2xl border border-[#E6D5BF] overflow-hidden shadow-xs">
                   <button
                     type="button"

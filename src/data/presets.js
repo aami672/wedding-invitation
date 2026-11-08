@@ -603,12 +603,132 @@ export const ATMOSPHERE_INTENSITIES = [
   { id: 'rich', label: 'Rich', desc: 'Festive shower' },
 ];
 
+export const TYPOGRAPHY_SUITES = [
+  {
+    id: 'heritage',
+    name: 'Royal Heritage',
+    badge: 'Imperial Palace',
+    desc: 'Cinzel headings & Cormorant Garamond with Great Vibes gold calligraphy.',
+    headingFont: 'Cinzel',
+    bodyFont: 'Cormorant Garamond',
+    scriptFont: 'Great Vibes',
+    previewText: 'Auspicious Celebrations',
+  },
+  {
+    id: 'editorial',
+    name: 'Timeless Editorial',
+    badge: 'Vogue Romance',
+    desc: 'Playfair Display editorial serif with romantic Alex Brush script accents.',
+    headingFont: 'Playfair Display',
+    bodyFont: 'Lora',
+    scriptFont: 'Alex Brush',
+    previewText: 'Together Forever',
+  },
+  {
+    id: 'modern',
+    name: 'Modern Luxury',
+    badge: 'Clean Destination',
+    desc: 'Montserrat clean geometric titles with Italianno swift modern script.',
+    headingFont: 'Montserrat',
+    bodyFont: 'Plus Jakarta Sans',
+    scriptFont: 'Italianno',
+    previewText: 'Save The Date',
+  },
+  {
+    id: 'storybook',
+    name: 'Artisanal Storybook',
+    badge: 'Hand-Crafted',
+    desc: 'Prata artistic serif paired with warm Marcellus and Allura flourish script.',
+    headingFont: 'Prata',
+    bodyFont: 'Marcellus',
+    scriptFont: 'Allura',
+    previewText: 'Our Love Story',
+  },
+  {
+    id: 'heirloom',
+    name: 'Vintage Heirloom',
+    badge: 'Nizam & Mughal',
+    desc: 'Rozha One heritage display with antique EB Garamond and Parisienne script.',
+    headingFont: 'Rozha One',
+    bodyFont: 'EB Garamond',
+    scriptFont: 'Parisienne',
+    previewText: 'Royal Shaadi',
+  },
+  {
+    id: 'calligraphy',
+    name: 'Poetic Calligraphy',
+    badge: 'Romantic Vows',
+    desc: 'Bodoni Moda high-luxury with Cormorant and Pinyon Script flourished calligraphy.',
+    headingFont: 'Bodoni Moda',
+    bodyFont: 'Cormorant Garamond',
+    scriptFont: 'Pinyon Script',
+    previewText: 'Two Hearts As One',
+  },
+  {
+    id: 'botanical',
+    name: 'Boho Botanical',
+    badge: 'Garden Mandap',
+    desc: 'Philosopher curvilinear headings with Lora and delicate Tangerine script.',
+    headingFont: 'Philosopher',
+    bodyFont: 'Lora',
+    scriptFont: 'Tangerine',
+    previewText: 'Under The Stars',
+  },
+  {
+    id: 'bollywood',
+    name: 'Bollywood Glitz',
+    badge: 'Festive Sangeet',
+    desc: 'Abril Fatface grand dramatic display with Poppins and playful Satisfy script.',
+    headingFont: 'Abril Fatface',
+    bodyFont: 'Poppins',
+    scriptFont: 'Satisfy',
+    previewText: 'Dhol & Celebrations',
+  },
+];
+
+export const HEADING_FONTS = [
+  { id: 'Cinzel', name: 'Cinzel (Royal Palace)', family: 'Cinzel, serif' },
+  { id: 'Playfair Display', name: 'Playfair Display (Romantic Editorial)', family: '"Playfair Display", serif' },
+  { id: 'Bodoni Moda', name: 'Bodoni Moda (High Luxury)', family: '"Bodoni Moda", serif' },
+  { id: 'Prata', name: 'Prata (Artisanal Serif)', family: 'Prata, serif' },
+  { id: 'Montserrat', name: 'Montserrat (Modern Minimal)', family: 'Montserrat, sans-serif' },
+  { id: 'Rozha One', name: 'Rozha One (Heritage Display)', family: '"Rozha One", serif' },
+  { id: 'Abril Fatface', name: 'Abril Fatface (Grand Festive)', family: '"Abril Fatface", serif' },
+  { id: 'Philosopher', name: 'Philosopher (Curved Elegance)', family: 'Philosopher, serif' },
+];
+
+export const BODY_FONTS = [
+  { id: 'Cormorant Garamond', name: 'Cormorant Garamond (Classic Royal)', family: '"Cormorant Garamond", Georgia, serif' },
+  { id: 'Lora', name: 'Lora (Balanced Editorial)', family: 'Lora, serif' },
+  { id: 'EB Garamond', name: 'EB Garamond (Antique Renaissance)', family: '"EB Garamond", serif' },
+  { id: 'Marcellus', name: 'Marcellus (Flared Classical)', family: 'Marcellus, serif' },
+  { id: 'Plus Jakarta Sans', name: 'Plus Jakarta Sans (Crisp Modern)', family: '"Plus Jakarta Sans", sans-serif' },
+  { id: 'Poppins', name: 'Poppins (Warm Contemporary)', family: 'Poppins, sans-serif' },
+];
+
+export const SCRIPT_FONTS = [
+  { id: 'Great Vibes', name: 'Great Vibes (Golden Calligraphy)', family: '"Great Vibes", cursive' },
+  { id: 'Alex Brush', name: 'Alex Brush (Fluid Ribbon)', family: '"Alex Brush", cursive' },
+  { id: 'Allura', name: 'Allura (Soft Handwritten)', family: 'Allura, cursive' },
+  { id: 'Parisienne', name: 'Parisienne (Vintage Parisian)', family: 'Parisienne, cursive' },
+  { id: 'Pinyon Script', name: 'Pinyon Script (Formal Flourish)', family: '"Pinyon Script", cursive' },
+  { id: 'Italianno', name: 'Italianno (Sleek Cursive)', family: 'Italianno, cursive' },
+  { id: 'Satisfy', name: 'Satisfy (Casual Festive)', family: 'Satisfy, cursive' },
+  { id: 'Tangerine', name: 'Tangerine (Delicate Poetic)', family: 'Tangerine, cursive' },
+];
+
 export const DEFAULT_INVITATION_DATA = {
   occasion: 'wedding',
   type: 'full', // 'full' or 'save-the-date'
   template: 'caricature',
   revealStyle: 'scratch-date',
   palette: 'champagne',
+  typography: {
+    preset: 'heritage',
+    headingFont: 'Cinzel',
+    bodyFont: 'Cormorant Garamond',
+    scriptFont: 'Great Vibes',
+  },
   music: 'modern-muse',
   customMusicUrl: '',
   effect: 'petals',
