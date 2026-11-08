@@ -1,0 +1,98 @@
+/**
+ * Image Optimizer for Standalone Offline HTML Invitations
+ * Compresses images so the final standalone HTML file stays under 5MB,
+ * preventing iPhone Safari / QuickLook 10MB memory crashes while maintaining
+ * crisp Retina display quality.
+ */
+
+export async function toBase64Optimized(url, maxDimension = 1000, quality = 0.75, preserveAlpha = false) {
+  if (!url) return '';
+  if (typeof window === 'undefined') return url;
+
+  return new Promise((resolve) => {
+    // If it's an SVG data URI or simple text, return directly
+    if (url.startsWith('data:image/svg+xml')) {
+      return resolve(url);
+    }
+
+    const img = new window.Image();
+    img.crossOrigin = 'anonymous';
+
+    const timer = setTimeout(() => {
+      // Fallback if loading takes too long
+      fallbackFetch(url).then(resolve);
+    }, 4000);
+
+    img.onload = () => {
+      clearTimeout(timer);
+      try {
+        let width = img.naturalWidth || img.width;
+        let height = img.naturalHeight || img.height;
+
+        if (!width || !height) {
+          return fallbackFetch(url).then(resolve);
+        }
+
+        // Downscale maintaining aspect ratio
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+
+        if (!preserveAlpha) {
+          // Fill background for photos to ensure clean JPEG compression
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL('image/jpeg', quality);
+          resolve(dataUrl);
+        } else {
+          // Transparent stickers & caricatures
+          ctx.clearRect(0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height);
+          let dataUrl = canvas.toDataURL('image/webp', quality);
+          if (!dataUrl.startsWith('data:image/webp')) {
+            dataUrl = canvas.toDataURL('image/png');
+          }
+          resolve(dataUrl);
+        }
+      } catch (err) {
+        fallbackFetch(url).then(resolve);
+      }
+    };
+
+    img.onerror = () => {
+      clearTimeout(timer);
+      fallbackFetch(url).then(resolve);
+    };
+
+    img.src = url;
+  });
+}
+
+async function fallbackFetch(url) {
+  if (!url) return '';
+  if (url.startsWith('data:')) return url;
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = () => resolve(url);
+      reader.readAsDataURL(blob);
+    });
+  } catch (e) {
+    return url;
+  }
+}

@@ -1,0 +1,336 @@
+@import "tailwindcss";
+
+:root {
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-royal: 'Cinzel', serif;
+  --font-script: 'Great Vibes', cursive;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+.font-serif {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+.font-royal {
+  font-family: 'Cinzel', serif;
+}
+
+.font-script {
+  font-family: 'Great Vibes', cursive;
+}
+
+.font-sans {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.03);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(197, 168, 128, 0.4);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(197, 168, 128, 0.8);
+}
+
+@keyframes marqueeSlow {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee-slow {
+  display: flex;
+  width: max-content;
+  animation: marqueeSlow 32s linear infinite;
+}
+
+.animate-marquee-slow:hover {
+  animation-play-state: paused;
+}
+
+/* Luxury Full-Page Theme Animations */
+@keyframes swayGentle {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+
+@keyframes swayToran {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(2px) rotate(1deg); }
+}
+
+@keyframes floatGentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
+
+@keyframes shimmerGold {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes rotateSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fireworkBurst {
+  0%, 100% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+
+.animate-sway {
+  animation: swayGentle 4s ease-in-out infinite;
+  transform-origin: top center;
+}
+
+.animate-toran {
+  animation: swayToran 5s ease-in-out infinite;
+  transform-origin: top center;
+}
+
+.animate-float {
+  animation: floatGentle 4.5s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+.animate-rotate-slow {
+  animation: rotateSlow 24s linear infinite;
+}
+
+.animate-firework {
+  animation: fireworkBurst 2.5s ease-in-out infinite;
+}
+
+.gold-shimmer {
+  background: linear-gradient(90deg, #D4AF37 0%, #FFF8DC 50%, #AA771C 100%);
+  background-size: 200% auto;
+  animation: shimmerGold 4s linear infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Scroll Animations Matching export-1793962607603.mp4 */
+@keyframes popUp {
+  0% {
+    opacity: 0;
+    transform: translateY(32px) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes tiltInLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-24px) translateY(20px) rotate(-8deg) scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) translateY(0) rotate(-2deg) scale(1);
+  }
+}
+
+@keyframes tiltInRight {
+  0% {
+    opacity: 0;
+    transform: translateX(24px) translateY(20px) rotate(8deg) scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) translateY(0) rotate(2deg) scale(1);
+  }
+}
+
+@keyframes dropCalendar {
+  0% {
+    opacity: 0;
+    transform: translateY(-28px) rotate(-2deg) scale(0.95);
+  }
+  70% {
+    transform: translateY(4px) rotate(1deg) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+}
+
+@keyframes bounceInCircle {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes scooterDriveIn {
+  0% {
+    transform: translateX(-110px) translateY(14px) scale(0.8);
+    opacity: 0;
+  }
+  60% {
+    transform: translateX(12px) translateY(-4px) scale(1.06);
+    opacity: 1;
+  }
+  80% {
+    transform: translateX(-4px) translateY(2px) scale(0.98);
+  }
+  100% {
+    transform: translateX(0px) translateY(0px) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pinDrop {
+  0% {
+    transform: translateY(-40px) scale(0.4);
+    opacity: 0;
+  }
+  50% {
+    transform: translateY(0px) scale(1.25);
+    opacity: 1;
+  }
+  70% {
+    transform: translateY(-10px) scale(0.9);
+  }
+  85% {
+    transform: translateY(0px) scale(1.08);
+  }
+  100% {
+    transform: translateY(0px) scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-pop-up {
+  animation: popUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-tilt-left {
+  animation: tiltInLeft 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-tilt-right {
+  animation: tiltInRight 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-calendar-drop {
+  animation: dropCalendar 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-scooter-drive-in {
+  animation: scooterDriveIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-pin-drop {
+  animation: pinDrop 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes roadDash {
+  to {
+    stroke-dashoffset: -40;
+  }
+}
+
+@keyframes bellSwing {
+  0%, 100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+
+@keyframes petalDrift {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(6deg);
+  }
+}
+
+.animate-road-dash {
+  animation: roadDash 1.4s linear infinite;
+}
+
+.animate-bell-swing {
+  animation: bellSwing 3.5s ease-in-out infinite;
+  transform-origin: top center;
+}
+
+.animate-petal-drift {
+  animation: petalDrift 4s ease-in-out infinite;
+}
+
+/* Calendar Heart Hand-Drawn Marking Animation */
+@keyframes markHeartDraw {
+  0% {
+    stroke-dashoffset: 130;
+    transform: scale(0.55) rotate(-8deg);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  75% {
+    stroke-dashoffset: 0;
+    transform: scale(1.28) rotate(4deg);
+  }
+  90% {
+    transform: scale(0.95) rotate(-1deg);
+  }
+  100% {
+    stroke-dashoffset: 0;
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.animate-mark-heart {
+  animation: markHeartDraw 1.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transform-origin: center;
+}
+
+@keyframes fadeInModal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUpModal {
+  from { opacity: 0; transform: scale(0.92) translateY(12px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeInModal 0.25s ease-out forwards;
+}
+
+.animate-scaleUp {
+  animation: scaleUpModal 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
