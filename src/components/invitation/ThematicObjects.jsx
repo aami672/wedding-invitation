@@ -9,7 +9,7 @@ import { triggerCelebration } from '../../utils/confetti';
  * with red & gold scalloped marquee roof, brass crank handle, and a circular
  * golden beaded lens framing the couple.
  */
-export function BioscopeBooth({ couplePhoto, names = 'Preeti & Ashish' }) {
+export function BioscopeBooth({ couplePhoto, names = 'Bride & Groom' }) {
   return (
     <div className="relative my-8 flex flex-col items-center select-none">
       {/* Bioscope Structure */}
@@ -289,7 +289,7 @@ export function UrliCeremonyScene({ title = 'Haldi & Mehndi Ceremony' }) {
  * Majestic carved sandstone pillars supporting a domed floral mandap draped
  * with fresh red roses, white jasmine (mogra), and golden marigolds.
  */
-export function RoyalWeddingMandap({ bride = 'Preeti', groom = 'Ashish' }) {
+export function RoyalWeddingMandap({ bride = 'Bride', groom = 'Groom' }) {
   return (
     <div className="relative my-6 flex flex-col items-center select-none">
       <div className="w-full max-w-sm rounded-2xl p-4 bg-gradient-to-b from-amber-50/70 to-rose-50/70 border border-[#D4AF37] shadow-md relative overflow-hidden">
@@ -474,7 +474,7 @@ export function BougainvilleaCanopy() {
  * The pink folding card with scalloped window stitching and gold dots.
  * Tapping heart seal opens both shutters sideways with 3D animation, revealing the couple!
  */
-export function PastelFoldingDoorsReveal({ onReveal, bride = 'Preeti', groom = 'Ashish', coverPhoto }) {
+export function PastelFoldingDoorsReveal({ onReveal, bride = 'Bride', groom = 'Groom', coverPhoto }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleOpen = () => {
@@ -689,8 +689,8 @@ export function ScrollReveal({
  */
 export function PastelCaricatureHero({ 
   couplePhoto, 
-  bride = 'Preeti', 
-  groom = 'Ashish',
+  bride = 'Bride', 
+  groom = 'Groom',
   date = '2027-02-14',
   monogram,
   palette
@@ -773,8 +773,8 @@ export function PastelCaricatureHero({
  * Two authentic photo Polaroids with washi tape, parent lineages, and a connecting heart.
  */
 export function PastelPolaroidCouple({ 
-  bride = 'Preeti', 
-  groom = 'Ashish', 
+  bride = 'Bride', 
+  groom = 'Groom', 
   bridePhoto, 
   groomPhoto, 
   brideBio, 
@@ -1125,7 +1125,7 @@ export function PastelCountdownBar({ timeLeft }) {
  * 13. PASTEL OUR STORY NOTEBOOK (from Wishlys video frame 030)
  * Ruled notebook sheet with red vertical margin and yellow sticky note.
  */
-export function PastelOurStory({ story = [], quote, bride = 'Preeti', groom = 'Ashish', palette }) {
+export function PastelOurStory({ story = [], quote, bride = 'Bride', groom = 'Groom', palette }) {
   const milestoneList = Array.isArray(story) && story.length > 0 ? story : null;
 
   return (
@@ -1589,7 +1589,7 @@ export function PastelHospitality({ logistics, palette }) {
 /**
  * 19. PASTEL HASHTAG BANNER (from Wishlys video frame 072)
  */
-export function PastelHashtagBanner({ hashtag = '#PreetiWedsAshish' }) {
+export function PastelHashtagBanner({ hashtag = '#Wedding' }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -1853,7 +1853,7 @@ export function PastelMultiStepRsvp({ events = [] }) {
  * 21. PASTEL FOOTER WITH SCOOTER & HEARTS (from Wishlys video frame 080)
  * "See you at the shaadi!", 4 floating hearts, and yellow scooter driving across
  */
-export function PastelFooter({ bride = 'Preeti', groom = 'Ashish' }) {
+export function PastelFooter({ bride = 'Bride', groom = 'Groom' }) {
   return (
     <footer className="py-10 px-2 w-full max-w-[390px] mx-auto text-center space-y-3.5 border-t-2 border-dashed border-[#F5D0C5] select-none">
       <ScrollReveal variant="fade-up">

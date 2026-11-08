@@ -19,8 +19,8 @@ const TAPE_STYLES = [
 export default function MomentsAndMemories({ 
   photos = [], 
   isCaricature = true, 
-  bride = 'Preeti', 
-  groom = 'Ashish',
+  bride = 'Bride', 
+  groom = 'Groom',
   palette
 }) {
   const [guestPhotos, setGuestPhotos] = useState([]);

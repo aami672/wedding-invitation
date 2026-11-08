@@ -22,18 +22,11 @@ export default function App() {
         let text = saved;
         text = text.replaceAll('"/images/', '"./images/').replaceAll('"/audio/', '"./audio/');
         const parsed = JSON.parse(text);
-        // Seamlessly migrate legacy sample names to Preeti & Ashish
-        if (parsed.hosts?.bride === 'Shanaya Kapoor' || parsed.hosts?.bride === 'Shanaya') {
-          parsed.hosts.bride = 'Preeti';
-        }
-        if (parsed.hosts?.groom === 'Aarav Sharma' || parsed.hosts?.groom === 'Aarav') {
-          parsed.hosts.groom = 'Ashish';
-        }
-        if (!parsed.hosts?.hashtag || parsed.hosts?.hashtag === '#AaravFoundHisShan' || parsed.hosts?.hashtag === '#ShanayaWedsAarav') {
-          parsed.hosts.hashtag = '#PreetiWedsAshish';
-        }
-        if (parsed.monogram?.initials === 'A & S') {
-          parsed.monogram.initials = 'P & A';
+        // Ensure valid initials if monogram initials are missing
+        if (!parsed.monogram?.initials && (parsed.hosts?.bride || parsed.hosts?.groom)) {
+          const bI = (parsed.hosts?.bride || 'B')[0]?.toUpperCase() || 'B';
+          const gI = (parsed.hosts?.groom || 'G')[0]?.toUpperCase() || 'G';
+          parsed.monogram = { ...parsed.monogram, initials: `${bI} & ${gI}` };
         }
         if (parsed.template === 'truck' || !parsed.template) {
           parsed.template = 'caricature';

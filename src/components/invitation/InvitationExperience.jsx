@@ -652,7 +652,7 @@ export default function InvitationExperience({
                   <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-4 border-[#C5A880] shadow-md mb-3.5 p-1 bg-white ring-4 ring-[#FAF5ED]">
                     <img 
                       src={data.photos?.groom || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80'} 
-                      alt={data.hosts?.groom || 'Ashish'} 
+                      alt={data.hosts?.groom || 'Groom'} 
                       className="w-full h-full object-cover rounded-full group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
@@ -660,7 +660,7 @@ export default function InvitationExperience({
                     The Groom
                   </span>
                   <h4 className="font-serif text-lg sm:text-2xl text-[#2B1E17] font-semibold">
-                    {data.hosts?.groom || 'Ashish'}
+                    {data.hosts?.groom || 'Groom'}
                   </h4>
                   <p className="text-[11px] sm:text-xs text-stone-600 italic mt-1.5 leading-relaxed">
                     "{data.photos?.groomBio || 'Foodie, photography enthusiast, and the architect of their happiest memories.'}"
@@ -672,7 +672,7 @@ export default function InvitationExperience({
                   <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-4 border-[#C5A880] shadow-md mb-3.5 p-1 bg-white ring-4 ring-[#FAF5ED]">
                     <img 
                       src={data.photos?.bride || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80'} 
-                      alt={data.hosts?.bride || 'Preeti'} 
+                      alt={data.hosts?.bride || 'Bride'} 
                       className="w-full h-full object-cover rounded-full group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
@@ -680,7 +680,7 @@ export default function InvitationExperience({
                     The Bride
                   </span>
                   <h4 className="font-serif text-lg sm:text-2xl text-[#2B1E17] font-semibold">
-                    {data.hosts?.bride || 'Preeti'}
+                    {data.hosts?.bride || 'Bride'}
                   </h4>
                   <p className="text-[11px] sm:text-xs text-stone-600 italic mt-1.5 leading-relaxed">
                     "{data.photos?.brideBio || 'Loves classic poetry, morning chai, and spontaneous mountain hikes.'}"
@@ -741,7 +741,7 @@ export default function InvitationExperience({
 
 
 
-            <PastelHashtagBanner hashtag={data.hosts?.hashtag || '#PreetiWedsAshish'} />
+            <PastelHashtagBanner hashtag={data.hosts?.hashtag || `#${(data.hosts?.bride || 'Bride').replace(/\s+/g, '')}Weds${(data.hosts?.groom || 'Groom').replace(/\s+/g, '')}`} />
             <PastelFooter bride={data.hosts?.bride} groom={data.hosts?.groom} />
           </section>
         ) : (

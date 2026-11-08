@@ -74,6 +74,9 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
   const [isExportingHtml, setIsExportingHtml] = useState(false);
   const [galleryPickerField, setGalleryPickerField] = useState(null);
   const [cropModalConfig, setCropModalConfig] = useState(null);
+  const [publishedInfo, setPublishedInfo] = useState(null);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [copiedPublished, setCopiedPublished] = useState(false);
 
   // Accordion expanded row state
   const [openRow, setOpenRow] = useState('template');
@@ -93,11 +96,62 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     setOpenRow(prev => prev === rowName ? null : rowName);
   };
 
+  const getCoupleSlug = (hosts = data.hosts) => {
+    const brideStr = (hosts?.bride || 'bride').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    const groomStr = (hosts?.groom || 'groom').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    return `${brideStr || 'bride'}-and-${groomStr || 'groom'}`;
+  };
+
   const updateHosts = (field, val) => {
-    setData(prev => ({
-      ...prev,
-      hosts: { ...prev.hosts, [field]: val },
-    }));
+    setData(prev => {
+      const nextHosts = { ...prev.hosts, [field]: val };
+      const brideName = field === 'bride' ? val : (prev.hosts?.bride || '');
+      const groomName = field === 'groom' ? val : (prev.hosts?.groom || '');
+
+      // Dynamic initials for monogram seal
+      const bI = brideName.trim()[0]?.toUpperCase() || '';
+      const gI = groomName.trim()[0]?.toUpperCase() || '';
+      const autoInitials = (bI && gI) ? `${bI} & ${gI}` : (prev.monogram?.initials || '');
+
+      // Dynamic wedding hashtag
+      const cleanB = brideName.replace(/\s+/g, '');
+      const cleanG = groomName.replace(/\s+/g, '');
+      const prevHashtag = prev.hosts?.hashtag || '';
+      const isAutoHashtag = !prevHashtag || prevHashtag.includes('Weds');
+      const autoHashtag = isAutoHashtag && (cleanB || cleanG) ? `#${cleanB || 'Bride'}Weds${cleanG || 'Groom'}` : prevHashtag;
+
+      return {
+        ...prev,
+        hosts: {
+          ...nextHosts,
+          hashtag: autoHashtag,
+        },
+        monogram: {
+          ...prev.monogram,
+          initials: autoInitials || prev.monogram?.initials || '',
+        },
+      };
+    });
+  };
+
+  const handleStartNewClient = () => {
+    if (window.confirm("Start a new invitation for another client? You can enter a fresh couple's names, event details, and photos.")) {
+      setData(prev => ({
+        ...prev,
+        hosts: {
+          ...prev.hosts,
+          bride: '',
+          groom: '',
+          hashtag: '',
+          date: '2027-02-14',
+          city: 'Udaipur, Rajasthan',
+          welcomeQuote: "Two hearts, one lifelong promise under the stars.",
+        },
+        monogram: { initials: '' },
+      }));
+      setPublishedInfo(null);
+      setActiveTab('content');
+    }
   };
 
   const updatePhotos = (field, val) => {
@@ -499,9 +553,29 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
   // - Hanging Wall Calendar with live countdown timer
   // - Lined notebook story & authentic celebration arches
   // - Interactive Multi-Step RSVP & clipboard hashtag copy
+    const handleFinishAndPublish = async () => {
+    setIsPublishing(true);
+    await handleExportHtml();
+    const slug = getCoupleSlug();
+    const filename = `${slug}.html`;
+    const isGitHubPages = typeof window !== 'undefined' && window.location.hostname.endsWith('github.io');
+    const liveUrl = isGitHubPages
+      ? `https://aami672.github.io/wedding-invitation/published/${filename}`
+      : `${window.location.origin}/published/${filename}`;
+
+    setPublishedInfo({
+      slug,
+      filename,
+      liveUrl,
+      publishedAt: new Date().toLocaleTimeString(),
+    });
+    setIsPublishing(false);
+    triggerCelebration('fireworks');
+  };
+
   const handleExportHtml = async () => {
     setIsExportingHtml(true);
-    const slug = `${data.hosts?.bride || 'preeti'}-and-${data.hosts?.groom || 'ashish'}`.toLowerCase().replace(/\s+/g, '-');
+    const slug = getCoupleSlug();
     const selectedTmpl = TEMPLATES.find(t => t.id === data.template) || TEMPLATES[0];
 
     // Convert local images to base64 DataURIs (compact & optimized so standalone HTML stays < 4MB for iPhone & Android)
@@ -1118,7 +1192,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       <section class="py-6 px-2 w-full max-w-[390px] mx-auto select-none">
         <div class="text-center space-y-1 mb-5 scroll-reveal">
           <span class="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">Meet the two of us</span>
-          <h3 class="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">${data.hosts?.groom || 'Ashish'} & ${data.hosts?.bride || 'Preeti'}</h3>
+          <h3 class="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">${data.hosts?.groom || 'Groom'} & ${data.hosts?.bride || 'Bride'}</h3>
           <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1"></div>
         </div>
 
@@ -1127,10 +1201,10 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           <div onclick="openPersonModal('groom')" class="relative bg-white p-2.5 pb-4 rounded-2xl shadow-md border border-stone-200 transform -rotate-2 hover:rotate-0 hover:shadow-xl hover:border-amber-300 transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-left cursor-pointer group">
             <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#A7F3D0]/85 rounded shadow-xs rotate-1 border border-[#6EE7B7]"></div>
             <div class="w-20 h-20 rounded-full overflow-hidden bg-stone-100 mt-1 mb-2 border-2 border-stone-200 ring-4 ring-[#E6F4EA] shadow-inner shrink-0 group-hover:ring-emerald-300 transition-all">
-              <img src="${b64Groom || './images/groom.webp'}" alt="${data.hosts?.groom || 'Ashish'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+              <img src="${b64Groom || './images/groom.webp'}" alt="${data.hosts?.groom || 'Groom'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
             </div>
             <span class="inline-block px-2 py-0.5 rounded-full text-[8.5px] uppercase tracking-wider font-bold bg-[#E6F4EA] text-[#137333] mb-1">The Groom</span>
-            <h4 class="font-serif text-sm sm:text-base font-bold text-[#2B1E17] leading-tight group-hover:text-amber-800 transition-colors">${data.hosts?.groom || 'Ashish'}</h4>
+            <h4 class="font-serif text-sm sm:text-base font-bold text-[#2B1E17] leading-tight group-hover:text-amber-800 transition-colors">${data.hosts?.groom || 'Groom'}</h4>
             <p class="text-[10px] text-stone-600 italic mt-1 leading-snug px-0.5 flex-1">"${data.photos?.groomBio || 'Foodie, photography enthusiast, and the architect of their happiest memories.'}"</p>
             <p class="text-[8.5px] text-stone-400 mt-1.5 font-sans border-t border-stone-100 pt-1 w-full">${data.hosts?.groomParents || 'S/o Mr. Ramesh & Mrs. Sunita Sharma'}</p>
             <span class="text-[8.5px] text-amber-700 font-semibold mt-1 flex items-center gap-0.5 opacity-80 group-hover:opacity-100">🔍 Tap to view</span>
@@ -1143,10 +1217,10 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           <div onclick="openPersonModal('bride')" class="relative bg-white p-2.5 pb-4 rounded-2xl shadow-md border border-stone-200 transform rotate-2 hover:rotate-0 hover:shadow-xl hover:border-rose-300 transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-right cursor-pointer group" style="transition-delay: 150ms;">
             <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FDE68A]/85 rounded shadow-xs -rotate-1 border border-[#FCD34D]"></div>
             <div class="w-20 h-20 rounded-full overflow-hidden bg-stone-100 mt-1 mb-2 border-2 border-stone-200 ring-4 ring-[#FCE8E6] shadow-inner shrink-0 group-hover:ring-rose-300 transition-all">
-              <img src="${b64Bride || './images/bride.webp'}" alt="${data.hosts?.bride || 'Preeti'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+              <img src="${b64Bride || './images/bride.webp'}" alt="${data.hosts?.bride || 'Bride'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
             </div>
             <span class="inline-block px-2 py-0.5 rounded-full text-[8.5px] uppercase tracking-wider font-bold bg-[#FCE8E6] text-[#C5221F] mb-1">The Bride</span>
-            <h4 class="font-serif text-sm sm:text-base font-bold text-[#2B1E17] leading-tight group-hover:text-rose-800 transition-colors">${data.hosts?.bride || 'Preeti'}</h4>
+            <h4 class="font-serif text-sm sm:text-base font-bold text-[#2B1E17] leading-tight group-hover:text-rose-800 transition-colors">${data.hosts?.bride || 'Bride'}</h4>
             <p class="text-[10px] text-stone-600 italic mt-1 leading-snug px-0.5 flex-1">"${data.photos?.brideBio || 'Loves classic poetry, morning chai, and spontaneous mountain hikes.'}"</p>
             <p class="text-[8.5px] text-stone-400 mt-1.5 font-sans border-t border-stone-100 pt-1 w-full">${data.hosts?.brideParents || 'D/o Mr. Vijay & Mrs. Rekha Malhotra'}</p>
             <span class="text-[8.5px] text-rose-700 font-semibold mt-1 flex items-center gap-0.5 opacity-80 group-hover:opacity-100">🔍 Tap to view</span>
@@ -1356,10 +1430,10 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       <!-- 7. HASHTAG BANNER (frame 072) -->
       <section class="py-6 px-2 w-full max-w-[390px] mx-auto text-center select-none space-y-2 scroll-reveal reveal-pop-up">
         <span class="text-[10px] uppercase tracking-[0.25em] font-bold text-stone-500 block">SHARE THE MOMENTS</span>
-        <h3 class="font-serif text-2xl sm:text-3xl font-bold text-[#2B1E17]">${data.hosts?.hashtag || '#PreetiWedsAshish'}</h3>
+        <h3 class="font-serif text-2xl sm:text-3xl font-bold text-[#2B1E17]">${data.hosts?.hashtag || '#Wedding'}</h3>
         <p class="text-xs text-stone-600 font-light">Tag your photos and stories so we can relive every moment.</p>
         <div class="pt-1.5">
-          <button id="hashtag-btn" onclick="copyHashtag('${data.hosts?.hashtag || '#PreetiWedsAshish'}')" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-[#881337] hover:bg-[#9F1239] text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md cursor-pointer active:scale-95">
+          <button id="hashtag-btn" onclick="copyHashtag('${data.hosts?.hashtag || '#Wedding'}')" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-[#881337] hover:bg-[#9F1239] text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md cursor-pointer active:scale-95">
             <span>📋 Copy Hashtag</span>
           </button>
         </div>
@@ -1368,7 +1442,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       <!-- 8. PASTEL FOOTER (frame 080) -->
       <footer class="py-10 px-2 w-full max-w-[390px] mx-auto text-center space-y-3.5 border-t-2 border-dashed border-[#F5D0C5] select-none scroll-reveal">
         <h3 class="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">See you at the shaadi!</h3>
-        <p class="text-[10px] tracking-[0.3em] uppercase font-bold text-[#8B6F47]">WITH LOVE, ${data.hosts?.groom || 'ASHISH'} & ${data.hosts?.bride || 'PREETI'}</p>
+        <p class="text-[10px] tracking-[0.3em] uppercase font-bold text-[#8B6F47]">WITH LOVE, ${(data.hosts?.groom || 'Groom').toUpperCase()} & ${(data.hosts?.bride || 'Bride').toUpperCase()}</p>
         <div class="flex items-center justify-center gap-3">
           <span class="w-6 h-6 rounded-full bg-[#FEF3C7] border border-[#FBBF24] flex items-center justify-center text-xs shadow-xs animate-bounce">💛</span>
           <span class="w-6 h-6 rounded-full bg-[#D1FAE5] border border-[#34D399] flex items-center justify-center text-xs shadow-xs animate-bounce" style="animation-delay: 0.2s;">💚</span>
@@ -1398,7 +1472,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
             <img src="${b64Groom || b64Cover || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80'}" class="w-full h-full object-cover rounded-full" />
           </div>
           <span class="inline-block px-3 py-0.5 rounded-full bg-[#FAF5ED] border border-[#E6D5BF] text-[9px] uppercase tracking-widest font-bold text-[#8B6F47] mb-1.5">The Groom</span>
-          <h4 class="font-serif text-lg sm:text-2xl text-[#2B1E17] font-semibold">${data.hosts?.groom || 'Ashish'}</h4>
+          <h4 class="font-serif text-lg sm:text-2xl text-[#2B1E17] font-semibold">${data.hosts?.groom || 'Groom'}</h4>
           <p class="text-[11px] sm:text-xs text-stone-600 italic mt-1.5 leading-relaxed">"${data.photos?.groomBio || 'Foodie, photography enthusiast, and the architect of their happiest memories.'}"</p>
         </div>
 
@@ -1408,7 +1482,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
             <img src="${b64Bride || b64Cover || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80'}" class="w-full h-full object-cover rounded-full" />
           </div>
           <span class="inline-block px-3 py-0.5 rounded-full bg-[#FAF5ED] border border-[#E6D5BF] text-[9px] uppercase tracking-widest font-bold text-[#8B6F47] mb-1.5">The Bride</span>
-          <h4 class="font-serif text-lg sm:text-2xl text-[#2B1E17] font-semibold">${data.hosts?.bride || 'Preeti'}</h4>
+          <h4 class="font-serif text-lg sm:text-2xl text-[#2B1E17] font-semibold">${data.hosts?.bride || 'Bride'}</h4>
           <p class="text-[11px] sm:text-xs text-stone-600 italic mt-1.5 leading-relaxed">"${data.photos?.brideBio || 'Loves classic poetry, morning chai, and spontaneous mountain hikes.'}"</p>
         </div>
       </div>
@@ -1903,7 +1977,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         roleEl.innerText = isGroom ? 'The Groom' : 'The Bride';
         roleEl.className = 'inline-block px-3 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-bold ' + (isGroom ? 'bg-[#E6F4EA] text-[#137333]' : 'bg-[#FCE8E6] text-[#C5221F]');
       }
-      if (nameEl) nameEl.innerText = isGroom ? '${data.hosts?.groom || 'Ashish'}' : '${data.hosts?.bride || 'Preeti'}';
+      if (nameEl) nameEl.innerText = isGroom ? '${data.hosts?.groom || 'Groom'}' : '${data.hosts?.bride || 'Bride'}';
       if (bioEl) bioEl.innerText = '"' + (isGroom ? '${data.photos?.groomBio || 'Foodie, photography enthusiast, and the architect of their happiest memories.'}' : '${data.photos?.brideBio || 'Loves classic poetry, morning chai, and spontaneous mountain hikes.'}') + '"';
       if (linEl) linEl.innerText = isGroom ? '${data.hosts?.groomParents || 'S/o Mr. Ramesh & Mrs. Sunita Sharma'}' : '${data.hosts?.brideParents || 'D/o Mr. Vijay & Mrs. Rekha Malhotra'}';
       if (washi) washi.className = 'absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-5 rounded shadow-xs ' + (isGroom ? 'bg-[#A7F3D0] border border-[#6EE7B7] rotate-1' : 'bg-[#FDE68A] border border-[#FCD34D] -rotate-1');
@@ -1920,7 +1994,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
 
     // Hashtag Copy
     window.copyHashtag = function(tag) {
-      navigator.clipboard?.writeText(tag || '#PreetiWedsAshish');
+      navigator.clipboard?.writeText(tag || '#Wedding');
       const btn = document.getElementById('hashtag-btn');
       if (btn) btn.innerHTML = '<span>✅ Copied to Clipboard!</span>';
       setTimeout(() => {
@@ -2223,7 +2297,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       <div class="text-center space-y-0.5">
         <span class="text-[9.5px] uppercase font-bold text-[#DB2777] tracking-wider">Live Wedding Album</span>
         <h3 class="font-serif text-xl text-[#2B1E17]">Share Your Memory</h3>
-        <p class="text-[10px] text-stone-500">Upload a selfie or photo with ${data.hosts?.bride || 'Preeti'} & ${data.hosts?.groom || 'Ashish'}.</p>
+        <p class="text-[10px] text-stone-500">Upload a selfie or photo with ${data.hosts?.bride || 'Bride'} & ${data.hosts?.groom || 'Groom'}.</p>
       </div>
 
       <input type="file" id="moment-file-input" accept="image/*" class="hidden" onchange="handleMomentFileSelected(event)" />
@@ -2293,6 +2367,16 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     a.download = `${slug}.html`;
     a.click();
     URL.revokeObjectURL(url);
+    const isGitHubPages = typeof window !== 'undefined' && window.location.hostname.endsWith('github.io');
+    const liveUrl = isGitHubPages
+      ? `https://aami672.github.io/wedding-invitation/published/${getCoupleSlug()}.html`
+      : `${window.location.origin}/published/${slug}.html`;
+    setPublishedInfo({
+      slug,
+      filename: `${slug}.html`,
+      liveUrl,
+      publishedAt: new Date().toLocaleTimeString(),
+    });
     setIsExportingHtml(false);
   };
 
@@ -2313,7 +2397,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>${data.hosts?.groom || 'Ashish'} & ${data.hosts?.bride || 'Preeti'} — Wedding Invitation</title>
+  <title>${data.hosts?.groom || 'Groom'} & ${data.hosts?.bride || 'Bride'} — Wedding Invitation</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -2415,9 +2499,9 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         Together With Their Families
       </p>
       <h1 class="font-serif" style="font-size: 36pt; font-weight: 300; line-height: 1.1; color: #2B1E17; margin: 2mm 0;">
-        <span>${data.hosts?.groom || 'Ashish'}</span>
+        <span>${data.hosts?.groom || 'Groom'}</span>
         <span style="color: #F43F5E; font-size: 26pt; vertical-align: middle; margin: 0 4mm;">♡</span>
-        <span>${data.hosts?.bride || 'Preeti'}</span>
+        <span>${data.hosts?.bride || 'Bride'}</span>
       </h1>
       <div style="width: 40mm; height: 1.5px; background: linear-gradient(to right, transparent, #F59E0B, transparent); margin: 3mm auto;"></div>
       <p class="font-royal" style="font-size: 11pt; font-weight: 600; letter-spacing: 1.5px; color: #8B6F47; text-transform: uppercase; margin-top: 2mm;">
@@ -2437,7 +2521,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           <img src="${b64Groom || './images/groom.webp'}" style="width: 100%; height: 100%; object-fit: cover;" />
         </div>
         <span class="tag-pill" style="background: #E6F4EA; color: #137333;">The Groom</span>
-        <h3 class="font-serif" style="font-size: 14pt; margin: 1mm 0; font-weight: 600;">${data.hosts?.groom || 'Ashish'}</h3>
+        <h3 class="font-serif" style="font-size: 14pt; margin: 1mm 0; font-weight: 600;">${data.hosts?.groom || 'Groom'}</h3>
         <p style="font-size: 8pt; color: #64748B; font-style: italic; line-height: 1.3;">"${data.photos?.groomBio || 'Foodie, photography enthusiast, and the architect of their happiest memories.'}"</p>
       </div>
 
@@ -2446,7 +2530,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           <img src="${b64Bride || './images/bride.webp'}" style="width: 100%; height: 100%; object-fit: cover;" />
         </div>
         <span class="tag-pill" style="background: #FCE8E6; color: #C5221F;">The Bride</span>
-        <h3 class="font-serif" style="font-size: 14pt; margin: 1mm 0; font-weight: 600;">${data.hosts?.bride || 'Preeti'}</h3>
+        <h3 class="font-serif" style="font-size: 14pt; margin: 1mm 0; font-weight: 600;">${data.hosts?.bride || 'Bride'}</h3>
         <p style="font-size: 8pt; color: #64748B; font-style: italic; line-height: 1.3;">"${data.photos?.brideBio || 'Loves classic poetry, morning chai, and spontaneous mountain hikes.'}"</p>
       </div>
     </div>
@@ -2454,7 +2538,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     <div style="margin-top: 3mm;">
       <p style="font-size: 8.5pt; color: #64748B; font-style: italic;">"${data.hosts?.welcomeQuote || 'Please join us in celebrating our wedding.'}"</p>
       <p style="font-size: 9pt; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #DB2777; margin-top: 1mm;">
-        ${data.hosts?.hashtag || '#PreetiWedsAshish'}
+        ${data.hosts?.hashtag || '#Wedding'}
       </p>
     </div>
   </div>
@@ -2492,10 +2576,10 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       <p style="font-size: 10pt; font-weight: 700; color: #881337; margin: 1mm 0;">
         ${data.logistics.contact} · ${data.hosts?.city || 'Udaipur'}
       </p>
-      <p style="font-size: 8pt; color: #94A3B8;">With love & warm regards, ${data.hosts?.groom || 'Ashish'} & ${data.hosts?.bride || 'Preeti'} Families</p>
+      <p style="font-size: 8pt; color: #94A3B8;">With love & warm regards, ${data.hosts?.groom || 'Groom'} & ${data.hosts?.bride || 'Bride'} Families</p>
     </div>` : `
     <div style="border-top: 1.5px dashed #F5D0C5; padding-top: 4mm; margin-top: 4mm; text-align: center;">
-      <p style="font-size: 9pt; color: #94A3B8;">With love & warm regards, ${data.hosts?.groom || 'Ashish'} & ${data.hosts?.bride || 'Preeti'} Families</p>
+      <p style="font-size: 9pt; color: #94A3B8;">With love & warm regards, ${data.hosts?.groom || 'Groom'} & ${data.hosts?.bride || 'Bride'} Families</p>
     </div>`}
   </div>
 </body>
@@ -2796,7 +2880,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
               Wishlys Studio
             </h1>
             <p className="text-[10px] text-[#8B6F47] tracking-wider uppercase font-semibold">
-              {data.hosts?.bride} & {data.hosts?.groom}
+              {data.hosts?.bride || 'Bride'} & {data.hosts?.groom || 'Groom'}
             </p>
           </div>
         </div>
@@ -4105,7 +4189,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                       value={data.hosts?.hashtag || ''}
                       onChange={e => setData(prev => ({ ...prev, hosts: { ...prev.hosts, hashtag: e.target.value } }))}
                       className="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs font-semibold text-[#881337]"
-                      placeholder="#PreetiWedsAshish"
+                      placeholder={`#${(data.hosts?.bride || 'Bride').replace(/\s+/g, '')}Weds${(data.hosts?.groom || 'Groom').replace(/\s+/g, '')}`}
                     />
                   </div>
                 </div>
@@ -4135,14 +4219,118 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           {/* TAB 4: PUBLISH (HTML, PDF, VIDEO EXPORT) */}
           {activeTab === 'publish' && (
             <div className="space-y-6 animate-fadeIn">
+              {/* ✦ PRIMARY FINISH & PUBLISH HERO CARD ✦ */}
+              <div className="p-6 rounded-3xl bg-gradient-to-br from-[#2B1E17] via-[#3D2C22] to-[#2B1E17] text-white shadow-2xl border border-[#C5A880]/40 space-y-4 relative overflow-hidden">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest bg-[#FFD700]/20 text-[#FFD700] border border-[#FFD700]/30">
+                        <Sparkles className="w-3 h-3" />
+                        Client Ready
+                      </span>
+                      <span className="text-[11px] text-stone-300 font-mono">
+                        /published/{getCoupleSlug()}.html
+                      </span>
+                    </div>
+                    <h3 className="font-serif text-2xl sm:text-3xl font-light text-white leading-tight">
+                      Finish & Publish for {data.hosts?.bride || 'Bride'} & {data.hosts?.groom || 'Groom'}
+                    </h3>
+                    <p className="text-xs text-stone-300 font-light max-w-xl leading-relaxed">
+                      Click below to finish: builds your standalone <strong className="text-[#FFD700]">{getCoupleSlug()}.html</strong>, updates the live link, and downloads the file for your client.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleFinishAndPublish}
+                    disabled={isPublishing || isExportingHtml}
+                    className="px-7 py-3.5 rounded-2xl bg-gradient-to-r from-[#D5A021] via-[#FFD700] to-[#E6C35C] hover:from-[#C4901C] hover:to-[#D5A021] text-[#2B1E17] font-bold text-xs uppercase tracking-widest transition-all shadow-xl hover:scale-[1.03] active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2 shrink-0 disabled:opacity-50"
+                  >
+                    {isPublishing || isExportingHtml ? (
+                      <>
+                        <Sparkles className="w-4 h-4 animate-spin text-[#2B1E17]" />
+                        <span>Publishing Invitation...</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCheck className="w-4 h-4 text-[#2B1E17]" />
+                        <span>Finish & Publish</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* DYNAMIC UPDATED LIVE URL BANNER */}
+                <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-[#FFD700]/40 space-y-2.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-[#FFD700] flex items-center gap-1.5">
+                      <Globe className="w-3.5 h-3.5" />
+                      Live Invitation URL for {data.hosts?.bride || 'Bride'} & {data.hosts?.groom || 'Groom'}
+                    </span>
+                    {publishedInfo && (
+                      <span className="text-[9px] text-emerald-300 font-semibold bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-500/40">
+                        ✓ Published at {publishedInfo.publishedAt}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                    <input
+                      type="text"
+                      readOnly
+                      value={publishedInfo ? publishedInfo.liveUrl : `https://aami672.github.io/wedding-invitation/published/${getCoupleSlug()}.html`}
+                      className="flex-1 px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/20 text-xs text-stone-100 font-mono select-all focus:outline-none focus:ring-1 focus:ring-[#FFD700]"
+                    />
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const targetUrl = publishedInfo ? publishedInfo.liveUrl : `https://aami672.github.io/wedding-invitation/published/${getCoupleSlug()}.html`;
+                          navigator.clipboard.writeText(targetUrl);
+                          setCopiedPublished(true);
+                          setTimeout(() => setCopiedPublished(false), 2200);
+                        }}
+                        className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-[#C5A880] hover:bg-[#B3966E] text-[#2B1E17] text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
+                        title="Copy updated live invitation URL"
+                      >
+                        {copiedPublished ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                        <span>{copiedPublished ? 'Copied!' : 'Copy Link'}</span>
+                      </button>
+
+                      <a
+                        href={publishedInfo ? publishedInfo.liveUrl : `https://aami672.github.io/wedding-invitation/published/${getCoupleSlug()}.html`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                        title="Open live published page in new tab"
+                      >
+                        <Globe className="w-3.5 h-3.5 text-[#FFD700]" />
+                        <span>Open ↗</span>
+                      </a>
+
+                      <a
+                        href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Dearest family & friends,\n\nWe are delighted to invite you to celebrate the wedding of ${data.hosts?.bride || 'Bride'} & ${data.hosts?.groom || 'Groom'}! 💍✨\n\nView our interactive invitation & wedding schedule here:\n${publishedInfo ? publishedInfo.liveUrl : `https://aami672.github.io/wedding-invitation/published/${getCoupleSlug()}.html`}`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3.5 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#20BD5A] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-1"
+                        title="Share on WhatsApp"
+                      >
+                        <span>WhatsApp</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Multi-Format Export Options */}
               <div className="bg-white p-6 rounded-2xl border border-stone-200 space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-700">
                     <Check className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-serif text-2xl font-light text-[#2B1E17]">Publish & Multi-Format Export</h3>
-                    <p className="text-xs text-stone-500">100% Free Creation · Download standalone interactive HTML, print PDF, or video reel.</p>
+                    <h3 className="font-serif text-2xl font-light text-[#2B1E17]">Additional Export Formats</h3>
+                    <p className="text-xs text-stone-500">Standalone interactive HTML, printable PDF document, or video reel.</p>
                   </div>
                 </div>
 
@@ -4174,19 +4362,19 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                       <Globe className="w-3.5 h-3.5" />
                       Live Published Standalone HTML Link
                     </span>
-                    <span className="text-[9px] uppercase font-bold text-stone-500">Root folder: /published/{data.hosts?.bride?.toLowerCase().replace(/\s+/g, '-')}-and-{data.hosts?.groom?.toLowerCase().replace(/\s+/g, '-')}.html</span>
+                    <span className="text-[9px] uppercase font-bold text-stone-500">Root folder: /published/{getCoupleSlug()}.html</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <input
                       type="text"
                       readOnly
-                      value={`https://aami672.github.io/wedding-invitation/published/${(data.hosts?.bride || 'preeti').toLowerCase().replace(/\s+/g, '-')}-and-${(data.hosts?.groom || 'ashish').toLowerCase().replace(/\s+/g, '-')}.html`}
+                      value={`https://aami672.github.io/wedding-invitation/published/${getCoupleSlug()}.html`}
                       className="flex-1 px-3 py-2 rounded-xl border border-[#D5C2AA] text-xs bg-white text-stone-800 font-medium select-all"
                     />
                     <button
                       type="button"
                       onClick={() => {
-                        const pubUrl = `https://aami672.github.io/wedding-invitation/published/${(data.hosts?.bride || 'preeti').toLowerCase().replace(/\s+/g, '-')}-and-${(data.hosts?.groom || 'ashish').toLowerCase().replace(/\s+/g, '-')}.html`;
+                        const pubUrl = `https://aami672.github.io/wedding-invitation/published/${getCoupleSlug()}.html`;
                         navigator.clipboard.writeText(pubUrl);
                         setCopiedLink(true);
                         setTimeout(() => setCopiedLink(false), 2000);
@@ -4198,7 +4386,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                       <span>Copy</span>
                     </button>
                     <a
-                      href={`https://aami672.github.io/wedding-invitation/published/${(data.hosts?.bride || 'preeti').toLowerCase().replace(/\s+/g, '-')}-and-${(data.hosts?.groom || 'ashish').toLowerCase().replace(/\s+/g, '-')}.html`}
+                      href={`https://aami672.github.io/wedding-invitation/published/${getCoupleSlug()}.html`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="px-3.5 py-2 rounded-xl border border-[#C5A880] bg-white hover:bg-[#FAF5ED] text-[#8B6F47] text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center gap-1"
