@@ -60,6 +60,9 @@ export default function App() {
         if (!parsed.photos.groomBio || parsed.photos.groomBio === 'Foodie, photography enthusiast & architect.') {
           parsed.photos.groomBio = 'Foodie, photography enthusiast, and the architect of their happiest memories.';
         }
+        if (parsed.logistics && parsed.logistics.contact && parsed.logistics.contact.includes('Event Concierge')) {
+          parsed.logistics.contact = '';
+        }
         return parsed;
       } catch (e) {
         console.error(e);

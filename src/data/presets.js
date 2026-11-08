@@ -719,7 +719,7 @@ export const DEFAULT_INVITATION_DATA = {
   logistics: {
     airport: 'Maharana Pratap Airport (UDR) — 28 km / 45 mins drive',
     hotel: 'The Oberoi Udaivilas & Trident Udaipur (Shuttle service provided)',
-    contact: '+91 98765 43210 (Event Concierge)',
+    contact: '',
   },
   rsvpConfig: {
     enabled: true,

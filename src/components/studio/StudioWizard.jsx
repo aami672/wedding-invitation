@@ -2486,13 +2486,17 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     </div>
 
     <!-- Concierge & Hospitality -->
+    ${data.logistics?.contact ? `
     <div style="border-top: 1.5px dashed #F5D0C5; padding-top: 4mm; margin-top: 4mm;">
       <p class="font-serif" style="font-size: 14pt; font-weight: 700; color: #2B1E17;">Celebration Concierge & Hospitality</p>
       <p style="font-size: 10pt; font-weight: 700; color: #881337; margin: 1mm 0;">
-        ${data.logistics?.contact || '+91 98765 43210'} · ${data.hosts?.city || 'Udaipur'}
+        ${data.logistics.contact} · ${data.hosts?.city || 'Udaipur'}
       </p>
       <p style="font-size: 8pt; color: #94A3B8;">With love & warm regards, ${data.hosts?.groom || 'Ashish'} & ${data.hosts?.bride || 'Preeti'} Families</p>
-    </div>
+    </div>` : `
+    <div style="border-top: 1.5px dashed #F5D0C5; padding-top: 4mm; margin-top: 4mm; text-align: center;">
+      <p style="font-size: 9pt; color: #94A3B8;">With love & warm regards, ${data.hosts?.groom || 'Ashish'} & ${data.hosts?.bride || 'Preeti'} Families</p>
+    </div>`}
   </div>
 </body>
 </html>`;
@@ -4091,8 +4095,8 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           {activeTab === 'extras' && (
             <div className="space-y-6 animate-fadeIn">
               <div className="bg-white p-6 rounded-2xl border border-stone-200 space-y-4">
-                <h3 className="font-serif text-2xl font-light text-[#2B1E17]">Social & Concierge</h3>
-                <p className="text-xs text-stone-500">Customize the wedding hashtag and concierge helpline contact.</p>
+                <h3 className="font-serif text-2xl font-light text-[#2B1E17]">Social & Hashtag</h3>
+                <p className="text-xs text-stone-500">Customize your official wedding hashtag for guests to tag and share memories.</p>
                 <div className="space-y-3">
                   <div>
                     <label className="block text-[10px] uppercase font-bold text-stone-600 mb-1">Wedding Hashtag</label>
@@ -4102,16 +4106,6 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                       onChange={e => setData(prev => ({ ...prev, hosts: { ...prev.hosts, hashtag: e.target.value } }))}
                       className="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs font-semibold text-[#881337]"
                       placeholder="#PreetiWedsAshish"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] uppercase font-bold text-stone-600 mb-1">Celebration Concierge Helpline</label>
-                    <input
-                      type="text"
-                      value={data.logistics?.contact || ''}
-                      onChange={e => setData(prev => ({ ...prev, logistics: { ...prev.logistics, contact: e.target.value } }))}
-                      className="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs"
-                      placeholder="+91 98765 43210 (Event Concierge)"
                     />
                   </div>
                 </div>
