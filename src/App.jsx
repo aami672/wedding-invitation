@@ -19,7 +19,9 @@ export default function App() {
     const saved = localStorage.getItem('wishlys_free_saved_data');
     if (saved) {
       try {
-        const parsed = JSON.parse(saved);
+        let text = saved;
+        text = text.replaceAll('"/images/', '"./images/').replaceAll('"/audio/', '"./audio/');
+        const parsed = JSON.parse(text);
         // Seamlessly migrate legacy sample names to Preeti & Ashish
         if (parsed.hosts?.bride === 'Shanaya Kapoor' || parsed.hosts?.bride === 'Shanaya') {
           parsed.hosts.bride = 'Preeti';
@@ -41,13 +43,13 @@ export default function App() {
         }
         if (!parsed.photos) parsed.photos = {};
         if (!parsed.photos.cover || parsed.photos.cover.includes('zardozi') || parsed.photos.cover.includes('truck')) {
-          parsed.photos.cover = '/images/templates/caricature.webp';
+          parsed.photos.cover = './images/templates/caricature.webp';
         }
         if (!parsed.photos.bride || parsed.photos.bride.includes('unsplash')) {
-          parsed.photos.bride = '/images/bride.webp';
+          parsed.photos.bride = './images/bride.webp';
         }
         if (!parsed.photos.groom || parsed.photos.groom.includes('unsplash')) {
-          parsed.photos.groom = '/images/groom.webp';
+          parsed.photos.groom = './images/groom.webp';
         }
         if (!parsed.gallery || !Array.isArray(parsed.gallery) || (parsed.gallery[0]?.url && parsed.gallery[0].url.includes('unsplash'))) {
           parsed.gallery = DEFAULT_INVITATION_DATA.gallery;

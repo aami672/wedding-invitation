@@ -118,41 +118,41 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         ...prev,
         photos: {
           ...prev.photos,
-          bride: '/images/bride.webp',
-          groom: '/images/groom.webp',
-          cover: '/images/caricature/scooter_couple.webp',
+          bride: './images/bride.webp',
+          groom: './images/groom.webp',
+          cover: './images/caricature/scooter_couple.webp',
         },
         gallery: [
-          { url: '/images/couple-potrait.webp', caption: 'In each other\'s eyes' },
-          { url: '/images/couple-landscape-1.webp', caption: 'Moments under the palace sun' },
-          { url: '/images/couple-landscape-2.webp', caption: 'Lakeside serenity in Udaipur' },
-          { url: '/images/couple-potrait-1.webp', caption: 'Laughs & forever promises' },
-          { url: '/images/couple-landscape-3.webp', caption: 'Golden hour at Lake Pichola' },
-          { url: '/images/couple-landscape-4.webp', caption: 'Under the starlit sky' },
-          { url: '/images/couple-udaipur-boat.webp', caption: 'Sailing together' },
-          { url: '/images/couple-udaipur-rooftop.webp', caption: 'Rooftop whispers' },
-          { url: '/images/couple-udaipur-bazaar.webp', caption: 'Old city charm' },
-          { url: '/images/couple-udaipur-hilltop.webp', caption: 'Monsoon palace views' },
-          { url: '/images/couple-udaipur-haveli.webp', caption: 'Courtyard royalty' },
-          { url: '/images/couple-udaipur-ghat.webp', caption: 'At the water\'s edge' },
+          { url: './images/couple-potrait.webp', caption: 'In each other\'s eyes' },
+          { url: './images/couple-landscape-1.webp', caption: 'Moments under the palace sun' },
+          { url: './images/couple-landscape-2.webp', caption: 'Lakeside serenity in Udaipur' },
+          { url: './images/couple-potrait-1.webp', caption: 'Laughs & forever promises' },
+          { url: './images/couple-landscape-3.webp', caption: 'Golden hour at Lake Pichola' },
+          { url: './images/couple-landscape-4.webp', caption: 'Under the starlit sky' },
+          { url: './images/couple-udaipur-boat.webp', caption: 'Sailing together' },
+          { url: './images/couple-udaipur-rooftop.webp', caption: 'Rooftop whispers' },
+          { url: './images/couple-udaipur-bazaar.webp', caption: 'Old city charm' },
+          { url: './images/couple-udaipur-hilltop.webp', caption: 'Monsoon palace views' },
+          { url: './images/couple-udaipur-haveli.webp', caption: 'Courtyard royalty' },
+          { url: './images/couple-udaipur-ghat.webp', caption: 'At the water\'s edge' },
         ]
       }));
     } else if (presetType === 'royal') {
-      updatePhotos('bride', '/images/bride.webp');
-      updatePhotos('groom', '/images/groom.webp');
-      updatePhotos('cover', '/images/templates/rajwada.webp');
+      updatePhotos('bride', './images/bride.webp');
+      updatePhotos('groom', './images/groom.webp');
+      updatePhotos('cover', './images/templates/rajwada.webp');
     } else if (presetType === 'caricature') {
-      updatePhotos('bride', '/images/bride.webp');
-      updatePhotos('groom', '/images/groom.webp');
-      updatePhotos('cover', '/images/caricature/scooter_couple.webp');
+      updatePhotos('bride', './images/bride.webp');
+      updatePhotos('groom', './images/groom.webp');
+      updatePhotos('cover', './images/caricature/scooter_couple.webp');
     } else if (presetType === 'bougain') {
-      updatePhotos('bride', '/images/bride.webp');
-      updatePhotos('groom', '/images/groom.webp');
-      updatePhotos('cover', '/images/baugain/hero.webp');
+      updatePhotos('bride', './images/bride.webp');
+      updatePhotos('groom', './images/groom.webp');
+      updatePhotos('cover', './images/baugain/hero.webp');
     } else if (presetType === 'zardozi') {
-      updatePhotos('bride', '/images/templates/zardozi.webp');
-      updatePhotos('groom', '/images/templates/pichwai.webp');
-      updatePhotos('cover', '/images/templates/zardozi.webp');
+      updatePhotos('bride', './images/templates/zardozi.webp');
+      updatePhotos('groom', './images/templates/pichwai.webp');
+      updatePhotos('cover', './images/templates/zardozi.webp');
     }
   };
 
@@ -270,18 +270,18 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       setData(prev => ({
         ...prev,
         gallery: [
-          { url: '/images/couple-potrait.webp', caption: "In each other's eyes", tag: 'Wedding' },
-          { url: '/images/couple-landscape-1.webp', caption: 'Moments under the palace sun', tag: 'Haldi' },
-          { url: '/images/couple-landscape-2.webp', caption: 'Lakeside serenity in Udaipur', tag: 'General' },
-          { url: '/images/couple-potrait-1.webp', caption: 'Laughs & forever promises', tag: 'Sangeet' },
-          { url: '/images/couple-landscape-3.webp', caption: 'Golden hour at Lake Pichola', tag: 'General' },
-          { url: '/images/couple-landscape-4.webp', caption: 'Under the starlit sky', tag: 'Reception' },
-          { url: '/images/couple-udaipur-boat.webp', caption: 'Sailing together', tag: 'General' },
-          { url: '/images/couple-udaipur-rooftop.webp', caption: 'Rooftop whispers', tag: 'General' },
-          { url: '/images/couple-udaipur-bazaar.webp', caption: 'Old city charm', tag: 'Mehndi' },
-          { url: '/images/couple-udaipur-hilltop.webp', caption: 'Monsoon palace views', tag: 'General' },
-          { url: '/images/couple-udaipur-haveli.webp', caption: 'Courtyard royalty', tag: 'Wedding' },
-          { url: '/images/couple-udaipur-ghat.webp', caption: "At the water's edge", tag: 'General' },
+          { url: './images/couple-potrait.webp', caption: "In each other's eyes", tag: 'Wedding' },
+          { url: './images/couple-landscape-1.webp', caption: 'Moments under the palace sun', tag: 'Haldi' },
+          { url: './images/couple-landscape-2.webp', caption: 'Lakeside serenity in Udaipur', tag: 'General' },
+          { url: './images/couple-potrait-1.webp', caption: 'Laughs & forever promises', tag: 'Sangeet' },
+          { url: './images/couple-landscape-3.webp', caption: 'Golden hour at Lake Pichola', tag: 'General' },
+          { url: './images/couple-landscape-4.webp', caption: 'Under the starlit sky', tag: 'Reception' },
+          { url: './images/couple-udaipur-boat.webp', caption: 'Sailing together', tag: 'General' },
+          { url: './images/couple-udaipur-rooftop.webp', caption: 'Rooftop whispers', tag: 'General' },
+          { url: './images/couple-udaipur-bazaar.webp', caption: 'Old city charm', tag: 'Mehndi' },
+          { url: './images/couple-udaipur-hilltop.webp', caption: 'Monsoon palace views', tag: 'General' },
+          { url: './images/couple-udaipur-haveli.webp', caption: 'Courtyard royalty', tag: 'Wedding' },
+          { url: './images/couple-udaipur-ghat.webp', caption: "At the water's edge", tag: 'General' },
         ]
       }));
     }
@@ -459,30 +459,30 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       b64Scooter, b64Haldi, b64Mehndi, b64Sangeet, b64Pheras, b64Reception,
     ] = await Promise.all([
       toBase64Optimized(data.photos?.cover, 1000, 0.75, false),
-      toBase64Optimized(data.photos?.bride || '/images/bride.webp', 600, 0.76, false),
-      toBase64Optimized(data.photos?.groom || '/images/groom.webp', 600, 0.76, false),
+      toBase64Optimized(data.photos?.bride || './images/bride.webp', 600, 0.76, false),
+      toBase64Optimized(data.photos?.groom || './images/groom.webp', 600, 0.76, false),
       toBase64Optimized(selectedTmpl?.image, 1000, 0.75, false),
-      toBase64Optimized('/images/caricature/scooter_couple.webp', 800, 0.78, true),
-      toBase64Optimized('/images/caricature/haldi_arch.webp', 600, 0.75, true),
-      toBase64Optimized('/images/caricature/mehndi_arch.webp', 600, 0.75, true),
-      toBase64Optimized('/images/caricature/sangeet_arch.webp', 600, 0.75, true),
-      toBase64Optimized('/images/caricature/pheras_arch.webp', 600, 0.75, true),
-      toBase64Optimized('/images/caricature/reception_arch.webp', 600, 0.75, true),
+      toBase64Optimized('./images/caricature/scooter_couple.webp', 800, 0.78, true),
+      toBase64Optimized('./images/caricature/haldi_arch.webp', 600, 0.75, true),
+      toBase64Optimized('./images/caricature/mehndi_arch.webp', 600, 0.75, true),
+      toBase64Optimized('./images/caricature/sangeet_arch.webp', 600, 0.75, true),
+      toBase64Optimized('./images/caricature/pheras_arch.webp', 600, 0.75, true),
+      toBase64Optimized('./images/caricature/reception_arch.webp', 600, 0.75, true),
     ]);
 
     const galleryItems = (data.gallery && data.gallery.length > 0) ? data.gallery : [
-      { url: '/images/couple-potrait.webp', caption: 'Engagement' },
-      { url: '/images/couple-landscape-1.webp', caption: 'Haldi Joy' },
-      { url: '/images/couple-landscape-2.webp', caption: 'Udaipur Sunset' },
-      { url: '/images/couple-potrait-1.webp', caption: 'Forever Begins' },
-      { url: '/images/couple-landscape-3.webp', caption: 'Palace Stroll' },
-      { url: '/images/couple-landscape-4.webp', caption: 'Starlit Promises' },
-      { url: '/images/couple-udaipur-boat.webp', caption: 'Lake Boat Ride' },
-      { url: '/images/couple-udaipur-rooftop.webp', caption: 'Palace Rooftop' },
-      { url: '/images/couple-udaipur-bazaar.webp', caption: 'Old City Charm' },
-      { url: '/images/couple-udaipur-hilltop.webp', caption: 'Monsoon Palace' },
-      { url: '/images/couple-udaipur-haveli.webp', caption: 'Haveli Courtyard' },
-      { url: '/images/couple-udaipur-ghat.webp', caption: 'Waterfront Sunset' },
+      { url: './images/couple-potrait.webp', caption: 'Engagement' },
+      { url: './images/couple-landscape-1.webp', caption: 'Haldi Joy' },
+      { url: './images/couple-landscape-2.webp', caption: 'Udaipur Sunset' },
+      { url: './images/couple-potrait-1.webp', caption: 'Forever Begins' },
+      { url: './images/couple-landscape-3.webp', caption: 'Palace Stroll' },
+      { url: './images/couple-landscape-4.webp', caption: 'Starlit Promises' },
+      { url: './images/couple-udaipur-boat.webp', caption: 'Lake Boat Ride' },
+      { url: './images/couple-udaipur-rooftop.webp', caption: 'Palace Rooftop' },
+      { url: './images/couple-udaipur-bazaar.webp', caption: 'Old City Charm' },
+      { url: './images/couple-udaipur-hilltop.webp', caption: 'Monsoon Palace' },
+      { url: './images/couple-udaipur-haveli.webp', caption: 'Haveli Courtyard' },
+      { url: './images/couple-udaipur-ghat.webp', caption: 'Waterfront Sunset' },
     ];
     const b64Gallery = await Promise.all(galleryItems.map(async (item) => ({
       b64: await toBase64Optimized(item.url || item.img, 720, 0.72, false),
@@ -1076,7 +1076,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           <div onclick="openPersonModal('groom')" class="relative bg-white p-2.5 pb-4 rounded-2xl shadow-md border border-stone-200 transform -rotate-2 hover:rotate-0 hover:shadow-xl hover:border-amber-300 transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-left cursor-pointer group">
             <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#A7F3D0]/85 rounded shadow-xs rotate-1 border border-[#6EE7B7]"></div>
             <div class="w-20 h-20 rounded-full overflow-hidden bg-stone-100 mt-1 mb-2 border-2 border-stone-200 ring-4 ring-[#E6F4EA] shadow-inner shrink-0 group-hover:ring-emerald-300 transition-all">
-              <img src="${b64Groom || '/images/groom.webp'}" alt="${data.hosts?.groom || 'Ashish'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+              <img src="${b64Groom || './images/groom.webp'}" alt="${data.hosts?.groom || 'Ashish'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
             </div>
             <span class="inline-block px-2 py-0.5 rounded-full text-[8.5px] uppercase tracking-wider font-bold bg-[#E6F4EA] text-[#137333] mb-1">The Groom</span>
             <h4 class="font-serif text-sm sm:text-base font-bold text-[#2B1E17] leading-tight group-hover:text-amber-800 transition-colors">${data.hosts?.groom || 'Ashish'}</h4>
@@ -1092,7 +1092,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           <div onclick="openPersonModal('bride')" class="relative bg-white p-2.5 pb-4 rounded-2xl shadow-md border border-stone-200 transform rotate-2 hover:rotate-0 hover:shadow-xl hover:border-rose-300 transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-right cursor-pointer group" style="transition-delay: 150ms;">
             <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FDE68A]/85 rounded shadow-xs -rotate-1 border border-[#FCD34D]"></div>
             <div class="w-20 h-20 rounded-full overflow-hidden bg-stone-100 mt-1 mb-2 border-2 border-stone-200 ring-4 ring-[#FCE8E6] shadow-inner shrink-0 group-hover:ring-rose-300 transition-all">
-              <img src="${b64Bride || '/images/bride.webp'}" alt="${data.hosts?.bride || 'Preeti'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+              <img src="${b64Bride || './images/bride.webp'}" alt="${data.hosts?.bride || 'Preeti'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
             </div>
             <span class="inline-block px-2 py-0.5 rounded-full text-[8.5px] uppercase tracking-wider font-bold bg-[#FCE8E6] text-[#C5221F] mb-1">The Bride</span>
             <h4 class="font-serif text-sm sm:text-base font-bold text-[#2B1E17] leading-tight group-hover:text-rose-800 transition-colors">${data.hosts?.bride || 'Preeti'}</h4>
@@ -1260,10 +1260,10 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
             const tiltClass = isLeft ? 'reveal-tilt-left -rotate-1' : 'reveal-tilt-right rotate-1';
             const delay = Math.min(360, (idx % 4) * 120);
             return `
-            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform ${tiltClass} hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: ${delay}ms;" onclick="openMomentLightbox('${item.b64 || '/images/couple-potrait.webp'}', '${item.caption}')">
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform ${tiltClass} hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: ${delay}ms;" onclick="openMomentLightbox('${item.b64 || './images/couple-potrait.webp'}', '${item.caption}')">
               <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 ${tapeClass} rounded shadow-2xs border rotate-1"></div>
               <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
-                <img src="${item.b64 || '/images/couple-potrait.webp'}" class="w-full h-full object-cover" />
+                <img src="${item.b64 || './images/couple-potrait.webp'}" class="w-full h-full object-cover" />
               </div>
               <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ ${item.caption} ✦</span></div>
             </div>`;
@@ -1847,7 +1847,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       const bioEl = document.getElementById('modal-person-bio');
       const linEl = document.getElementById('modal-person-lineage');
       const washi = document.getElementById('modal-washi');
-      if (img) img.src = isGroom ? '${b64Groom || '/images/groom.webp'}' : '${b64Bride || '/images/bride.webp'}';
+      if (img) img.src = isGroom ? '${b64Groom || './images/groom.webp'}' : '${b64Bride || './images/bride.webp'}';
       if (roleEl) {
         roleEl.innerText = isGroom ? 'The Groom' : 'The Bride';
         roleEl.className = 'inline-block px-3 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-bold ' + (isGroom ? 'bg-[#E6F4EA] text-[#137333]' : 'bg-[#FCE8E6] text-[#C5221F]');
@@ -2236,10 +2236,10 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     try {
       // Preload high-res base64 images so nothing fails or is missing in print/PDF
       const [b64Scooter, b64Cover, b64Groom, b64Bride] = await Promise.all([
-        toBase64Optimized('/images/caricature/scooter_couple.webp', 800, 0.85, true),
+        toBase64Optimized('./images/caricature/scooter_couple.webp', 800, 0.85, true),
         toBase64Optimized(data.photos?.cover, 900, 0.85, false),
-        toBase64Optimized(data.photos?.groom || '/images/groom.webp', 400, 0.85, false),
-        toBase64Optimized(data.photos?.bride || '/images/bride.webp', 400, 0.85, false),
+        toBase64Optimized(data.photos?.groom || './images/groom.webp', 400, 0.85, false),
+        toBase64Optimized(data.photos?.bride || './images/bride.webp', 400, 0.85, false),
       ]);
 
       const printHtml = `<!DOCTYPE html>
@@ -2360,14 +2360,14 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
 
     <!-- Centerpiece Caricature -->
     <div style="width: 140mm; height: 110mm; margin: 4mm auto; border-radius: 8mm; background: linear-gradient(to bottom, #FEF3C7, #FFFDF7); border: 1.5mm solid #FDE68A; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 3mm;">
-      <img src="${b64Scooter || b64Cover || '/images/caricature/scooter_couple.webp'}" style="width: 100%; height: 100%; object-fit: contain;" />
+      <img src="${b64Scooter || b64Cover || './images/caricature/scooter_couple.webp'}" style="width: 100%; height: 100%; object-fit: contain;" />
     </div>
 
     <!-- Bride & Groom Profile Cards -->
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; max-width: 160mm; margin: 0 auto;">
       <div class="card-box" style="text-align: center;">
         <div style="width: 18mm; height: 18mm; border-radius: 50%; overflow: hidden; border: 1.5px solid #10B981; margin: 0 auto 2mm auto;">
-          <img src="${b64Groom || '/images/groom.webp'}" style="width: 100%; height: 100%; object-fit: cover;" />
+          <img src="${b64Groom || './images/groom.webp'}" style="width: 100%; height: 100%; object-fit: cover;" />
         </div>
         <span class="tag-pill" style="background: #E6F4EA; color: #137333;">The Groom</span>
         <h3 class="font-serif" style="font-size: 14pt; margin: 1mm 0; font-weight: 600;">${data.hosts?.groom || 'Ashish'}</h3>
@@ -2376,7 +2376,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
 
       <div class="card-box" style="text-align: center;">
         <div style="width: 18mm; height: 18mm; border-radius: 50%; overflow: hidden; border: 1.5px solid #F43F5E; margin: 0 auto 2mm auto;">
-          <img src="${b64Bride || '/images/bride.webp'}" style="width: 100%; height: 100%; object-fit: cover;" />
+          <img src="${b64Bride || './images/bride.webp'}" style="width: 100%; height: 100%; object-fit: cover;" />
         </div>
         <span class="tag-pill" style="background: #FCE8E6; color: #C5221F;">The Bride</span>
         <h3 class="font-serif" style="font-size: 14pt; margin: 1mm 0; font-weight: 600;">${data.hosts?.bride || 'Preeti'}</h3>
@@ -2499,7 +2499,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       // Preload couple caricature image
       const coupleImg = new window.Image();
       coupleImg.crossOrigin = 'anonymous';
-      coupleImg.src = data.photos?.cover || '/images/caricature/scooter_couple.webp';
+      coupleImg.src = data.photos?.cover || './images/caricature/scooter_couple.webp';
       await new Promise(r => {
         coupleImg.onload = r;
         coupleImg.onerror = r;
@@ -3066,7 +3066,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                           <div className="w-14 h-20 sm:w-16 sm:h-24 rounded-lg overflow-hidden border border-stone-200 bg-stone-100 shadow-xs shrink-0 flex items-center justify-center">
                             {data.photos?.storyPhoto || data.photos?.story ? (
                               <img 
-                                src={data.photos?.storyPhoto || data.photos?.story || '/images/couple-landscape-1.webp'} 
+                                src={data.photos?.storyPhoto || data.photos?.story || './images/couple-landscape-1.webp'} 
                                 alt="Story Photo" 
                                 className="w-full h-full object-cover"
                               />
@@ -4452,12 +4452,12 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                 </span>
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
                   {[
-                    { title: 'Scooter Couple', url: '/images/caricature/scooter_couple.webp' },
-                    { title: 'Haldi Ceremony', url: '/images/caricature/haldi.webp' },
-                    { title: 'Mehendi Celebration', url: '/images/caricature/mehendi.webp' },
-                    { title: 'Sangeet Night', url: '/images/caricature/sangeet.webp' },
-                    { title: 'Pheras Mandap', url: '/images/caricature/pheras.webp' },
-                    { title: 'Reception Gala', url: '/images/caricature/reception.webp' },
+                    { title: 'Scooter Couple', url: './images/caricature/scooter_couple.webp' },
+                    { title: 'Haldi Ceremony', url: './images/caricature/haldi.webp' },
+                    { title: 'Mehendi Celebration', url: './images/caricature/mehendi.webp' },
+                    { title: 'Sangeet Night', url: './images/caricature/sangeet.webp' },
+                    { title: 'Pheras Mandap', url: './images/caricature/pheras.webp' },
+                    { title: 'Reception Gala', url: './images/caricature/reception.webp' },
                   ].map((pic, i) => (
                     <button
                       key={i}
@@ -4483,15 +4483,15 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                 </span>
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
                   {[
-                    { title: 'The Bride', url: '/images/bride.webp' },
-                    { title: 'The Groom', url: '/images/groom.webp' },
-                    { title: 'Portrait One', url: '/images/couple-potrait.webp' },
-                    { title: 'Portrait Two', url: '/images/couple-potrait-1.webp' },
-                    { title: 'Landscape Sun', url: '/images/couple-landscape-1.webp' },
-                    { title: 'Landscape Palace', url: '/images/couple-landscape-2.webp' },
-                    { title: 'Palace Stroll', url: '/images/couple-landscape-3.webp' },
-                    { title: 'Udaipur Boat', url: '/images/couple-udaipur-boat.webp' },
-                    { title: 'Lake Rooftop', url: '/images/couple-udaipur-rooftop.webp' },
+                    { title: 'The Bride', url: './images/bride.webp' },
+                    { title: 'The Groom', url: './images/groom.webp' },
+                    { title: 'Portrait One', url: './images/couple-potrait.webp' },
+                    { title: 'Portrait Two', url: './images/couple-potrait-1.webp' },
+                    { title: 'Landscape Sun', url: './images/couple-landscape-1.webp' },
+                    { title: 'Landscape Palace', url: './images/couple-landscape-2.webp' },
+                    { title: 'Palace Stroll', url: './images/couple-landscape-3.webp' },
+                    { title: 'Udaipur Boat', url: './images/couple-udaipur-boat.webp' },
+                    { title: 'Lake Rooftop', url: './images/couple-udaipur-rooftop.webp' },
                   ].map((pic, i) => (
                     <button
                       key={i}

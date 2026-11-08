@@ -83,7 +83,7 @@ export const TEMPLATES = [
     category: 'Parallax & Luxury',
     description: 'Full-bleed photos told as an immersive scrolling film with gold leaf typography and smooth transitions.',
     badge: 'Signature',
-    image: '/images/templates/cinematic.webp',
+    image: './images/templates/cinematic.webp',
   },
   {
     id: 'caricature',
@@ -91,7 +91,7 @@ export const TEMPLATES = [
     category: 'Hand-Drawn Pop-up',
     description: 'You two as hand-drawn pastel caricatures riding a vintage scooter with floral garlands and palace skyline.',
     badge: 'Popular',
-    image: '/images/templates/caricature.webp',
+    image: './images/templates/caricature.webp',
   },
   {
     id: 'mela',
@@ -99,7 +99,7 @@ export const TEMPLATES = [
     category: 'Festive Shaadi',
     description: 'You two on a classic motorcycle at a joyful marigold wedding mela with dhol and festive colours.',
     badge: 'Festive',
-    image: '/images/templates/mela.webp',
+    image: './images/templates/mela.webp',
   },
   {
     id: 'pichwai',
@@ -107,7 +107,7 @@ export const TEMPLATES = [
     category: 'Heritage Art',
     description: 'Painted as a Nathdwara pichwai in gold leaf, on a midnight lotus pond with Kamdhenu cows and peacocks.',
     badge: 'Royal Heritage',
-    image: '/images/templates/pichwai.webp',
+    image: './images/templates/pichwai.webp',
   },
   {
     id: 'rajwada',
@@ -115,7 +115,7 @@ export const TEMPLATES = [
     category: 'Palace Courtyard',
     description: 'Painted as a Rajput miniature in a Rajasthan palace courtyard, in rich ruby, emerald and gold leaf.',
     badge: 'Royal Palace',
-    image: '/images/templates/rajwada.webp',
+    image: './images/templates/rajwada.webp',
   },
   {
     id: 'zardozi',
@@ -123,7 +123,7 @@ export const TEMPLATES = [
     category: 'Raw Silk & Pearls',
     description: 'Embroidered in gold zari, pearls and pastel silk thread on ivory raw silk, like an heirloom.',
     badge: 'Artisanal',
-    image: '/images/templates/zardozi.webp',
+    image: './images/templates/zardozi.webp',
   },
   {
     id: 'express',
@@ -131,7 +131,7 @@ export const TEMPLATES = [
     category: 'Storybook Journey',
     description: 'Your wedding as one train journey: station boards, vintage timetable, and window seat for every photo.',
     badge: 'Creative',
-    image: '/images/templates/express.webp',
+    image: './images/templates/express.webp',
   },
   {
     id: 'storybook',
@@ -139,7 +139,7 @@ export const TEMPLATES = [
     category: 'Handcrafted Watercolor',
     description: 'Charming custom illustrations painted for each chapter of your journey together.',
     badge: 'Warm',
-    image: '/images/templates/storybook.webp',
+    image: './images/templates/storybook.webp',
   },
   {
     id: 'darkroom',
@@ -147,7 +147,7 @@ export const TEMPLATES = [
     category: 'Monochrome to Color',
     description: 'Your photos developing from black & white into vibrant colour as guests scroll down the page.',
     badge: 'Photographic',
-    image: '/images/templates/darkroom.webp',
+    image: './images/templates/darkroom.webp',
   },
   {
     id: 'newspaper',
@@ -155,7 +155,7 @@ export const TEMPLATES = [
     category: 'Vintage News',
     description: 'Your wedding as front-page news, complete with headlines, editorial columns and celebration dates.',
     badge: 'Unique',
-    image: '/images/templates/newspaper.webp',
+    image: './images/templates/newspaper.webp',
   },
   {
     id: 'bougain',
@@ -163,7 +163,7 @@ export const TEMPLATES = [
     category: 'Paper-cut Diorama',
     description: 'You two as a handmade paper-cut diorama in a lush garden of paper bougainvillea and marigolds.',
     badge: 'Floral',
-    image: '/images/templates/bougain.webp',
+    image: './images/templates/bougain.webp',
   },
   {
     id: 'mandap',
@@ -171,7 +171,7 @@ export const TEMPLATES = [
     category: 'Paper-cut Diorama',
     description: 'You two as a handmade paper-cut diorama under a floral mandap canopy in vibrant pastel papers.',
     badge: 'Mandap',
-    image: '/images/templates/mandap.webp',
+    image: './images/templates/mandap.webp',
   },
   {
     id: 'peaks',
@@ -179,7 +179,7 @@ export const TEMPLATES = [
     category: 'Mountain Shaadi',
     description: 'Your wedding in the hills: caricatures in every scene with misty mountains behind you.',
     badge: 'Hills',
-    image: '/images/templates/peaks.webp',
+    image: './images/templates/peaks.webp',
   },
   {
     id: 'resort',
@@ -187,7 +187,7 @@ export const TEMPLATES = [
     category: 'Destination Sea',
     description: 'Your wedding by the sea, painted with you two in every scene, plus guests travel plans.',
     badge: 'Beach',
-    image: '/images/templates/resort.webp',
+    image: './images/templates/resort.webp',
   },
   {
     id: 'ballroom',
@@ -195,7 +195,7 @@ export const TEMPLATES = [
     category: 'Rococo Royal',
     description: 'You two painted waltzing in a palace ballroom, a rococo oil painting in ivory and gold.',
     badge: 'Ballroom',
-    image: '/images/templates/ballroom.webp',
+    image: './images/templates/ballroom.webp',
   },
   {
     id: 'truck',
@@ -203,7 +203,7 @@ export const TEMPLATES = [
     category: 'Fun & Loud',
     description: 'You two as truck-art caricatures, die-cut stickers on a loud, happy page: Horn OK Please!',
     badge: 'Quirky',
-    image: '/images/templates/truck.webp',
+    image: './images/templates/truck.webp',
   },
   {
     id: 'nikah',
@@ -211,7 +211,7 @@ export const TEMPLATES = [
     category: 'Emerald & Gold',
     description: 'Your Nikah in emerald and gold, with the Bismillah and Quranic verse: rich and serene.',
     badge: 'Islamic',
-    image: '/images/templates/nikah.webp',
+    image: './images/templates/nikah.webp',
   },
   {
     id: 'rangla',
@@ -219,7 +219,7 @@ export const TEMPLATES = [
     category: 'Punjabi Silk',
     description: 'Your Punjabi wedding in phulkari red and golden silk before the palki sahib with ੴ and shabad.',
     badge: 'Punjabi',
-    image: '/images/templates/rangla.webp',
+    image: './images/templates/rangla.webp',
   },
   {
     id: 'royal',
@@ -227,7 +227,7 @@ export const TEMPLATES = [
     category: 'Heritage Classic',
     description: 'Royal textures, classic borders, and heritage motifs with ornate gold foil frames.',
     badge: 'Heritage',
-    image: '/images/templates/royal.webp',
+    image: './images/templates/royal.webp',
   },
   {
     id: 'editorial',
@@ -235,7 +235,7 @@ export const TEMPLATES = [
     category: 'Vogue Minimalist',
     description: 'Clean layouts, bold typefaces, and minimalist modern frames with generous whitespace.',
     badge: 'Modern',
-    image: '/images/templates/editorial.webp',
+    image: './images/templates/editorial.webp',
   },
   {
     id: 'botanical',
@@ -243,7 +243,7 @@ export const TEMPLATES = [
     category: 'Watercolor Flora',
     description: 'Delicate watercolor leaves, garden vines, and hand-drawn florals.',
     badge: 'Garden',
-    image: '/images/templates/botanical.webp',
+    image: './images/templates/botanical.webp',
   },
 ];
 
@@ -544,36 +544,36 @@ export const PALETTES = [
 
 export const MUSIC_TRACKS = [
   // 1. Signature & Modern Romantic
-  { id: 'modern-muse', name: 'Modern Muse', mood: 'Calm & Romantic', desc: 'Warm acoustic piano with delicate atmospheric reverbs (Wishlys Signature)', url: '/audio/indian-inspirational-modern.mp3' },
-  { id: 'eternal-love', name: 'Eternal Love', mood: 'Soulful & Cinematic', desc: 'Emotional strings and sweeping acoustic piano for grand romance', url: '/audio/eternal-love.mp3' },
-  { id: 'romantic-vows', name: 'Romantic Vows', mood: 'Gentle Harmony', desc: 'Gentle acoustic violin & cello harmonies for heartfelt vows', url: '/audio/romantic-vows.mp3' },
-  { id: 'piano-promise', name: 'Piano Promise', mood: 'Soft Grand Piano', desc: 'Soulful acoustic grand piano chords for heartfelt moments', url: '/audio/piano-promise.mp3' },
-  { id: 'morning-promise', name: 'Morning Promise', mood: 'Neoclassical Calm', desc: 'Delicate morning neoclassical piano melody for sacred beginnings', url: '/audio/morning-promise.mp3' },
-  { id: 'first-dance', name: 'First Dance', mood: 'Slow Waltz', desc: 'Lush slow waltz strings composed for couple first dance', url: '/audio/first-dance.mp3' },
-  { id: 'mountain-vows', name: 'Mountain Vows', mood: 'Acoustic Folk', desc: 'Warm acoustic guitar with gentle hill breeze & peaceful harmonies', url: '/audio/mountain-vows.mp3' },
-  { id: 'unfolding-the-invitation', name: 'Unfolding the Invitation', mood: 'Ethereal Magic', desc: 'Atmospheric acoustic harp and crystalline chimes', url: '/audio/unfolding-the-invitation.mp3' },
-  { id: 'moonlit-garden', name: 'Moonlit Garden', mood: 'Nocturne Romance', desc: 'Peaceful night-sky strings and tranquil acoustic echoes', url: '/audio/moonlit-garden.mp3' },
-  { id: 'lanterns-of-noor', name: 'Lanterns of Noor', mood: 'Sufi Acoustic', desc: 'Warm mystical Sufi melody with glowing ambient strings', url: '/audio/lanterns-of-noor.mp3' },
+  { id: 'modern-muse', name: 'Modern Muse', mood: 'Calm & Romantic', desc: 'Warm acoustic piano with delicate atmospheric reverbs (Wishlys Signature)', url: './audio/indian-inspirational-modern.mp3' },
+  { id: 'eternal-love', name: 'Eternal Love', mood: 'Soulful & Cinematic', desc: 'Emotional strings and sweeping acoustic piano for grand romance', url: './audio/eternal-love.mp3' },
+  { id: 'romantic-vows', name: 'Romantic Vows', mood: 'Gentle Harmony', desc: 'Gentle acoustic violin & cello harmonies for heartfelt vows', url: './audio/romantic-vows.mp3' },
+  { id: 'piano-promise', name: 'Piano Promise', mood: 'Soft Grand Piano', desc: 'Soulful acoustic grand piano chords for heartfelt moments', url: './audio/piano-promise.mp3' },
+  { id: 'morning-promise', name: 'Morning Promise', mood: 'Neoclassical Calm', desc: 'Delicate morning neoclassical piano melody for sacred beginnings', url: './audio/morning-promise.mp3' },
+  { id: 'first-dance', name: 'First Dance', mood: 'Slow Waltz', desc: 'Lush slow waltz strings composed for couple first dance', url: './audio/first-dance.mp3' },
+  { id: 'mountain-vows', name: 'Mountain Vows', mood: 'Acoustic Folk', desc: 'Warm acoustic guitar with gentle hill breeze & peaceful harmonies', url: './audio/mountain-vows.mp3' },
+  { id: 'unfolding-the-invitation', name: 'Unfolding the Invitation', mood: 'Ethereal Magic', desc: 'Atmospheric acoustic harp and crystalline chimes', url: './audio/unfolding-the-invitation.mp3' },
+  { id: 'moonlit-garden', name: 'Moonlit Garden', mood: 'Nocturne Romance', desc: 'Peaceful night-sky strings and tranquil acoustic echoes', url: './audio/moonlit-garden.mp3' },
+  { id: 'lanterns-of-noor', name: 'Lanterns of Noor', mood: 'Sufi Acoustic', desc: 'Warm mystical Sufi melody with glowing ambient strings', url: './audio/lanterns-of-noor.mp3' },
 
   // 2. Traditional Indian Wedding & Heritage
-  { id: 'saffron-threads', name: 'Saffron Threads', mood: 'Traditional Heritage', desc: 'Authentic Indian sitar with ceremonial tanpura & strings', url: '/audio/saffron-threads.mp3' },
-  { id: 'saffron-light', name: 'Saffron Light', mood: 'Serene Flute', desc: 'Soft bamboo bansuri flute evoking peaceful temple morning prayers', url: '/audio/saffron-light.mp3' },
-  { id: 'sitar-sunrise', name: 'Sitar Sunrise', mood: 'Raag Bhupali', desc: 'Early morning sitar vibrations and golden sunrise raag', url: '/audio/sitar-sunrise.mp3' },
-  { id: 'haveli-lights', name: 'Haveli Lights', mood: 'Palace Courtyard', desc: 'Royal Rajasthan palace sarangi, sitar & gentle courtyard rhythm', url: '/audio/haveli-lights.mp3' },
-  { id: 'under-the-marigold-canopy', name: 'Under the Marigold Canopy', mood: 'Mandap Melody', desc: 'Intimate wedding mandap melodies with sacred Indian instruments', url: '/audio/under-the-marigold-canopy.mp3' },
-  { id: 'marigold-morning', name: 'Marigold Morning', mood: 'Auspicious Shehnai', desc: 'Sacred wedding morning raag with golden auspicious shehnai', url: '/audio/marigold-morning.mp3' },
-  { id: 'mangala-isai', name: 'Mangala Isai', mood: 'Temple Heritage', desc: 'South Indian auspicious Nadaswaram & Thavil celebration', url: '/audio/mangala-isai.mp3' },
+  { id: 'saffron-threads', name: 'Saffron Threads', mood: 'Traditional Heritage', desc: 'Authentic Indian sitar with ceremonial tanpura & strings', url: './audio/saffron-threads.mp3' },
+  { id: 'saffron-light', name: 'Saffron Light', mood: 'Serene Flute', desc: 'Soft bamboo bansuri flute evoking peaceful temple morning prayers', url: './audio/saffron-light.mp3' },
+  { id: 'sitar-sunrise', name: 'Sitar Sunrise', mood: 'Raag Bhupali', desc: 'Early morning sitar vibrations and golden sunrise raag', url: './audio/sitar-sunrise.mp3' },
+  { id: 'haveli-lights', name: 'Haveli Lights', mood: 'Palace Courtyard', desc: 'Royal Rajasthan palace sarangi, sitar & gentle courtyard rhythm', url: './audio/haveli-lights.mp3' },
+  { id: 'under-the-marigold-canopy', name: 'Under the Marigold Canopy', mood: 'Mandap Melody', desc: 'Intimate wedding mandap melodies with sacred Indian instruments', url: './audio/under-the-marigold-canopy.mp3' },
+  { id: 'marigold-morning', name: 'Marigold Morning', mood: 'Auspicious Shehnai', desc: 'Sacred wedding morning raag with golden auspicious shehnai', url: './audio/marigold-morning.mp3' },
+  { id: 'mangala-isai', name: 'Mangala Isai', mood: 'Temple Heritage', desc: 'South Indian auspicious Nadaswaram & Thavil celebration', url: './audio/mangala-isai.mp3' },
   { id: 'royal-palace', name: 'Royal Palace Strings', mood: 'Regal Heritage (Synth)', desc: 'Ceremonial strings and golden palace tanpura synthesized offline', url: '' },
 
   // 3. High Energy Celebration & Sangeet
-  { id: 'shehnai-express', name: 'Shehnai Express', mood: 'Shaadi Dhol & Joy', desc: 'Fast celebratory wedding shehnai & live celebration rhythm', url: '/audio/shehnai-express.mp3' },
-  { id: 'wedding-celebration', name: 'Wedding Celebration', mood: 'Festive Ensemble', desc: 'Joyful Indian wedding ensemble with shehnai & dholak', url: '/audio/wedding-celebration.mp3' },
-  { id: 'sehra-bandi', name: 'Sehra Bandi', mood: 'Regal Baraat', desc: 'Auspicious shehnai, dholak and royal celebration nagada', url: '/audio/sehra-bandi.mp3' },
-  { id: 'joyful-procession', name: 'Joyful Procession', mood: 'Baraat March', desc: 'High-spirited baraat procession celebration music', url: '/audio/joyful-procession.mp3' },
-  { id: 'bollywood-heart', name: 'Bollywood Heart', mood: 'Cinematic Grandeur', desc: 'Grand cinematic Bollywood orchestral strings and celebration', url: '/audio/bollywood-heart.mp3' },
-  { id: 'bollywood-nights', name: 'Bollywood Nights', mood: 'Modern Romance', desc: 'Modern celebratory Bollywood romance with upbeat rhythm', url: '/audio/bollywood-nights.mp3' },
-  { id: 'festival-lights', name: 'Festival Lights', mood: 'Sangeet Festive', desc: 'Traditional santur, sitar & joyful acoustic tabla for sangeet', url: '/audio/festival-lights.mp3' },
-  { id: 'dhol-dance-floor', name: 'Dhol on the Dance Floor', mood: 'Sangeet Party', desc: 'High-energy celebratory Punjabi dhol beats for dance party', url: '/audio/dhol-dance-floor.mp3' },
+  { id: 'shehnai-express', name: 'Shehnai Express', mood: 'Shaadi Dhol & Joy', desc: 'Fast celebratory wedding shehnai & live celebration rhythm', url: './audio/shehnai-express.mp3' },
+  { id: 'wedding-celebration', name: 'Wedding Celebration', mood: 'Festive Ensemble', desc: 'Joyful Indian wedding ensemble with shehnai & dholak', url: './audio/wedding-celebration.mp3' },
+  { id: 'sehra-bandi', name: 'Sehra Bandi', mood: 'Regal Baraat', desc: 'Auspicious shehnai, dholak and royal celebration nagada', url: './audio/sehra-bandi.mp3' },
+  { id: 'joyful-procession', name: 'Joyful Procession', mood: 'Baraat March', desc: 'High-spirited baraat procession celebration music', url: './audio/joyful-procession.mp3' },
+  { id: 'bollywood-heart', name: 'Bollywood Heart', mood: 'Cinematic Grandeur', desc: 'Grand cinematic Bollywood orchestral strings and celebration', url: './audio/bollywood-heart.mp3' },
+  { id: 'bollywood-nights', name: 'Bollywood Nights', mood: 'Modern Romance', desc: 'Modern celebratory Bollywood romance with upbeat rhythm', url: './audio/bollywood-nights.mp3' },
+  { id: 'festival-lights', name: 'Festival Lights', mood: 'Sangeet Festive', desc: 'Traditional santur, sitar & joyful acoustic tabla for sangeet', url: './audio/festival-lights.mp3' },
+  { id: 'dhol-dance-floor', name: 'Dhol on the Dance Floor', mood: 'Sangeet Party', desc: 'High-energy celebratory Punjabi dhol beats for dance party', url: './audio/dhol-dance-floor.mp3' },
 ];
 
 export const CELEBRATION_EFFECTS = [
@@ -599,9 +599,9 @@ export const DEFAULT_INVITATION_DATA = {
     style: 'classic-crest',
   },
   photos: {
-    cover: '/images/templates/caricature.webp',
-    bride: '/images/bride.webp',
-    groom: '/images/groom.webp',
+    cover: './images/templates/caricature.webp',
+    bride: './images/bride.webp',
+    groom: './images/groom.webp',
     brideBio: 'Loves classic poetry, morning chai, and spontaneous mountain hikes.',
     groomBio: 'Foodie, photography enthusiast, and the architect of their happiest memories.',
   },
@@ -703,18 +703,18 @@ export const DEFAULT_INVITATION_DATA = {
     },
   ],
   gallery: [
-    { url: '/images/couple-potrait.webp', caption: 'In each other\'s eyes' },
-    { url: '/images/couple-landscape-1.webp', caption: 'Moments under the palace sun' },
-    { url: '/images/couple-landscape-2.webp', caption: 'Lakeside serenity in Udaipur' },
-    { url: '/images/couple-potrait-1.webp', caption: 'Laughs & forever promises' },
-    { url: '/images/couple-landscape-3.webp', caption: 'Golden hour at Lake Pichola' },
-    { url: '/images/couple-landscape-4.webp', caption: 'Under the starlit sky' },
-    { url: '/images/couple-udaipur-boat.webp', caption: 'Sailing together' },
-    { url: '/images/couple-udaipur-rooftop.webp', caption: 'Rooftop whispers' },
-    { url: '/images/couple-udaipur-bazaar.webp', caption: 'Old city charm' },
-    { url: '/images/couple-udaipur-hilltop.webp', caption: 'Monsoon palace views' },
-    { url: '/images/couple-udaipur-haveli.webp', caption: 'Courtyard royalty' },
-    { url: '/images/couple-udaipur-ghat.webp', caption: 'At the water\'s edge' },
+    { url: './images/couple-potrait.webp', caption: 'In each other\'s eyes' },
+    { url: './images/couple-landscape-1.webp', caption: 'Moments under the palace sun' },
+    { url: './images/couple-landscape-2.webp', caption: 'Lakeside serenity in Udaipur' },
+    { url: './images/couple-potrait-1.webp', caption: 'Laughs & forever promises' },
+    { url: './images/couple-landscape-3.webp', caption: 'Golden hour at Lake Pichola' },
+    { url: './images/couple-landscape-4.webp', caption: 'Under the starlit sky' },
+    { url: './images/couple-udaipur-boat.webp', caption: 'Sailing together' },
+    { url: './images/couple-udaipur-rooftop.webp', caption: 'Rooftop whispers' },
+    { url: './images/couple-udaipur-bazaar.webp', caption: 'Old city charm' },
+    { url: './images/couple-udaipur-hilltop.webp', caption: 'Monsoon palace views' },
+    { url: './images/couple-udaipur-haveli.webp', caption: 'Courtyard royalty' },
+    { url: './images/couple-udaipur-ghat.webp', caption: 'At the water\'s edge' },
   ],
   logistics: {
     airport: 'Maharana Pratap Airport (UDR) — 28 km / 45 mins drive',

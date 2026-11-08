@@ -52,7 +52,7 @@ export function BioscopeBooth({ couplePhoto, names = 'Preeti & Ashish' }) {
             {/* The Lens Glass with Couple Photo */}
             <div className="w-full h-full rounded-full overflow-hidden bg-black/60 relative border border-amber-700">
               <img 
-                src={couplePhoto || '/images/templates/mela.webp'} 
+                src={couplePhoto || './images/templates/mela.webp'} 
                 alt={names}
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
               />
@@ -506,7 +506,7 @@ export function PastelFoldingDoorsReveal({ onReveal, bride = 'Preeti', groom = '
         {/* Inside Preview: Couple artwork */}
         <div className="absolute inset-0 rounded-2xl bg-[#FFFDF7] border-2 border-[#FDE68A] shadow-inner overflow-hidden flex flex-col items-center justify-center p-0">
           <img 
-            src={coverPhoto && !coverPhoto.includes('zardozi') && !coverPhoto.includes('mela') && !coverPhoto.includes('rajwada') ? coverPhoto : "/images/caricature/scooter_couple.webp"} 
+            src={coverPhoto && !coverPhoto.includes('zardozi') && !coverPhoto.includes('mela') && !coverPhoto.includes('rajwada') ? coverPhoto : "./images/caricature/scooter_couple.webp"} 
             alt={`${groom} & ${bride}`}
             className="w-full h-full object-contain object-center"
           />
@@ -738,7 +738,7 @@ export function PastelCaricatureHero({
           {/* Main Illustration: Scooter Couple Artwork Filled in Card - Full 9:16 Ratio */}
           <div className="w-full aspect-[9/16] rounded-2xl overflow-hidden relative flex items-center justify-center group bg-[#FFFDF7] shadow-inner">
             <img 
-              src={couplePhoto && !couplePhoto.includes('zardozi') && !couplePhoto.includes('mela') && !couplePhoto.includes('rajwada') ? couplePhoto : "/images/caricature/scooter_couple.webp"} 
+              src={couplePhoto && !couplePhoto.includes('zardozi') && !couplePhoto.includes('mela') && !couplePhoto.includes('rajwada') ? couplePhoto : "./images/caricature/scooter_couple.webp"} 
               alt={`${groom} & ${bride}`}
               className="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-700"
             />
@@ -801,7 +801,7 @@ export function PastelPolaroidCouple({
             {/* Circular Icon for Photo */}
             <div className="w-20 h-20 rounded-full overflow-hidden bg-stone-100 mt-1 mb-2 border-2 border-stone-200 ring-4 ring-[#E6F4EA] shadow-inner shrink-0 group-hover:ring-emerald-300 transition-all">
               <img 
-                src={groomPhoto || '/images/groom.webp'} 
+                src={groomPhoto || './images/groom.webp'} 
                 alt={groom}
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
               />
@@ -846,7 +846,7 @@ export function PastelPolaroidCouple({
             {/* Circular Icon for Photo */}
             <div className="w-20 h-20 rounded-full overflow-hidden bg-stone-100 mt-1 mb-2 border-2 border-stone-200 ring-4 ring-[#FCE8E6] shadow-inner shrink-0 group-hover:ring-rose-300 transition-all">
               <img 
-                src={bridePhoto || '/images/bride.webp'} 
+                src={bridePhoto || './images/bride.webp'} 
                 alt={bride}
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
               />
@@ -902,7 +902,7 @@ export function PastelPolaroidCouple({
             {/* Full Portrait Photo Inside Card */}
             <div className="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-stone-100 border-2 border-stone-200 shadow-inner mt-2">
               <img 
-                src={activeModal === 'groom' ? (groomPhoto || '/images/groom.webp') : (bridePhoto || '/images/bride.webp')} 
+                src={activeModal === 'groom' ? (groomPhoto || './images/groom.webp') : (bridePhoto || './images/bride.webp')} 
                 alt={activeModal === 'groom' ? groom : bride} 
                 className="w-full h-full object-cover object-top"
               />
@@ -1250,12 +1250,12 @@ export function PastelEventCard({ event, index }) {
   const isReception = nameLower.includes('reception') || nameLower.includes('party');
 
   const archImg = event.image || event.img || (
-    isHaldi ? '/images/caricature/haldi_arch.webp'
-    : isMehndi ? '/images/caricature/mehndi_arch.webp'
-    : isSangeet ? '/images/caricature/sangeet_arch.webp'
-    : isWedding ? '/images/caricature/pheras_arch.webp'
-    : isReception ? '/images/caricature/reception_arch.webp'
-    : '/images/caricature/scooter_couple.webp'
+    isHaldi ? './images/caricature/haldi_arch.webp'
+    : isMehndi ? './images/caricature/mehndi_arch.webp'
+    : isSangeet ? './images/caricature/sangeet_arch.webp'
+    : isWedding ? './images/caricature/pheras_arch.webp'
+    : isReception ? './images/caricature/reception_arch.webp'
+    : './images/caricature/scooter_couple.webp'
   );
 
   return (
@@ -1346,18 +1346,18 @@ export function PastelEventCard({ event, index }) {
  */
 export function PastelPolaroidGallery({ photos = [] }) {
   const defaultGallery = [
-    { id: 1, title: 'Engagement', img: '/images/couple-potrait.webp' },
-    { id: 2, title: 'Haldi Joy', img: '/images/couple-landscape-1.webp' },
-    { id: 3, title: 'Udaipur Sunset', img: '/images/couple-landscape-2.webp' },
-    { id: 4, title: 'Forever Begins', img: '/images/couple-potrait-1.webp' },
-    { id: 5, title: 'Palace Stroll', img: '/images/couple-landscape-3.webp' },
-    { id: 6, title: 'Starlit Promises', img: '/images/couple-landscape-4.webp' },
-    { id: 7, title: 'Lake Boat Ride', img: '/images/couple-udaipur-boat.webp' },
-    { id: 8, title: 'Palace Rooftop', img: '/images/couple-udaipur-rooftop.webp' },
-    { id: 9, title: 'Old City Charm', img: '/images/couple-udaipur-bazaar.webp' },
-    { id: 10, title: 'Monsoon Palace', img: '/images/couple-udaipur-hilltop.webp' },
-    { id: 11, title: 'Haveli Courtyard', img: '/images/couple-udaipur-haveli.webp' },
-    { id: 12, title: 'Waterfront Sunset', img: '/images/couple-udaipur-ghat.webp' },
+    { id: 1, title: 'Engagement', img: './images/couple-potrait.webp' },
+    { id: 2, title: 'Haldi Joy', img: './images/couple-landscape-1.webp' },
+    { id: 3, title: 'Udaipur Sunset', img: './images/couple-landscape-2.webp' },
+    { id: 4, title: 'Forever Begins', img: './images/couple-potrait-1.webp' },
+    { id: 5, title: 'Palace Stroll', img: './images/couple-landscape-3.webp' },
+    { id: 6, title: 'Starlit Promises', img: './images/couple-landscape-4.webp' },
+    { id: 7, title: 'Lake Boat Ride', img: './images/couple-udaipur-boat.webp' },
+    { id: 8, title: 'Palace Rooftop', img: './images/couple-udaipur-rooftop.webp' },
+    { id: 9, title: 'Old City Charm', img: './images/couple-udaipur-bazaar.webp' },
+    { id: 10, title: 'Monsoon Palace', img: './images/couple-udaipur-hilltop.webp' },
+    { id: 11, title: 'Haveli Courtyard', img: './images/couple-udaipur-haveli.webp' },
+    { id: 12, title: 'Waterfront Sunset', img: './images/couple-udaipur-ghat.webp' },
   ];
 
   const list = photos.length > 0 ? photos : defaultGallery;

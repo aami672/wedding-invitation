@@ -359,7 +359,7 @@ export default function InvitationExperience({
                       <div className="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 animate-spin-slow">
                         <div className="w-full h-full rounded-full bg-white p-0.5 overflow-hidden">
                           <img 
-                            src={data.photos?.story || data.photos?.cover || '/images/templates/caricature-couple.png'} 
+                            src={data.photos?.story || data.photos?.cover || './images/templates/caricature-couple.png'} 
                             alt="Story" 
                             className="w-full h-full object-cover rounded-full"
                           />
@@ -398,7 +398,7 @@ export default function InvitationExperience({
                       </span>
                       <div className="w-20 h-20 rounded-full mx-auto overflow-hidden border-2 border-emerald-400 p-0.5 shadow-lg">
                         <img 
-                          src={data.photos?.cover || data.photos?.bride || '/images/templates/caricature-couple.png'} 
+                          src={data.photos?.cover || data.photos?.bride || './images/templates/caricature-couple.png'} 
                           alt="Hosts" 
                           className="w-full h-full object-cover rounded-full"
                         />
