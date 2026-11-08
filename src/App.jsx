@@ -56,6 +56,9 @@ export default function App() {
         if (parsed.logistics && parsed.logistics.contact && parsed.logistics.contact.includes('Event Concierge')) {
           parsed.logistics.contact = '';
         }
+        if (!parsed.atmosphere) {
+          parsed.atmosphere = { style: parsed.effect || 'petals', intensity: 'medium' };
+        }
         return parsed;
       } catch (e) {
         console.error(e);

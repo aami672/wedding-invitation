@@ -839,7 +839,7 @@
       <!-- 8. PASTEL FOOTER (frame 080) -->
       <footer class="py-10 px-2 w-full max-w-[390px] mx-auto text-center space-y-3.5 border-t-2 border-dashed border-[#F5D0C5] select-none scroll-reveal">
         <h3 class="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">See you at the shaadi!</h3>
-        <p class="text-[10px] tracking-[0.3em] uppercase font-bold text-[#8B6F47]">WITH LOVE, Ashish & Preeti</p>
+        <p class="text-[10px] tracking-[0.3em] uppercase font-bold text-[#8B6F47]">WITH LOVE, ASHISH & PREETI</p>
         <div class="flex items-center justify-center gap-3">
           <span class="w-6 h-6 rounded-full bg-[#FEF3C7] border border-[#FBBF24] flex items-center justify-center text-xs shadow-xs animate-bounce">💛</span>
           <span class="w-6 h-6 rounded-full bg-[#D1FAE5] border border-[#34D399] flex items-center justify-center text-xs shadow-xs animate-bounce" style="animation-delay: 0.2s;">💚</span>
@@ -890,61 +890,151 @@
       resize();
       window.addEventListener('resize', resize);
 
+      const atmoStyle = 'auto';
+      const atmoIntensity = 'medium';
+
+      if (atmoIntensity === 'none' || atmoStyle === 'none') {
+        atmoCanvas.style.display = 'none';
+        return;
+      }
+
+      let pCount = atmoIntensity === 'subtle' ? 14 : atmoIntensity === 'rich' ? 52 : 28;
       const isMelaTheme = false;
       const isPichwaiTheme = false;
       const isZardoziTheme = false;
       const isBougainTheme = false;
 
       const particles = [];
-      const pCount = isPichwaiTheme ? 45 : isMelaTheme ? 40 : 35;
       for (let i = 0; i < pCount; i++) {
+        let pType = 'petal';
+        let pColor = '#F59E0B';
+        let speedY = Math.random() * 0.9 + 0.4;
+        let size = Math.random() * 6 + 5;
+
+        if (atmoStyle === 'feathers') {
+          pType = 'feather';
+          pColor = Math.random() > 0.4 ? '#FFFDF8' : '#F8F1E5';
+          size = Math.random() * 8 + 12;
+          speedY = Math.random() * 0.5 + 0.35;
+        } else if (atmoStyle === 'sparkles') {
+          pType = Math.random() > 0.5 ? 'sparkle-star' : 'gold-stardust';
+          pColor = Math.random() > 0.4 ? '#FFD700' : '#FFF8DC';
+          size = Math.random() * 4 + 2;
+        } else if (atmoStyle === 'petals') {
+          pType = Math.random() > 0.5 ? 'marigold-petal' : 'rose-petal';
+          pColor = pType === 'marigold-petal' ? '#F59E0B' : '#E11D48';
+          size = Math.random() * 6 + 6;
+        } else if (atmoStyle === 'flowers') {
+          pType = Math.random() > 0.5 ? 'marigold-flower' : 'bougain-petal';
+          pColor = pType === 'marigold-flower' ? '#F59E0B' : '#E11D48';
+          size = Math.random() * 6 + 7;
+        } else if (atmoStyle === 'fireflies') {
+          pType = 'firefly';
+          pColor = '#FFD700';
+          size = Math.random() * 3 + 2;
+          speedY = -(Math.random() * 0.7 + 0.3);
+        } else {
+          // auto theme defaults
+          if (isMelaTheme) { pType = 'marigold-petal'; pColor = '#F59E0B'; }
+          else if (isPichwaiTheme) { pType = 'firefly'; pColor = '#FFD700'; speedY = -(Math.random() * 0.7 + 0.3); }
+          else if (isZardoziTheme) { pType = 'gold-stardust'; pColor = '#D4AF37'; }
+          else { pType = 'marigold-petal'; pColor = '#F59E0B'; }
+        }
+
         particles.push({
           x: Math.random() * atmoCanvas.width,
           y: Math.random() * atmoCanvas.height,
-          size: isMelaTheme ? Math.random() * 8 + 6 : isPichwaiTheme ? Math.random() * 4 + 2 : Math.random() * 5 + 3,
-          speedY: isPichwaiTheme ? -(Math.random() * 0.8 + 0.3) : (Math.random() * 1.2 + 0.4),
-          speedX: (Math.random() - 0.5) * 0.8,
+          size,
+          speedY,
           rotation: Math.random() * Math.PI * 2,
-          rotSpeed: (Math.random() - 0.5) * 0.04,
-          opacity: Math.random() * 0.6 + 0.35,
-          color: isMelaTheme ? (Math.random() > 0.5 ? '#F59E0B' : '#EA580C') : isPichwaiTheme ? '#FFD700' : isZardoziTheme ? '#D4AF37' : '#F472B6',
+          rotSpeed: (Math.random() - 0.5) * 0.03,
+          opacity: Math.random() * 0.55 + 0.4,
+          pulseOffset: Math.random() * Math.PI * 2,
+          type: pType,
+          color: pColor,
         });
       }
 
+      let time = 0;
       function loop() {
         actx.clearRect(0, 0, atmoCanvas.width, atmoCanvas.height);
+        time += 0.02;
+
         particles.forEach(p => {
           actx.save();
           actx.translate(p.x, p.y);
           actx.rotate(p.rotation);
           actx.globalAlpha = p.opacity;
 
-          if (isMelaTheme) {
+          if (p.type === 'feather') {
+            const len = p.size * 2.2;
+            const w = p.size * 0.7;
             actx.fillStyle = p.color;
             actx.beginPath();
-            actx.ellipse(0, 0, p.size, p.size * 0.55, 0, 0, Math.PI * 2);
+            actx.moveTo(0, -len * 0.5);
+            actx.bezierCurveTo(-w * 0.85, -len * 0.2, -w * 0.85, len * 0.3, 0, len * 0.45);
+            actx.bezierCurveTo(w * 0.85, len * 0.3, w * 0.85, -len * 0.2, 0, -len * 0.5);
+            actx.closePath();
             actx.fill();
-          } else if (isPichwaiTheme) {
+            actx.strokeStyle = '#D8C7A5';
+            actx.lineWidth = 1;
+            actx.beginPath();
+            actx.moveTo(0, -len * 0.5);
+            actx.quadraticCurveTo(w * 0.15, 0, 0, len * 0.5);
+            actx.stroke();
+          } else if (p.type === 'sparkle-star') {
+            actx.shadowBlur = 8;
+            actx.shadowColor = '#FFD700';
+            actx.fillStyle = p.color;
+            actx.beginPath();
+            actx.moveTo(0, -p.size * 1.5);
+            actx.lineTo(p.size * 0.35, 0);
+            actx.lineTo(0, p.size * 1.5);
+            actx.lineTo(-p.size * 0.35, 0);
+            actx.closePath();
+            actx.fill();
+          } else if (p.type === 'firefly') {
             actx.shadowBlur = 12;
             actx.shadowColor = '#FFD700';
             actx.fillStyle = '#FFF8DC';
             actx.beginPath();
             actx.arc(0, 0, p.size, 0, Math.PI * 2);
             actx.fill();
+          } else if (p.type === 'marigold-flower') {
+            actx.fillStyle = p.color;
+            for (let petal = 0; petal < 6; petal++) {
+              actx.rotate(Math.PI / 3);
+              actx.beginPath();
+              actx.ellipse(p.size * 0.4, 0, p.size * 0.45, p.size * 0.3, 0, 0, Math.PI * 2);
+              actx.fill();
+            }
+            actx.fillStyle = '#78350F';
+            actx.beginPath();
+            actx.arc(0, 0, p.size * 0.25, 0, Math.PI * 2);
+            actx.fill();
           } else {
+            // Petal
             actx.fillStyle = p.color;
             actx.beginPath();
-            actx.arc(0, 0, p.size, 0, Math.PI * 2);
+            actx.ellipse(0, 0, p.size, p.size * 0.55, 0, 0, Math.PI * 2);
             actx.fill();
           }
 
           actx.restore();
-          p.y += p.speedY;
-          p.x += Math.sin(p.y * 0.01) * 0.5;
-          p.rotation += p.rotSpeed;
 
-          if (p.speedY > 0 && p.y > atmoCanvas.height + 20) { p.y = -20; p.x = Math.random() * atmoCanvas.width; }
-          else if (p.speedY < 0 && p.y < -20) { p.y = atmoCanvas.height + 20; p.x = Math.random() * atmoCanvas.width; }
+          if (p.type === 'feather') {
+            const sway = Math.sin(time * 1.6 + p.pulseOffset);
+            p.x += sway * 1.1;
+            p.rotation = sway * 0.35;
+            p.y += p.speedY;
+          } else {
+            p.y += p.speedY;
+            p.x += Math.sin(time + p.pulseOffset) * 0.6;
+            p.rotation += p.rotSpeed;
+          }
+
+          if (p.speedY > 0 && p.y > atmoCanvas.height + 25) { p.y = -25; p.x = Math.random() * atmoCanvas.width; }
+          else if (p.speedY < 0 && p.y < -25) { p.y = atmoCanvas.height + 25; p.x = Math.random() * atmoCanvas.width; }
         });
         requestAnimationFrame(loop);
       }
@@ -1197,7 +1287,7 @@
 
     // Hashtag Copy
     window.copyHashtag = function(tag) {
-      navigator.clipboard?.writeText(tag || '#PreetiWedsAshish');
+      navigator.clipboard?.writeText(tag || '#Wedding');
       const btn = document.getElementById('hashtag-btn');
       if (btn) btn.innerHTML = '<span>✅ Copied to Clipboard!</span>';
       setTimeout(() => {

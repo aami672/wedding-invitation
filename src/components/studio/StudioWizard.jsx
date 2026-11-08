@@ -10,7 +10,7 @@ import {
   Film, Heart, DoorOpen, Truck, Flame, Star
 } from 'lucide-react';
 import PhotoAdjustCropModal from './PhotoAdjustCropModal';
-import { OCCASIONS, TEMPLATES, REVEAL_STYLES, PALETTES, MUSIC_TRACKS, CELEBRATION_EFFECTS } from '../../data/presets';
+import { OCCASIONS, TEMPLATES, REVEAL_STYLES, PALETTES, MUSIC_TRACKS, CELEBRATION_EFFECTS, ATMOSPHERE_STYLES, ATMOSPHERE_INTENSITIES } from '../../data/presets';
 import InvitationExperience from '../invitation/InvitationExperience';
 import { soundManager } from '../../utils/audio';
 import { triggerCelebration } from '../../utils/confetti';
@@ -1687,61 +1687,151 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       resize();
       window.addEventListener('resize', resize);
 
+      const atmoStyle = '${data.atmosphere?.style || 'auto'}';
+      const atmoIntensity = '${data.atmosphere?.intensity || 'medium'}';
+
+      if (atmoIntensity === 'none' || atmoStyle === 'none') {
+        atmoCanvas.style.display = 'none';
+        return;
+      }
+
+      let pCount = atmoIntensity === 'subtle' ? 14 : atmoIntensity === 'rich' ? 52 : 28;
       const isMelaTheme = ${isMela};
       const isPichwaiTheme = ${isPichwai};
       const isZardoziTheme = ${isZardozi};
       const isBougainTheme = ${isBougain};
 
       const particles = [];
-      const pCount = isPichwaiTheme ? 45 : isMelaTheme ? 40 : 35;
       for (let i = 0; i < pCount; i++) {
+        let pType = 'petal';
+        let pColor = '#F59E0B';
+        let speedY = Math.random() * 0.9 + 0.4;
+        let size = Math.random() * 6 + 5;
+
+        if (atmoStyle === 'feathers') {
+          pType = 'feather';
+          pColor = Math.random() > 0.4 ? '#FFFDF8' : '#F8F1E5';
+          size = Math.random() * 8 + 12;
+          speedY = Math.random() * 0.5 + 0.35;
+        } else if (atmoStyle === 'sparkles') {
+          pType = Math.random() > 0.5 ? 'sparkle-star' : 'gold-stardust';
+          pColor = Math.random() > 0.4 ? '#FFD700' : '#FFF8DC';
+          size = Math.random() * 4 + 2;
+        } else if (atmoStyle === 'petals') {
+          pType = Math.random() > 0.5 ? 'marigold-petal' : 'rose-petal';
+          pColor = pType === 'marigold-petal' ? '#F59E0B' : '#E11D48';
+          size = Math.random() * 6 + 6;
+        } else if (atmoStyle === 'flowers') {
+          pType = Math.random() > 0.5 ? 'marigold-flower' : 'bougain-petal';
+          pColor = pType === 'marigold-flower' ? '#F59E0B' : '#E11D48';
+          size = Math.random() * 6 + 7;
+        } else if (atmoStyle === 'fireflies') {
+          pType = 'firefly';
+          pColor = '#FFD700';
+          size = Math.random() * 3 + 2;
+          speedY = -(Math.random() * 0.7 + 0.3);
+        } else {
+          // auto theme defaults
+          if (isMelaTheme) { pType = 'marigold-petal'; pColor = '#F59E0B'; }
+          else if (isPichwaiTheme) { pType = 'firefly'; pColor = '#FFD700'; speedY = -(Math.random() * 0.7 + 0.3); }
+          else if (isZardoziTheme) { pType = 'gold-stardust'; pColor = '#D4AF37'; }
+          else { pType = 'marigold-petal'; pColor = '#F59E0B'; }
+        }
+
         particles.push({
           x: Math.random() * atmoCanvas.width,
           y: Math.random() * atmoCanvas.height,
-          size: isMelaTheme ? Math.random() * 8 + 6 : isPichwaiTheme ? Math.random() * 4 + 2 : Math.random() * 5 + 3,
-          speedY: isPichwaiTheme ? -(Math.random() * 0.8 + 0.3) : (Math.random() * 1.2 + 0.4),
-          speedX: (Math.random() - 0.5) * 0.8,
+          size,
+          speedY,
           rotation: Math.random() * Math.PI * 2,
-          rotSpeed: (Math.random() - 0.5) * 0.04,
-          opacity: Math.random() * 0.6 + 0.35,
-          color: isMelaTheme ? (Math.random() > 0.5 ? '#F59E0B' : '#EA580C') : isPichwaiTheme ? '#FFD700' : isZardoziTheme ? '#D4AF37' : '#F472B6',
+          rotSpeed: (Math.random() - 0.5) * 0.03,
+          opacity: Math.random() * 0.55 + 0.4,
+          pulseOffset: Math.random() * Math.PI * 2,
+          type: pType,
+          color: pColor,
         });
       }
 
+      let time = 0;
       function loop() {
         actx.clearRect(0, 0, atmoCanvas.width, atmoCanvas.height);
+        time += 0.02;
+
         particles.forEach(p => {
           actx.save();
           actx.translate(p.x, p.y);
           actx.rotate(p.rotation);
           actx.globalAlpha = p.opacity;
 
-          if (isMelaTheme) {
+          if (p.type === 'feather') {
+            const len = p.size * 2.2;
+            const w = p.size * 0.7;
             actx.fillStyle = p.color;
             actx.beginPath();
-            actx.ellipse(0, 0, p.size, p.size * 0.55, 0, 0, Math.PI * 2);
+            actx.moveTo(0, -len * 0.5);
+            actx.bezierCurveTo(-w * 0.85, -len * 0.2, -w * 0.85, len * 0.3, 0, len * 0.45);
+            actx.bezierCurveTo(w * 0.85, len * 0.3, w * 0.85, -len * 0.2, 0, -len * 0.5);
+            actx.closePath();
             actx.fill();
-          } else if (isPichwaiTheme) {
+            actx.strokeStyle = '#D8C7A5';
+            actx.lineWidth = 1;
+            actx.beginPath();
+            actx.moveTo(0, -len * 0.5);
+            actx.quadraticCurveTo(w * 0.15, 0, 0, len * 0.5);
+            actx.stroke();
+          } else if (p.type === 'sparkle-star') {
+            actx.shadowBlur = 8;
+            actx.shadowColor = '#FFD700';
+            actx.fillStyle = p.color;
+            actx.beginPath();
+            actx.moveTo(0, -p.size * 1.5);
+            actx.lineTo(p.size * 0.35, 0);
+            actx.lineTo(0, p.size * 1.5);
+            actx.lineTo(-p.size * 0.35, 0);
+            actx.closePath();
+            actx.fill();
+          } else if (p.type === 'firefly') {
             actx.shadowBlur = 12;
             actx.shadowColor = '#FFD700';
             actx.fillStyle = '#FFF8DC';
             actx.beginPath();
             actx.arc(0, 0, p.size, 0, Math.PI * 2);
             actx.fill();
+          } else if (p.type === 'marigold-flower') {
+            actx.fillStyle = p.color;
+            for (let petal = 0; petal < 6; petal++) {
+              actx.rotate(Math.PI / 3);
+              actx.beginPath();
+              actx.ellipse(p.size * 0.4, 0, p.size * 0.45, p.size * 0.3, 0, 0, Math.PI * 2);
+              actx.fill();
+            }
+            actx.fillStyle = '#78350F';
+            actx.beginPath();
+            actx.arc(0, 0, p.size * 0.25, 0, Math.PI * 2);
+            actx.fill();
           } else {
+            // Petal
             actx.fillStyle = p.color;
             actx.beginPath();
-            actx.arc(0, 0, p.size, 0, Math.PI * 2);
+            actx.ellipse(0, 0, p.size, p.size * 0.55, 0, 0, Math.PI * 2);
             actx.fill();
           }
 
           actx.restore();
-          p.y += p.speedY;
-          p.x += Math.sin(p.y * 0.01) * 0.5;
-          p.rotation += p.rotSpeed;
 
-          if (p.speedY > 0 && p.y > atmoCanvas.height + 20) { p.y = -20; p.x = Math.random() * atmoCanvas.width; }
-          else if (p.speedY < 0 && p.y < -20) { p.y = atmoCanvas.height + 20; p.x = Math.random() * atmoCanvas.width; }
+          if (p.type === 'feather') {
+            const sway = Math.sin(time * 1.6 + p.pulseOffset);
+            p.x += sway * 1.1;
+            p.rotation = sway * 0.35;
+            p.y += p.speedY;
+          } else {
+            p.y += p.speedY;
+            p.x += Math.sin(time + p.pulseOffset) * 0.6;
+            p.rotation += p.rotSpeed;
+          }
+
+          if (p.speedY > 0 && p.y > atmoCanvas.height + 25) { p.y = -25; p.x = Math.random() * atmoCanvas.width; }
+          else if (p.speedY < 0 && p.y < -25) { p.y = atmoCanvas.height + 25; p.x = Math.random() * atmoCanvas.width; }
         });
         requestAnimationFrame(loop);
       }
@@ -2860,6 +2950,8 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
   const selectedPalette = PALETTES.find(p => p.id === data.palette) || PALETTES[1];
   const selectedMusic = MUSIC_TRACKS.find(m => m.id === data.music) || MUSIC_TRACKS[0];
   const selectedEffect = CELEBRATION_EFFECTS.find(e => e.id === data.effect) || CELEBRATION_EFFECTS[0];
+  const selectedAtmosphereStyle = ATMOSPHERE_STYLES.find(s => s.id === (data.atmosphere?.style || 'petals')) || ATMOSPHERE_STYLES[0];
+  const selectedAtmosphereIntensity = ATMOSPHERE_INTENSITIES.find(i => i.id === (data.atmosphere?.intensity || 'medium')) || ATMOSPHERE_INTENSITIES[2];
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] flex flex-col">
@@ -3711,7 +3803,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                   )}
                 </div>
 
-                {/* ROW 6: CELEBRATION EFFECTS */}
+                {/* ROW 6: ATMOSPHERE & CELEBRATION EFFECTS */}
                 <div className="bg-white rounded-2xl border border-[#E6D5BF] overflow-hidden shadow-xs">
                   <button
                     type="button"
@@ -3720,12 +3812,14 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                   >
                     <div className="flex items-center gap-3.5">
                       <div className="w-10 h-10 rounded-xl bg-[#A9825F] flex items-center justify-center text-white shadow-xs">
-                        <PartyPopper className="w-5 h-5" />
+                        <Sparkles className="w-5 h-5" />
                       </div>
                       <div>
-                        <h4 className="font-serif text-2xl font-light text-[#2B1E17]">Celebration effects</h4>
+                        <h4 className="font-serif text-2xl font-light text-[#2B1E17]">Atmosphere & Celebration effects</h4>
                         {openRow !== 'effects' && (
-                          <p className="text-xs text-stone-500 font-light mt-0.5">{selectedEffect?.name || 'CONFETTI'}</p>
+                          <p className="text-xs text-stone-500 font-light mt-0.5">
+                            {selectedAtmosphereStyle?.name || 'Flower Petals'} • {selectedAtmosphereIntensity?.label || 'Medium'} • {selectedEffect?.name || 'CONFETTI'}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -3733,65 +3827,175 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                   </button>
 
                   {openRow === 'effects' && (
-                    <div className="p-4 sm:p-6 border-t border-[#E6D5BF] bg-[#FAF8F5]/60 space-y-4">
-                      <p className="text-xs text-stone-500 font-light -mt-1 mb-2">
-                        Choose the particle animation that bursts when the invite unlocks and when guests RSVP.
-                      </p>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
-                        {CELEBRATION_EFFECTS.map(eff => {
-                          const isSelected = (data.effect === eff.id) || (!data.effect && eff.id === 'confetti');
+                    <div className="p-4 sm:p-6 border-t border-[#E6D5BF] bg-[#FAF8F5]/60 space-y-6">
+                      
+                      {/* SECTION 1: CONTINUOUS SCREEN ATMOSPHERE */}
+                      <div className="space-y-3.5">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h5 className="font-serif text-lg font-normal text-[#2B1E17] flex items-center gap-2">
+                              <span>🌸</span> Invitation Floating Atmosphere
+                            </h5>
+                            <p className="text-xs text-stone-500 font-light mt-0.5">
+                              Continuous floating petals, flowers, sparkles, or feathers strictly inside your invitation screen.
+                            </p>
+                          </div>
+                        </div>
 
-                          return (
-                            <button
-                              key={eff.id}
-                              type="button"
-                              onClick={() => {
-                                setData(prev => ({ ...prev, effect: eff.id }));
-                                triggerCelebration(eff.id);
-                              }}
-                              className={`py-3.5 px-3 sm:py-4.5 rounded-2xl border text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-2 group ${
-                                isSelected 
-                                  ? 'border-2 border-[#8B6F47] bg-[#FAF8F5] shadow-xs' 
-                                  : 'border border-stone-200/90 bg-white hover:border-stone-300 hover:bg-stone-50/40'
-                              }`}
-                            >
-                              <div className="h-5 flex items-center justify-center">
-                                {eff.id === 'confetti' && (
-                                  <div className="w-2.5 h-4 bg-[#8B6F47] rounded-[2px]" />
-                                )}
-                                {eff.id === 'colorful' && (
-                                  <svg viewBox="0 0 24 24" className="w-5 h-5">
-                                    <circle cx="12" cy="12" r="2.5" fill="#F59E0B" />
-                                    <line x1="12" y1="2" x2="12" y2="6" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" />
-                                    <line x1="12" y1="18" x2="12" y2="22" stroke="#10B981" strokeWidth="2" strokeLinecap="round" />
-                                    <line x1="2" y1="12" x2="6" y2="12" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" />
-                                    <line x1="18" y1="12" x2="22" y2="12" stroke="#EC4899" strokeWidth="2" strokeLinecap="round" />
-                                    <line x1="4.93" y1="4.93" x2="7.76" y2="7.76" stroke="#8B5CF6" strokeWidth="2" strokeLinecap="round" />
-                                    <line x1="16.24" y1="16.24" x2="19.07" y2="19.07" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" />
-                                    <line x1="4.93" y1="19.07" x2="7.76" y2="16.24" stroke="#06B6D4" strokeWidth="2" strokeLinecap="round" />
-                                    <line x1="16.24" y1="7.76" x2="19.07" y2="4.93" stroke="#F97316" strokeWidth="2" strokeLinecap="round" />
-                                  </svg>
-                                )}
-                                {eff.id === 'hearts' && (
-                                  <Heart className="w-4 h-4 fill-stone-800 text-stone-800" />
-                                )}
-                                {eff.id === 'stars' && (
-                                  <Star className="w-4 h-4 fill-stone-800 text-stone-800" />
-                                )}
-                                {eff.id === 'dots' && (
-                                  <div className="w-2.5 h-2.5 rounded-full bg-stone-800" />
-                                )}
-                                {eff.id === 'petals' && (
-                                  <Flower2 className="w-4 h-4 text-stone-800 stroke-[2]" />
-                                )}
-                              </div>
+                        {/* ATMOSPHERE STYLE SELECTION */}
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] uppercase font-bold tracking-wider text-stone-500 block">
+                            Floating Style
+                          </label>
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
+                            {ATMOSPHERE_STYLES.map(style => {
+                              const isSelected = (data.atmosphere?.style === style.id) || (!data.atmosphere?.style && style.id === 'petals');
+                              return (
+                                <button
+                                  key={style.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setData(prev => ({
+                                      ...prev,
+                                      atmosphere: {
+                                        style: style.id,
+                                        intensity: prev.atmosphere?.intensity || 'medium'
+                                      }
+                                    }));
+                                  }}
+                                  className={`p-3 rounded-2xl border text-left cursor-pointer transition-all flex flex-col justify-between group ${
+                                    isSelected 
+                                      ? 'border-2 border-[#8B6F47] bg-[#FAF8F5] shadow-xs ring-1 ring-[#C5A880]/40' 
+                                      : 'border border-stone-200/90 bg-white hover:border-stone-300 hover:bg-stone-50/40'
+                                  }`}
+                                >
+                                  <div className="flex items-center justify-between w-full mb-1">
+                                    <span className="text-2xl">{style.icon}</span>
+                                    {isSelected && (
+                                      <div className="w-5 h-5 rounded-full bg-[#8B6F47] text-white flex items-center justify-center">
+                                        <Check className="w-3 h-3" />
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div>
+                                    <p className="text-xs font-semibold text-[#2B1E17] leading-tight">{style.name}</p>
+                                    <p className="text-[10px] text-stone-400 font-light leading-snug line-clamp-1 mt-0.5">{style.desc}</p>
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
 
-                              <span className="font-bold tracking-widest text-[11px] sm:text-xs uppercase text-[#2B1E17] block">
-                                {eff.name}
-                              </span>
-                            </button>
-                          );
-                        })}
+                        {/* ATMOSPHERE INTENSITY SELECTOR */}
+                        <div className="space-y-1.5 pt-1">
+                          <div className="flex items-center justify-between">
+                            <label className="text-[10px] uppercase font-bold tracking-wider text-stone-500">
+                              Particle Intensity & Density
+                            </label>
+                            <span className="text-xs text-[#8B6F47] font-semibold capitalize">
+                              {data.atmosphere?.intensity || 'medium'}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-4 gap-2 bg-stone-100/90 p-1.5 rounded-2xl border border-stone-200/70">
+                            {ATMOSPHERE_INTENSITIES.map(lvl => {
+                              const isSelected = (data.atmosphere?.intensity === lvl.id) || (!data.atmosphere?.intensity && lvl.id === 'medium');
+                              return (
+                                <button
+                                  key={lvl.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setData(prev => ({
+                                      ...prev,
+                                      atmosphere: {
+                                        style: prev.atmosphere?.style || 'petals',
+                                        intensity: lvl.id
+                                      }
+                                    }));
+                                  }}
+                                  className={`py-2 px-2 rounded-xl text-center cursor-pointer transition-all ${
+                                    isSelected 
+                                      ? 'bg-white text-[#2B1E17] font-semibold shadow-xs border border-stone-300/80 ring-1 ring-stone-200' 
+                                      : 'text-stone-500 hover:text-stone-800 text-xs font-normal'
+                                  }`}
+                                >
+                                  <div className="text-xs">{lvl.label}</div>
+                                  <div className="text-[9px] text-stone-400 font-light truncate hidden sm:block">{lvl.desc}</div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="w-full h-px bg-[#E6D5BF]/80 my-4" />
+
+                      {/* SECTION 2: UNLOCK & RSVP BURST ANIMATION */}
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-[10px] uppercase font-bold tracking-wider text-stone-500 block">
+                            Unlock & RSVP Burst Effect
+                          </label>
+                          <p className="text-xs text-stone-500 font-light mt-0.5">
+                            Particle animation that bursts when the invite unlocks and when guests RSVP.
+                          </p>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
+                          {CELEBRATION_EFFECTS.map(eff => {
+                            const isSelected = (data.effect === eff.id) || (!data.effect && eff.id === 'confetti');
+
+                            return (
+                              <button
+                                key={eff.id}
+                                type="button"
+                                onClick={() => {
+                                  setData(prev => ({ ...prev, effect: eff.id }));
+                                  triggerCelebration(eff.id);
+                                }}
+                                className={`py-3.5 px-3 sm:py-4.5 rounded-2xl border text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-2 group ${
+                                  isSelected 
+                                    ? 'border-2 border-[#8B6F47] bg-[#FAF8F5] shadow-xs' 
+                                    : 'border border-stone-200/90 bg-white hover:border-stone-300 hover:bg-stone-50/40'
+                                }`}
+                              >
+                                <div className="h-5 flex items-center justify-center">
+                                  {eff.id === 'confetti' && (
+                                    <div className="w-2.5 h-4 bg-[#8B6F47] rounded-[2px]" />
+                                  )}
+                                  {eff.id === 'colorful' && (
+                                    <svg viewBox="0 0 24 24" className="w-5 h-5">
+                                      <circle cx="12" cy="12" r="2.5" fill="#F59E0B" />
+                                      <line x1="12" y1="2" x2="12" y2="6" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" />
+                                      <line x1="12" y1="18" x2="12" y2="22" stroke="#10B981" strokeWidth="2" strokeLinecap="round" />
+                                      <line x1="2" y1="12" x2="6" y2="12" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" />
+                                      <line x1="18" y1="12" x2="22" y2="12" stroke="#EC4899" strokeWidth="2" strokeLinecap="round" />
+                                      <line x1="4.93" y1="4.93" x2="7.76" y2="7.76" stroke="#8B5CF6" strokeWidth="2" strokeLinecap="round" />
+                                      <line x1="16.24" y1="16.24" x2="19.07" y2="19.07" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" />
+                                      <line x1="4.93" y1="19.07" x2="7.76" y2="16.24" stroke="#06B6D4" strokeWidth="2" strokeLinecap="round" />
+                                      <line x1="16.24" y1="7.76" x2="19.07" y2="4.93" stroke="#F97316" strokeWidth="2" strokeLinecap="round" />
+                                    </svg>
+                                  )}
+                                  {eff.id === 'hearts' && (
+                                    <Heart className="w-4 h-4 fill-stone-800 text-stone-800" />
+                                  )}
+                                  {eff.id === 'stars' && (
+                                    <Star className="w-4 h-4 fill-stone-800 text-stone-800" />
+                                  )}
+                                  {eff.id === 'dots' && (
+                                    <div className="w-2.5 h-2.5 rounded-full bg-stone-800" />
+                                  )}
+                                  {eff.id === 'petals' && (
+                                    <Flower2 className="w-4 h-4 text-stone-800 stroke-[2]" />
+                                  )}
+                                </div>
+
+                                <span className="font-bold tracking-widest text-[11px] sm:text-xs uppercase text-[#2B1E17] block">
+                                  {eff.name}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
                   )}
@@ -4554,7 +4758,8 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
 
           {/* HARDWARE PHONE SIMULATOR FRAME */}
           <div 
-            className={`transition-all duration-500 overflow-y-auto rounded-[40px] shadow-2xl border-[10px] border-[#1C1917] bg-white relative ${
+            data-simulator-frame="true"
+            className={`transition-all duration-500 overflow-y-auto overflow-x-hidden rounded-[40px] shadow-2xl border-[10px] border-[#1C1917] bg-white relative [contain:paint] isolate ${
               previewDevice === 'mobile' 
                 ? 'w-[390px] h-[780px] max-h-[88vh]' 
                 : previewDevice === 'tablet' 

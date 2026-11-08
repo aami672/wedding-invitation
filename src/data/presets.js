@@ -585,6 +585,24 @@ export const CELEBRATION_EFFECTS = [
   { id: 'petals', name: 'PETALS', desc: 'Delicate marigold and soft rose petals' },
 ];
 
+export const ATMOSPHERE_STYLES = [
+  { id: 'petals', name: 'Flower Petals', icon: '🌸', desc: 'Fluttering marigold & rose petals' },
+  { id: 'flowers', name: 'Flowers & Blossoms', icon: '🌺', desc: 'Mini marigold & jasmine blossoms' },
+  { id: 'sparkles', name: 'Sparkles & Stardust', icon: '✨', desc: 'Magical golden stardust & glints' },
+  { id: 'feathers', name: 'Royal Feathers', icon: '🪶', desc: 'Soft floating ivory & gold feathers' },
+  { id: 'fireflies', name: 'Golden Fireflies', icon: '💫', desc: 'Glowing heritage pichwai fireflies' },
+  { id: 'hearts', name: 'Storybook Hearts', icon: '💖', desc: 'Romantic pastel floating hearts' },
+  { id: 'auto', name: 'Template Default', icon: '🎨', desc: 'Signature atmosphere for current theme' },
+  { id: 'none', name: 'None (Off)', icon: '🚫', desc: 'No floating atmosphere particles' },
+];
+
+export const ATMOSPHERE_INTENSITIES = [
+  { id: 'none', label: 'Off', desc: 'Clean screen' },
+  { id: 'subtle', label: 'Subtle', desc: 'Light & gentle drift' },
+  { id: 'medium', label: 'Medium', desc: 'Romantic & balanced' },
+  { id: 'rich', label: 'Rich', desc: 'Festive shower' },
+];
+
 export const DEFAULT_INVITATION_DATA = {
   occasion: 'wedding',
   type: 'full', // 'full' or 'save-the-date'
@@ -594,6 +612,10 @@ export const DEFAULT_INVITATION_DATA = {
   music: 'modern-muse',
   customMusicUrl: '',
   effect: 'petals',
+  atmosphere: {
+    style: 'petals',
+    intensity: 'medium',
+  },
   monogram: {
     initials: 'P & A',
     style: 'classic-crest',
