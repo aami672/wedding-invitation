@@ -105,6 +105,7 @@ export default function App() {
           onSave={data => setInvitationData(data)}
           onExitToHome={() => setView('landing')}
           onOpenDashboard={() => setView('dashboard')}
+          onOpenLivePreview={() => setView('live')}
         />
       )}
 

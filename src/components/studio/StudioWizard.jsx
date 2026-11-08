@@ -62,7 +62,7 @@ async function toBase64(url) {
   }
 }
 
-export default function StudioWizard({ initialData, onSave, onExitToHome, onOpenDashboard }) {
+export default function StudioWizard({ initialData, onSave, onExitToHome, onOpenDashboard, onOpenLivePreview }) {
   const [data, setData] = useState(initialData);
   const [activeTab, setActiveTab] = useState('design');
   const [previewDevice, setPreviewDevice] = useState('mobile');
@@ -2684,9 +2684,17 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     }
   };
 
+  const getShareUrl = () => {
+    if (typeof window !== 'undefined') {
+      const cleanPath = window.location.pathname.endsWith('/') ? window.location.pathname : window.location.pathname + '/';
+      return `${window.location.origin}${cleanPath}#live`;
+    }
+    return 'https://aami672.github.io/wedding-invitation/#live';
+  };
+
   const copyShareText = () => {
-    const slug = `${data.hosts?.bride || 'preeti'}-and-${data.hosts?.groom || 'ashish'}`.toLowerCase().replace(/\s+/g, '-');
-    const text = `Dearest friends & family,\n\nWe are getting married! 💕 Please join our celebrations in ${data.hosts?.city || 'Meerut'} on ${data.hosts?.date || '14th February 2027'}.\n\nView our wedding invitation & event schedule here:\n👉 https://wishlys-free.com/invite/${slug}`;
+    const liveUrl = getShareUrl();
+    const text = `Dearest friends & family,\n\nWe are getting married! 💕 Please join our celebrations in ${data.hosts?.city || 'Udaipur'} on ${data.hosts?.date || '14th February 2027'}.\n\nView our wedding invitation & event schedule here:\n👉 ${liveUrl}`;
     navigator.clipboard.writeText(text);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2500);
@@ -2701,8 +2709,8 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
   return (
     <div className="min-h-screen bg-[#FDFBF7] flex flex-col">
       {/* STUDIO HEADER */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#E6D5BF] px-6 py-3.5 flex justify-between items-center shadow-xs">
-        <div className="flex items-center gap-4">
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#E6D5BF] px-4 sm:px-6 py-3.5 flex justify-between items-center shadow-xs">
+        <div className="flex items-center gap-3 sm:gap-4">
           <button
             type="button"
             onClick={onExitToHome}
@@ -2722,14 +2730,26 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          {onOpenLivePreview && (
+            <button
+              type="button"
+              onClick={onOpenLivePreview}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF5ED] border border-[#C5A880] text-xs font-bold text-[#8B6F47] hover:bg-[#8B6F47] hover:text-white transition-all cursor-pointer shadow-2xs"
+              title="Open full-screen invitation as guests will see it"
+            >
+              <Eye className="w-3.5 h-3.5" />
+              <span>Guest Preview</span>
+            </button>
+          )}
+
           <button
             type="button"
             onClick={onOpenDashboard}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-[#C5A880] text-xs font-bold text-[#8B6F47] hover:bg-[#FAF5ED] transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-stone-200 text-xs font-bold text-stone-700 hover:bg-stone-50 transition-colors cursor-pointer"
           >
-            <Shield className="w-3.5 h-3.5 text-[#8B6F47]" />
-            <span>Host Dashboard</span>
+            <Shield className="w-3.5 h-3.5 text-stone-500" />
+            <span>Dashboard</span>
           </button>
         </div>
       </header>
@@ -4106,7 +4126,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                     <input
                       type="text"
                       readOnly
-                      value={`https://wishlys-free.com/invite/${data.hosts?.bride?.toLowerCase().replace(/\s+/g, '-')}-and-${data.hosts?.groom?.toLowerCase().replace(/\s+/g, '-')}`}
+                      value={getShareUrl()}
                       className="flex-1 px-3 py-2 rounded-xl border border-stone-200 text-xs bg-white text-stone-700 select-all"
                     />
                     <button
