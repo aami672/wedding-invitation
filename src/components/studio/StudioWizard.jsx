@@ -1180,7 +1180,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           const isHaldi = nameLower.includes('haldi');
           const isMehndi = nameLower.includes('mehndi') || nameLower.includes('mehendi');
           const isSangeet = nameLower.includes('sangeet');
-          const isWedding = nameLower.includes('wedding') || nameLower.includes('phera');
+          const isWedding = evt.id === 'evt-pheras' || nameLower.includes('wedding') || nameLower.includes('phera') || nameLower.includes('shaadi');
           const isReception = nameLower.includes('reception') || nameLower.includes('party');
 
           const archB64 = isHaldi ? (b64Haldi || b64Scooter)
@@ -2219,11 +2219,27 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
 </body>
 </html>`;
 
+    // Auto-save to public/published folder if running locally
+    try {
+      await fetch('/api/save-published', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: `${slug}.html`, content: standaloneHtml })
+      });
+      await fetch('/api/save-published', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: 'index.html', content: standaloneHtml })
+      });
+    } catch (e) {
+      // ignore
+    }
+
     const blob = new Blob([standaloneHtml], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `invitation-${slug}.html`;
+    a.download = `${slug}.html`;
     a.click();
     URL.revokeObjectURL(url);
     setIsExportingHtml(false);
@@ -4137,6 +4153,48 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                       {copiedLink ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                       <span>{copiedLink ? 'Copied!' : 'Copy'}</span>
                     </button>
+                  </div>
+                </div>
+
+                {/* Dedicated Published Standalone Link */}
+                <div className="p-4 rounded-xl border border-[#C5A880] bg-[#FAF5ED]/60 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] uppercase font-bold text-[#8B6F47] flex items-center gap-1.5">
+                      <Globe className="w-3.5 h-3.5" />
+                      Live Published Standalone HTML Link
+                    </span>
+                    <span className="text-[9px] uppercase font-bold text-stone-500">Root folder: /published/{data.hosts?.bride?.toLowerCase().replace(/\s+/g, '-')}-and-{data.hosts?.groom?.toLowerCase().replace(/\s+/g, '-')}.html</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      readOnly
+                      value={`https://aami672.github.io/wedding-invitation/published/${(data.hosts?.bride || 'preeti').toLowerCase().replace(/\s+/g, '-')}-and-${(data.hosts?.groom || 'ashish').toLowerCase().replace(/\s+/g, '-')}.html`}
+                      className="flex-1 px-3 py-2 rounded-xl border border-[#D5C2AA] text-xs bg-white text-stone-800 font-medium select-all"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const pubUrl = `https://aami672.github.io/wedding-invitation/published/${(data.hosts?.bride || 'preeti').toLowerCase().replace(/\s+/g, '-')}-and-${(data.hosts?.groom || 'ashish').toLowerCase().replace(/\s+/g, '-')}.html`;
+                        navigator.clipboard.writeText(pubUrl);
+                        setCopiedLink(true);
+                        setTimeout(() => setCopiedLink(false), 2000);
+                      }}
+                      className="px-3.5 py-2 rounded-xl bg-[#8B6F47] hover:bg-[#725a38] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center gap-1"
+                      title="Copy direct published HTML link"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>Copy</span>
+                    </button>
+                    <a
+                      href={`https://aami672.github.io/wedding-invitation/published/${(data.hosts?.bride || 'preeti').toLowerCase().replace(/\s+/g, '-')}-and-${(data.hosts?.groom || 'ashish').toLowerCase().replace(/\s+/g, '-')}.html`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3.5 py-2 rounded-xl border border-[#C5A880] bg-white hover:bg-[#FAF5ED] text-[#8B6F47] text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center gap-1"
+                      title="Open live published page"
+                    >
+                      <span>Open ↗</span>
+                    </a>
                   </div>
                 </div>
 

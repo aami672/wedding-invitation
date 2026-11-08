@@ -293,6 +293,16 @@ export function RoyalWeddingMandap({ bride = 'Preeti', groom = 'Ashish' }) {
   return (
     <div className="relative my-6 flex flex-col items-center select-none">
       <div className="w-full max-w-sm rounded-2xl p-4 bg-gradient-to-b from-amber-50/70 to-rose-50/70 border border-[#D4AF37] shadow-md relative overflow-hidden">
+        {/* Caricature Mandap Image */}
+        <div className="w-full max-w-[260px] aspect-[9/16] mx-auto rounded-t-3xl overflow-hidden mb-3 border border-amber-200 shadow-sm bg-[#FFFDF7]">
+          <img 
+            src="./images/caricature/pheras_arch.webp" 
+            alt="Main Pheras Mandap" 
+            className="w-full h-full object-contain"
+            onError={(e) => { e.target.src = './images/caricature/pheras.webp'; }}
+          />
+        </div>
+
         {/* Mandap Archway Graphic */}
         <div className="flex justify-between items-start mb-2">
           {/* Left Pillar */}
@@ -1246,7 +1256,7 @@ export function PastelEventCard({ event, index }) {
   const isHaldi = nameLower.includes('haldi');
   const isMehndi = nameLower.includes('mehndi') || nameLower.includes('mehendi');
   const isSangeet = nameLower.includes('sangeet');
-  const isWedding = nameLower.includes('wedding') || nameLower.includes('phera');
+  const isWedding = event.id === 'evt-pheras' || nameLower.includes('wedding') || nameLower.includes('phera') || nameLower.includes('shaadi') || nameLower.includes('vow') || nameLower.includes('mandap');
   const isReception = nameLower.includes('reception') || nameLower.includes('party');
 
   const archImg = event.image || event.img || (
@@ -1268,6 +1278,13 @@ export function PastelEventCard({ event, index }) {
               <img 
                 src={archImg} 
                 alt={event.name} 
+                onError={(e) => {
+                  if (isWedding && !e.target.src.includes('pheras_arch.webp')) {
+                    e.target.src = './images/caricature/pheras_arch.webp';
+                  } else if (isWedding) {
+                    e.target.src = './images/caricature/pheras.webp';
+                  }
+                }}
                 className="w-full h-full object-contain object-center hover:scale-105 transition-transform duration-500" 
               />
             </div>

@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Preeti & Ashish — Wedding Invitation</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Great+Vibes&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #FAF7F2; color: #2B1E17; }
+    .font-serif { font-family: 'Cormorant Garamond', Georgia, serif; }
+    .font-royal { font-family: 'Cinzel', serif; }
+    .font-script { font-family: 'Great Vibes', cursive; }
+
+    @keyframes swayGentle { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+    @keyframes swayToran { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(2px) rotate(1deg); } }
+    @keyframes rotateSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes fireworkBurst { 0%, 100% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.08); opacity: 1; } }
+
+    .animate-sway { animation: swayGentle 4s ease-in-out infinite; transform-origin: top center; }
+    .animate-toran { animation: swayToran 5s ease-in-out infinite; transform-origin: top center; }
+    .animate-rotate-slow { animation: rotateSlow 24s linear infinite; }
+    .animate-firework { animation: fireworkBurst 2.5s ease-in-out infinite; }
+
+    /* Scroll Animations Matching export-1793962607603.mp4 */
+    .scroll-reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, transform;
+    }
+    .scroll-reveal.is-revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-tilt-left {
+      opacity: 0;
+      transform: translateX(-24px) translateY(20px) rotate(-8deg) scale(0.92);
+      transition: all 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, transform;
+    }
+    .reveal-tilt-left.is-revealed {
+      opacity: 1;
+      transform: translateX(0) translateY(0) rotate(-2deg) scale(1);
+    }
+    .reveal-tilt-right {
+      opacity: 0;
+      transform: translateX(24px) translateY(20px) rotate(8deg) scale(0.92);
+      transition: all 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, transform;
+    }
+    .reveal-tilt-right.is-revealed {
+      opacity: 1;
+      transform: translateX(0) translateY(0) rotate(2deg) scale(1);
+    }
+    .reveal-pop-up {
+      opacity: 0;
+      transform: translateY(32px) scale(0.93);
+      transition: all 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, transform;
+    }
+    .reveal-pop-up.is-revealed {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    .reveal-calendar {
+      opacity: 0;
+      transform: translateY(-28px) rotate(-2deg) scale(0.95);
+      transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, transform;
+    }
+    .reveal-calendar.is-revealed {
+      opacity: 1;
+      transform: translateY(0) rotate(0deg) scale(1);
+    }
+    .reveal-bounce {
+      opacity: 0;
+      transform: scale(0.4);
+      transition: all 0.65s cubic-bezier(0.34, 1.56, 0.64, 1);
+      will-change: opacity, transform;
+    }
+    .reveal-bounce.is-revealed {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .reveal-scooter {
+      opacity: 0;
+      transform: translateX(-80px);
+      transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, transform;
+    }
+    .reveal-scooter.is-revealed {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    /* Hand-Drawn Heart Marking Animation for Calendar */
+    @keyframes markHeartDraw {
+      0% { stroke-dashoffset: 130; transform: scale(0.55) rotate(-8deg); opacity: 0; }
+      25% { opacity: 1; }
+      75% { stroke-dashoffset: 0; transform: scale(1.28) rotate(4deg); }
+      90% { transform: scale(0.95) rotate(-1deg); }
+      100% { stroke-dashoffset: 0; transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    .calendar-heart-path {
+      stroke-dasharray: 130;
+      stroke-dashoffset: 130;
+      transform-origin: center;
+    }
+    .is-revealed .calendar-heart-path {
+      animation: markHeartDraw 1.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      animation-delay: 0.25s;
+    }
+
+    @keyframes fadeInModal {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes scaleUpModal {
+      from { opacity: 0; transform: scale(0.92) translateY(12px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .animate-fadeIn { animation: fadeInModal 0.25s ease-out forwards; }
+    .animate-scaleUp { animation: scaleUpModal 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  </style>
+  <script>
+    // GitHub Pages subpath image error auto-resolver
+    window.addEventListener('error', function(e) {
+      if (e.target && (e.target.tagName === 'IMG' || e.target.tagName === 'AUDIO')) {
+        var src = e.target.src;
+        if (src && src.includes('github.io/images/')) {
+          e.target.src = src.replace('github.io/images/', 'github.io/wedding-invitation/images/');
+        }
+      }
+    }, true);
+  </script>
+</head>
+<body class="selection:bg-[#C5A880]/30 min-h-screen relative overflow-x-hidden">
+
+  <!-- FULL-PAGE CONTINUOUS ANIMATED ATMOSPHERE (Canvas 60fps) -->
+  <canvas id="atmosphere-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-10" style="mix-blend-mode: normal;"></canvas>
+
+  <!-- FLOATING AUDIO CONTROL -->
+  <div class="fixed top-4 right-4 z-50">
+    <button id="audio-toggle-btn" class="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-stone-200/90 shadow-lg text-xs font-semibold text-stone-700 hover:text-stone-900 cursor-pointer">
+      <span id="audio-eq" class="hidden gap-0.5 items-end h-3.5">
+        <span class="w-1 bg-[#8B6F47] rounded-full animate-pulse h-3"></span>
+        <span class="w-1 bg-[#C5A880] rounded-full animate-pulse h-2"></span>
+        <span class="w-1 bg-[#8B6F47] rounded-full animate-pulse h-3.5"></span>
+      </span>
+      <span id="audio-btn-text">🎵 Play Music</span>
+    </button>
+  </div>
+
+  <!-- THEME TOP ORNAMENTS -->
+  
+
+  
+
+  
+
+  <!-- REVEAL SCREEN: 3D FOLDING CARD DOORS FOR CARICATURE OR SCRATCH THE DATE -->
+  
+  <!-- REVEAL SCREEN: SCRATCH THE DATE TO REVEAL -->
+  <div id="reveal-screen" class="fixed inset-0 z-40 bg-gradient-to-b from-[#FAF8F5]/95 via-[#F5EFE6]/95 to-[#FAF8F5]/95 backdrop-blur-md flex flex-col items-center justify-center p-4 transition-opacity duration-700">
+    <div class="text-center space-y-2 mb-6 max-w-md">
+      <span class="text-[10px] tracking-[0.3em] uppercase font-bold text-[#8B6F47] border border-[#C5A880]/50 bg-[#FAF5ED] px-3.5 py-1 rounded-full shadow-xs">
+        Exclusive Invitation
+      </span>
+      <h2 class="font-serif text-3xl sm:text-4xl font-light text-[#2B1E17]">
+        Preeti & Ashish
+      </h2>
+      <p class="text-xs text-stone-500">Scratch the gold card below to reveal our celebration date 💫</p>
+    </div>
+
+    <!-- Scratch Canvas Container -->
+    <div class="relative w-80 h-56 rounded-2xl overflow-hidden shadow-2xl border-4 border-[#C5A880] bg-white select-none">
+      <!-- Underlying Date Card -->
+      <div class="absolute inset-0 flex flex-col items-center justify-center p-4 text-center bg-gradient-to-br from-[#FAF5ED] to-white">
+        <div class="w-10 h-10 rounded-full border border-[#C5A880] flex items-center justify-center font-royal text-sm font-bold text-[#8B6F47] mb-1">
+          A & S
+        </div>
+        <span class="text-[9px] uppercase tracking-widest font-bold text-[#8B6F47]">Wedding Date</span>
+        <h3 class="font-serif text-2xl font-bold text-[#2B1E17] leading-tight my-1">2027-02-14</h3>
+        <p class="text-xs text-stone-600">Udaipur, Rajasthan</p>
+        <p class="font-script text-xl text-[#8B6F47] mt-1">Preeti & Ashish</p>
+      </div>
+
+      <!-- Scratch Overlay Canvas -->
+      <canvas id="scratch-canvas" width="320" height="224" class="absolute inset-0 cursor-pointer touch-none"></canvas>
+    </div>
+
+    <div class="mt-4 text-center">
+      <p id="scratch-hint" class="text-xs text-stone-500 font-medium">Scrub across the foil to reveal (0% cleared)</p>
+      <button id="skip-reveal-btn" class="mt-4 text-[11px] tracking-widest uppercase font-semibold text-[#8B6F47] hover:underline cursor-pointer">
+        Skip reveal & view invitation →
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN INVITATION WEBPAGE (Revealed) -->
+  <main id="main-invitation" class="opacity-0 transition-opacity duration-1000 relative">
+
+    
+    <!-- FULL-PAGE PARALLAX INDIAN WEDDING SVG LAYER -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden select-none z-15" aria-hidden="true">
+      <!-- Hanging Brass Bells -->
+      <div class="parallax-bell absolute top-2 left-1.5 animate-bell-swing origin-top">
+        <svg viewBox="0 0 80 150" width="28" height="52" fill="none">
+          <line x1="40" y1="0" x2="40" y2="48" stroke="#D97706" stroke-width="3" stroke-dasharray="5,4" />
+          <circle cx="40" cy="12" r="3" fill="#B45309" /><circle cx="40" cy="28" r="3" fill="#B45309" /><circle cx="40" cy="44" r="3" fill="#B45309" />
+          <path d="M24,53 C24,42 56,42 56,53 C56,70 66,95 68,102 C69,108 11,108 12,102 C14,95 24,70 24,53 Z" fill="#F59E0B" stroke="#B45309" stroke-width="2" />
+          <ellipse cx="40" cy="102" rx="27" ry="4" stroke="#78350F" stroke-width="1.5" fill="#B45309" fill-opacity="0.3" />
+          <circle cx="40" cy="112" r="6" fill="#78350F" /><circle cx="40" cy="138" r="4" fill="#EA580C" />
+        </svg>
+      </div>
+      <div class="parallax-bell absolute top-2 right-1.5 animate-bell-swing origin-top" style="animation-delay: 0.8s;">
+        <svg viewBox="0 0 80 150" width="28" height="52" fill="none">
+          <line x1="40" y1="0" x2="40" y2="48" stroke="#D97706" stroke-width="3" stroke-dasharray="5,4" />
+          <circle cx="40" cy="12" r="3" fill="#B45309" /><circle cx="40" cy="28" r="3" fill="#B45309" /><circle cx="40" cy="44" r="3" fill="#B45309" />
+          <path d="M24,53 C24,42 56,42 56,53 C56,70 66,95 68,102 C69,108 11,108 12,102 C14,95 24,70 24,53 Z" fill="#F59E0B" stroke="#B45309" stroke-width="2" />
+          <ellipse cx="40" cy="102" rx="27" ry="4" stroke="#78350F" stroke-width="1.5" fill="#B45309" fill-opacity="0.3" />
+          <circle cx="40" cy="112" r="6" fill="#78350F" /><circle cx="40" cy="138" r="4" fill="#EA580C" />
+        </svg>
+      </div>
+
+      <!-- Side Garlands -->
+      <div class="parallax-garland absolute top-16 left-0.5 flex flex-col items-center gap-6 opacity-85">
+        <svg viewBox="0 0 40 180" width="18" height="80" fill="none">
+          <circle cx="20" cy="20" r="16" fill="#F59E0B" /><circle cx="20" cy="20" r="9" fill="#EA580C" />
+          <path d="M20,38 C28,50 32,68 20,80 C8,68 12,50 20,38 Z" fill="#15803D" />
+          <circle cx="20" cy="100" r="16" fill="#F59E0B" /><circle cx="20" cy="100" r="9" fill="#EA580C" />
+          <path d="M20,118 C28,130 32,148 20,160 C8,148 12,130 20,118 Z" fill="#15803D" />
+        </svg>
+      </div>
+      <div class="parallax-garland absolute top-16 right-0.5 flex flex-col items-center gap-6 opacity-85">
+        <svg viewBox="0 0 40 180" width="18" height="80" fill="none">
+          <circle cx="20" cy="20" r="16" fill="#F59E0B" /><circle cx="20" cy="20" r="9" fill="#EA580C" />
+          <path d="M20,38 C28,50 32,68 20,80 C8,68 12,50 20,38 Z" fill="#15803D" />
+          <circle cx="20" cy="100" r="16" fill="#F59E0B" /><circle cx="20" cy="100" r="9" fill="#EA580C" />
+          <path d="M20,118 C28,130 32,148 20,160 C8,148 12,130 20,118 Z" fill="#15803D" />
+        </svg>
+      </div>
+
+      <!-- Watermark Motifs -->
+      <div class="parallax-motif absolute top-[680px] -left-6 opacity-20" data-speed="0.08" data-rot="-8">
+        <svg viewBox="0 0 120 140" width="70" height="82" fill="none">
+          <ellipse cx="60" cy="98" rx="36" ry="32" fill="#F59E0B" stroke="#92400E" stroke-width="2" />
+          <ellipse cx="60" cy="68" rx="20" ry="5" fill="#F59E0B" stroke="#92400E" stroke-width="1.5" />
+          <path d="M42,75 Q60,82 78,75 Q60,70 42,75" fill="#DC2626" />
+          <path d="M60,42 C45,55 35,66 44,68 C52,68 58,56 60,42 Z" fill="#16A34A" />
+          <path d="M60,42 C75,55 85,66 76,68 C68,68 62,56 60,42 Z" fill="#16A34A" />
+          <circle cx="60" cy="52" r="16" fill="#78350F" />
+          <circle cx="60" cy="50" r="4.5" fill="#DC2626" />
+        </svg>
+      </div>
+
+      <div class="parallax-motif absolute top-[1480px] -left-8 opacity-20" data-speed="0.07" data-rot="-15">
+        <svg viewBox="0 0 140 120" width="80" height="68" fill="none">
+          <g transform="rotate(-28 60 55)">
+            <polygon points="15,55 85,52 105,38 105,72 85,58 15,55" fill="#B45309" stroke="#78350F" stroke-width="2" />
+            <circle cx="45" cy="55" r="2" fill="#FEF3C7" /><circle cx="65" cy="55" r="2" fill="#FEF3C7" />
+          </g>
+          <g transform="translate(42, 42) rotate(14)">
+            <ellipse cx="40" cy="30" rx="30" ry="18" fill="#92400E" stroke="#78350F" stroke-width="2" />
+            <path d="M10,18 L40,46 L70,18 M10,42 L40,14 L70,42" stroke="#FEF3C7" stroke-width="1.4" fill="none" />
+          </g>
+        </svg>
+      </div>
+
+      <!-- Parallax Petals -->
+      <div class="parallax-petal absolute" data-speed="0.22" data-rotspeed="0.18" data-initrot="20" style="top: 140px; left: 8%;">
+        <svg viewBox="0 0 24 30" width="16" height="20" fill="none"><path d="M12,1 C20,8 22,22 12,29 C2,22 4,8 12,1 Z" fill="#F59E0B" fill-opacity="0.85" /></svg>
+      </div>
+      <div class="parallax-petal absolute" data-speed="0.32" data-rotspeed="-0.25" data-initrot="-30" style="top: 320px; right: 7%;">
+        <svg viewBox="0 0 30 35" width="18" height="21" fill="none"><path d="M15,2 C25,2 29,15 26,26 C23,34 7,34 4,26 C1,15 5,2 15,2 Z" fill="#FB7185" fill-opacity="0.85" /></svg>
+      </div>
+      <div class="parallax-petal absolute" data-speed="0.16" data-rotspeed="0.12" data-initrot="40" style="top: 750px; left: 6%;">
+        <svg viewBox="0 0 24 30" width="16" height="20" fill="none"><path d="M12,1 C20,8 22,22 12,29 C2,22 4,8 12,1 Z" fill="#F59E0B" fill-opacity="0.85" /></svg>
+      </div>
+      <div class="parallax-petal absolute" data-speed="0.28" data-rotspeed="-0.2" data-initrot="-15" style="top: 1100px; right: 5%;">
+        <svg viewBox="0 0 30 35" width="18" height="21" fill="none"><path d="M15,2 C25,2 29,15 26,26 C23,34 7,34 4,26 C1,15 5,2 15,2 Z" fill="#FB7185" fill-opacity="0.85" /></svg>
+      </div>
+      <div class="parallax-petal absolute" data-speed="0.25" data-rotspeed="0.2" data-initrot="25" style="top: 1600px; left: 7%;">
+        <svg viewBox="0 0 24 30" width="16" height="20" fill="none"><path d="M12,1 C20,8 22,22 12,29 C2,22 4,8 12,1 Z" fill="#F59E0B" fill-opacity="0.85" /></svg>
+      </div>
+      <div class="parallax-petal absolute" data-speed="0.35" data-rotspeed="-0.22" data-initrot="-45" style="top: 2200px; right: 6%;">
+        <svg viewBox="0 0 30 35" width="18" height="21" fill="none"><path d="M15,2 C25,2 29,15 26,26 C23,34 7,34 4,26 C1,15 5,2 15,2 Z" fill="#FB7185" fill-opacity="0.85" /></svg>
+      </div>
+    </div>
+
+    
+
+    <!-- HERO SECTION WITH TEMPLATE ARTWORK -->
+    <section class="relative min-h-[90vh] flex flex-col items-center justify-center text-center px-4 sm:px-6 py-16 overflow-hidden">
+      
+      <!-- Mela Rotating Sunburst Background -->
+      
+
+      
+      <!-- PASTEL CARICATURE HERO POP-UP (MATCHING export-1793962607603.mp4) -->
+      <div class="relative my-2 flex flex-col items-center select-none w-full max-w-[390px] mx-auto px-2 scroll-reveal reveal-pop-up">
+        <!-- Top Draped Marigold Floral Swags -->
+        <div class="w-full flex justify-around items-start -mb-2 px-6 pointer-events-none">
+          <svg viewBox="0 0 400 40" class="w-full h-auto text-amber-500 animate-sway" fill="none">
+            <path d="M0,5 Q100,35 200,5 Q300,35 400,5" stroke="#F59E0B" stroke-width="4" stroke-dasharray="6,4" />
+            <path d="M0,8 Q100,38 200,8 Q300,38 400,8" stroke="#EA580C" stroke-width="3" />
+            <circle cx="20" cy="12" r="5" fill="#F59E0B" /><circle cx="60" cy="20" r="5" fill="#EA580C" />
+            <circle cx="100" cy="24" r="5" fill="#F59E0B" /><circle cx="140" cy="20" r="5" fill="#EA580C" />
+            <circle cx="180" cy="12" r="5" fill="#F59E0B" /><circle cx="220" cy="20" r="5" fill="#EA580C" />
+            <circle cx="260" cy="24" r="5" fill="#F59E0B" /><circle cx="300" cy="20" r="5" fill="#EA580C" />
+            <circle cx="340" cy="12" r="5" fill="#F59E0B" /><circle cx="380" cy="20" r="5" fill="#EA580C" />
+          </svg>
+        </div>
+
+        <!-- Cusped Scalloped Arch Frame -->
+        <div class="relative w-full bg-[#FFFDF9] rounded-t-[60px] rounded-b-3xl p-3 border-[3px] border-[#FDE68A] shadow-xl overflow-hidden text-center">
+          <!-- Sacred Sanskrit Invocation -->
+          <div class="pt-2 pb-0.5">
+            <span class="text-[11px] font-serif text-[#B45309] font-medium tracking-wide">
+              ॥ श्री गणेशाय नमः ॥
+            </span>
+            <p class="text-[10px] uppercase tracking-widest font-bold text-stone-500 mt-0.5">
+              Together With Their Families
+            </p>
+          </div>
+
+          <!-- Main Couple Names -->
+          <h1 class="font-serif text-3xl sm:text-4xl text-[#2B1E17] font-light flex items-center justify-center gap-1.5 mt-0.5 mb-1">
+            <span>Ashish</span>
+            <span class="text-rose-400 font-sans text-lg animate-pulse">♡</span>
+            <span>Preeti</span>
+          </h1>
+          <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mb-2"></div>
+
+          <!-- Scooter Couple Illustration Artwork Filled in Card - Full 9:16 Aspect Ratio -->
+          <div class="w-full aspect-[9/16] rounded-2xl overflow-hidden relative flex items-center justify-center group bg-[#FFFDF7] shadow-inner">
+            <img src="./images/caricature/scooter_couple.webp" alt="Ashish & Preeti" class="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-700" />
+          </div>
+
+          <!-- Request Honour Flanked by Marigolds -->
+          <div class="py-3 flex items-center justify-center gap-2">
+            <span class="text-amber-500 text-sm">🌼</span>
+            <span class="font-serif text-xs text-stone-700 font-medium tracking-wide italic">
+              Request the honour of your presence
+            </span>
+            <span class="text-amber-500 text-sm">🌼</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    
+    <!-- PASTEL CARICATURE COMPLETE EXPERIENCE (MATCHING export-1793962607603.mp4) -->
+    <div class="space-y-6">
+      <!-- 1. MEET THE TWO OF US (frame 023 - 025) -->
+      <section class="py-6 px-2 w-full max-w-[390px] mx-auto select-none">
+        <div class="text-center space-y-1 mb-5 scroll-reveal">
+          <span class="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">Meet the two of us</span>
+          <h3 class="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">Ashish & Preeti</h3>
+          <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1"></div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 relative items-stretch">
+          <!-- Left Card: Groom (Clickable Modal) -->
+          <div onclick="openPersonModal('groom')" class="relative bg-white p-2.5 pb-4 rounded-2xl shadow-md border border-stone-200 transform -rotate-2 hover:rotate-0 hover:shadow-xl hover:border-amber-300 transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-left cursor-pointer group">
+            <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#A7F3D0]/85 rounded shadow-xs rotate-1 border border-[#6EE7B7]"></div>
+            <div class="w-20 h-20 rounded-full overflow-hidden bg-stone-100 mt-1 mb-2 border-2 border-stone-200 ring-4 ring-[#E6F4EA] shadow-inner shrink-0 group-hover:ring-emerald-300 transition-all">
+              <img src="./images/groom.webp" alt="Ashish" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+            </div>
+            <span class="inline-block px-2 py-0.5 rounded-full text-[8.5px] uppercase tracking-wider font-bold bg-[#E6F4EA] text-[#137333] mb-1">The Groom</span>
+            <h4 class="font-serif text-sm sm:text-base font-bold text-[#2B1E17] leading-tight group-hover:text-amber-800 transition-colors">Ashish</h4>
+            <p class="text-[10px] text-stone-600 italic mt-1 leading-snug px-0.5 flex-1">"Foodie, photography enthusiast, and the architect of their happiest memories."</p>
+            <p class="text-[8.5px] text-stone-400 mt-1.5 font-sans border-t border-stone-100 pt-1 w-full">S/o Mr. Ramesh & Mrs. Sunita Sharma</p>
+            <span class="text-[8.5px] text-amber-700 font-semibold mt-1 flex items-center gap-0.5 opacity-80 group-hover:opacity-100">🔍 Tap to view</span>
+          </div>
+
+          <!-- Connected Pink Heart -->
+          <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none text-rose-400 text-2xl animate-pulse drop-shadow scroll-reveal reveal-bounce" style="transition-delay: 250ms;">♡</div>
+
+          <!-- Right Card: Bride (Clickable Modal) -->
+          <div onclick="openPersonModal('bride')" class="relative bg-white p-2.5 pb-4 rounded-2xl shadow-md border border-stone-200 transform rotate-2 hover:rotate-0 hover:shadow-xl hover:border-rose-300 transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-right cursor-pointer group" style="transition-delay: 150ms;">
+            <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FDE68A]/85 rounded shadow-xs -rotate-1 border border-[#FCD34D]"></div>
+            <div class="w-20 h-20 rounded-full overflow-hidden bg-stone-100 mt-1 mb-2 border-2 border-stone-200 ring-4 ring-[#FCE8E6] shadow-inner shrink-0 group-hover:ring-rose-300 transition-all">
+              <img src="./images/bride.webp" alt="Preeti" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+            </div>
+            <span class="inline-block px-2 py-0.5 rounded-full text-[8.5px] uppercase tracking-wider font-bold bg-[#FCE8E6] text-[#C5221F] mb-1">The Bride</span>
+            <h4 class="font-serif text-sm sm:text-base font-bold text-[#2B1E17] leading-tight group-hover:text-rose-800 transition-colors">Preeti</h4>
+            <p class="text-[10px] text-stone-600 italic mt-1 leading-snug px-0.5 flex-1">"Loves classic poetry, morning chai, and spontaneous mountain hikes."</p>
+            <p class="text-[8.5px] text-stone-400 mt-1.5 font-sans border-t border-stone-100 pt-1 w-full">D/o Mr. Vijay & Mrs. Rekha Malhotra</p>
+            <span class="text-[8.5px] text-rose-700 font-semibold mt-1 flex items-center gap-0.5 opacity-80 group-hover:opacity-100">🔍 Tap to view</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. HANGING WALL CALENDAR & LIVE COUNTDOWN (frame 025 - 027) -->
+      <section class="py-6 px-2 w-full max-w-[390px] mx-auto select-none">
+        <div class="text-center space-y-1 mb-5 scroll-reveal">
+          <span class="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">Mark your calendar</span>
+          <h3 class="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">February 2027</h3>
+          <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1"></div>
+        </div>
+
+        <div class="relative bg-white rounded-2xl p-4 sm:p-5 border-2 border-stone-200 shadow-md scroll-reveal reveal-calendar">
+          <div class="absolute -top-3 left-1/3 -translate-x-1/2 w-3.5 h-6 rounded-full border-2 border-stone-400 bg-stone-100 shadow-inner"></div>
+          <div class="absolute -top-3 right-1/3 translate-x-1/2 w-3.5 h-6 rounded-full border-2 border-stone-400 bg-stone-100 shadow-inner"></div>
+
+          <div class="grid grid-cols-7 gap-1 text-center text-xs font-bold text-[#DB2777] pb-2 border-b border-stone-100 mb-2">
+            <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+          </div>
+
+          <div class="grid grid-cols-7 gap-1 text-center text-xs text-stone-700">
+            
+            <div class="h-7 sm:h-8 flex items-center justify-center"><span>1</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>2</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>3</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>4</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>5</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>6</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>7</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>8</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>9</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>10</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>11</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>12</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>13</span></div><div class="relative w-8 h-8 sm:w-9 sm:h-9 mx-auto flex items-center justify-center font-bold text-rose-600 select-none">
+                    <svg viewBox="0 0 36 36" class="absolute -inset-1 w-9 h-9 sm:w-10 sm:h-10 pointer-events-none overflow-visible">
+                      <path
+                        d="M18,31 C10,23 3.5,17 3.5,10.5 C3.5,5.5 7.5,2 12.5,2 C15.5,2 17.5,3.5 18,5 C18.5,3.5 20.5,2 23.5,2 C28.5,2 32.5,5.5 32.5,10.5 C32.5,17 26,23 18,31 Z"
+                        fill="rgba(244, 63, 94, 0.16)"
+                        stroke="#E11D48"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="calendar-heart-path"
+                      />
+                    </svg>
+                    <span class="relative z-10 text-rose-700 font-extrabold text-sm">14</span>
+                  </div><div class="h-7 sm:h-8 flex items-center justify-center"><span>15</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>16</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>17</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>18</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>19</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>20</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>21</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>22</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>23</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>24</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>25</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>26</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>27</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>28</span></div>
+          </div>
+        </div>
+
+        <div class="mt-6 text-center scroll-reveal reveal-pop-up" style="transition-delay: 150ms;">
+          <span class="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold mb-2.5">Counting down to the shaadi</span>
+          <div class="flex justify-center items-center gap-2 sm:gap-3">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#FCE7F3] border-2 border-[#F472B6] shadow-2xs flex flex-col items-center justify-center p-1">
+              <span id="pastel-days" class="font-serif text-lg sm:text-xl font-bold text-[#9D174D] leading-none">00</span>
+              <span class="text-[7.5px] uppercase tracking-wider text-[#BE185D] font-bold mt-0.5">Days</span>
+            </div>
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#D1FAE5] border-2 border-[#34D399] shadow-2xs flex flex-col items-center justify-center p-1">
+              <span id="pastel-hours" class="font-serif text-lg sm:text-xl font-bold text-[#065F46] leading-none">00</span>
+              <span class="text-[7.5px] uppercase tracking-wider text-[#047857] font-bold mt-0.5">Hours</span>
+            </div>
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#FEF3C7] border-2 border-[#FBBF24] shadow-2xs flex flex-col items-center justify-center p-1">
+              <span id="pastel-mins" class="font-serif text-lg sm:text-xl font-bold text-[#92400E] leading-none">00</span>
+              <span class="text-[7.5px] uppercase tracking-wider text-[#B45309] font-bold mt-0.5">Mins</span>
+            </div>
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#EDE9FE] border-2 border-[#A78BFA] shadow-2xs flex flex-col items-center justify-center p-1">
+              <span id="pastel-secs" class="font-serif text-lg sm:text-xl font-bold text-[#5B21B6] leading-none">00</span>
+              <span class="text-[7.5px] uppercase tracking-wider text-[#6D28D9] font-bold mt-0.5">Secs</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. CELEBRATIONS WITH AUTHENTIC ARCHES & SCOOTER DIVIDERS (frame 035 - 062) -->
+      <section class="py-8 px-1 w-full max-w-[390px] mx-auto select-none space-y-5">
+        <div class="text-center space-y-1 mb-6 scroll-reveal">
+          <span class="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">Programme</span>
+          <h2 class="font-serif text-3xl font-light text-[#2B1E17]">The Celebrations</h2>
+          <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1"></div>
+        </div>
+
+        
+          <div class="relative w-full select-none space-y-3">
+            <div class="w-full flex justify-center -mb-2 scroll-reveal reveal-pop-up">
+              <div class="w-full max-w-[350px] aspect-[9/16] rounded-t-[44px] rounded-b-2xl overflow-hidden flex items-center justify-center p-0 drop-shadow-md bg-[#FFFDF7] border-2 border-amber-100">
+                <img src="./images/caricature/haldi_arch.webp" alt="Haldi Ceremony" class="w-full h-full object-contain object-center" />
+              </div>
+            </div>
+
+            <div class="text-center scroll-reveal" style="transition-delay: 80ms;">
+              <h3 class="font-serif text-2xl font-bold text-[#2B1E17]">Haldi Ceremony</h3>
+            </div>
+
+            <div class="relative bg-[#FFFDF9] rounded-2xl p-4 sm:p-5 border-2 border-stone-200 shadow-md space-y-2.5 scroll-reveal" style="transition-delay: 160ms;">
+              <div class="space-y-1.5 text-xs text-stone-700">
+                <p class="flex items-center gap-2"><span>📅</span><strong class="text-stone-900">Friday, 12th February 2027</strong> · ⏰ 10:30 AM onwards</p>
+                <p class="flex items-center gap-2"><span>📍</span><span><strong class="text-stone-900">The Courtyard, The Oberoi Udaivilas</strong> — Haridas Ji Ki Magri, Udaipur, Rajasthan 313001</span></p>
+                <p class="flex items-center gap-2"><span>👔</span><span class="text-[#8B6F47] font-semibold">Haldi Yellow & Warm Mustard</span></p>
+              </div>
+              <div class="pt-1.5">
+                <a href="https://maps.google.com/?q=The%20Courtyard%2C%20The%20Oberoi%20Udaivilas%20Haridas%20Ji%20Ki%20Magri%2C%20Udaipur%2C%20Rajasthan%20313001" target="_blank" class="w-full py-2.5 rounded-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#FCE7F3] text-[#BE185D] hover:bg-[#FBCFE8] transition-all shadow-2xs cursor-pointer">
+                  <span>🧭 Get directions</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Animated Yellow Scooter Divider with Roadside Foliage -->
+          <div class="w-full flex flex-col items-center my-6 overflow-hidden pointer-events-none select-none scroll-reveal reveal-scooter">
+            <div class="relative w-72 h-16 flex items-center justify-center">
+              <svg viewBox="0 0 280 60" class="w-full h-full text-stone-300" fill="none">
+                <path d="M15,48 Q140,-8 265,48" stroke="#CBD5E1" stroke-width="2.5" stroke-dasharray="6,5" class="animate-road-dash" />
+                <g transform="translate(10, 34) scale(0.65)">
+                  <path d="M10,25 C10,12 18,5 20,0 C22,5 30,12 30,25 Z" fill="#16A34A" />
+                  <path d="M5,22 C12,12 18,8 20,0" stroke="#15803D" stroke-width="1.5" />
+                  <circle cx="20" cy="22" r="3.5" fill="#F59E0B" />
+                </g>
+                <g transform="translate(252, 32) scale(0.6)">
+                  <path d="M5,24 L25,24 L25,12 C25,4 15,0 15,0 C15,0 5,4 5,12 Z" fill="#FDE68A" stroke="#D97706" stroke-width="1.2" />
+                  <circle cx="15" cy="0" r="2.5" fill="#EA580C" />
+                </g>
+              </svg>
+              <div class="absolute top-1 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
+                <span class="text-2xl drop-shadow-md transform -rotate-3">🛵</span>
+                <span class="text-xs text-stone-400">💨</span>
+              </div>
+            </div>
+          </div>
+          <div class="relative w-full select-none space-y-3">
+            <div class="w-full flex justify-center -mb-2 scroll-reveal reveal-pop-up">
+              <div class="w-full max-w-[350px] aspect-[9/16] rounded-t-[44px] rounded-b-2xl overflow-hidden flex items-center justify-center p-0 drop-shadow-md bg-[#FFFDF7] border-2 border-amber-100">
+                <img src="./images/caricature/mehndi_arch.webp" alt="Mehndi Ceremony" class="w-full h-full object-contain object-center" />
+              </div>
+            </div>
+
+            <div class="text-center scroll-reveal" style="transition-delay: 80ms;">
+              <h3 class="font-serif text-2xl font-bold text-[#2B1E17]">Mehndi Ceremony</h3>
+            </div>
+
+            <div class="relative bg-[#FFFDF9] rounded-2xl p-4 sm:p-5 border-2 border-stone-200 shadow-md space-y-2.5 scroll-reveal" style="transition-delay: 160ms;">
+              <div class="space-y-1.5 text-xs text-stone-700">
+                <p class="flex items-center gap-2"><span>📅</span><strong class="text-stone-900">Friday, 12th February 2027</strong> · ⏰ 04:00 PM onwards</p>
+                <p class="flex items-center gap-2"><span>📍</span><span><strong class="text-stone-900">The Poolside Lawns, The Oberoi Udaivilas</strong> — Haridas Ji Ki Magri, Udaipur, Rajasthan 313001</span></p>
+                <p class="flex items-center gap-2"><span>👔</span><span class="text-[#8B6F47] font-semibold">Mint Green & Floral Pastels</span></p>
+              </div>
+              <div class="pt-1.5">
+                <a href="https://maps.google.com/?q=The%20Poolside%20Lawns%2C%20The%20Oberoi%20Udaivilas%20Haridas%20Ji%20Ki%20Magri%2C%20Udaipur%2C%20Rajasthan%20313001" target="_blank" class="w-full py-2.5 rounded-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#FCE7F3] text-[#BE185D] hover:bg-[#FBCFE8] transition-all shadow-2xs cursor-pointer">
+                  <span>🧭 Get directions</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Animated Yellow Scooter Divider with Roadside Foliage -->
+          <div class="w-full flex flex-col items-center my-6 overflow-hidden pointer-events-none select-none scroll-reveal reveal-scooter">
+            <div class="relative w-72 h-16 flex items-center justify-center">
+              <svg viewBox="0 0 280 60" class="w-full h-full text-stone-300" fill="none">
+                <path d="M15,48 Q140,-8 265,48" stroke="#CBD5E1" stroke-width="2.5" stroke-dasharray="6,5" class="animate-road-dash" />
+                <g transform="translate(10, 34) scale(0.65)">
+                  <path d="M10,25 C10,12 18,5 20,0 C22,5 30,12 30,25 Z" fill="#16A34A" />
+                  <path d="M5,22 C12,12 18,8 20,0" stroke="#15803D" stroke-width="1.5" />
+                  <circle cx="20" cy="22" r="3.5" fill="#F59E0B" />
+                </g>
+                <g transform="translate(252, 32) scale(0.6)">
+                  <path d="M5,24 L25,24 L25,12 C25,4 15,0 15,0 C15,0 5,4 5,12 Z" fill="#FDE68A" stroke="#D97706" stroke-width="1.2" />
+                  <circle cx="15" cy="0" r="2.5" fill="#EA580C" />
+                </g>
+              </svg>
+              <div class="absolute top-1 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
+                <span class="text-2xl drop-shadow-md transform -rotate-3">🛵</span>
+                <span class="text-xs text-stone-400">💨</span>
+              </div>
+            </div>
+          </div>
+          <div class="relative w-full select-none space-y-3">
+            <div class="w-full flex justify-center -mb-2 scroll-reveal reveal-pop-up">
+              <div class="w-full max-w-[350px] aspect-[9/16] rounded-t-[44px] rounded-b-2xl overflow-hidden flex items-center justify-center p-0 drop-shadow-md bg-[#FFFDF7] border-2 border-amber-100">
+                <img src="./images/caricature/sangeet_arch.webp" alt="Sangeet & Cocktail Night" class="w-full h-full object-contain object-center" />
+              </div>
+            </div>
+
+            <div class="text-center scroll-reveal" style="transition-delay: 80ms;">
+              <h3 class="font-serif text-2xl font-bold text-[#2B1E17]">Sangeet & Cocktail Night</h3>
+            </div>
+
+            <div class="relative bg-[#FFFDF9] rounded-2xl p-4 sm:p-5 border-2 border-stone-200 shadow-md space-y-2.5 scroll-reveal" style="transition-delay: 160ms;">
+              <div class="space-y-1.5 text-xs text-stone-700">
+                <p class="flex items-center gap-2"><span>📅</span><strong class="text-stone-900">Saturday, 13th February 2027</strong> · ⏰ 07:00 PM onwards</p>
+                <p class="flex items-center gap-2"><span>📍</span><span><strong class="text-stone-900">The Royal Grand Ballroom</strong> — The Oberoi Udaivilas, Udaipur</span></p>
+                <p class="flex items-center gap-2"><span>👔</span><span class="text-[#8B6F47] font-semibold">Glamorous Indian Cocktails</span></p>
+              </div>
+              <div class="pt-1.5">
+                <a href="https://maps.google.com/?q=The%20Royal%20Grand%20Ballroom%20The%20Oberoi%20Udaivilas%2C%20Udaipur" target="_blank" class="w-full py-2.5 rounded-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#FCE7F3] text-[#BE185D] hover:bg-[#FBCFE8] transition-all shadow-2xs cursor-pointer">
+                  <span>🧭 Get directions</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Animated Yellow Scooter Divider with Roadside Foliage -->
+          <div class="w-full flex flex-col items-center my-6 overflow-hidden pointer-events-none select-none scroll-reveal reveal-scooter">
+            <div class="relative w-72 h-16 flex items-center justify-center">
+              <svg viewBox="0 0 280 60" class="w-full h-full text-stone-300" fill="none">
+                <path d="M15,48 Q140,-8 265,48" stroke="#CBD5E1" stroke-width="2.5" stroke-dasharray="6,5" class="animate-road-dash" />
+                <g transform="translate(10, 34) scale(0.65)">
+                  <path d="M10,25 C10,12 18,5 20,0 C22,5 30,12 30,25 Z" fill="#16A34A" />
+                  <path d="M5,22 C12,12 18,8 20,0" stroke="#15803D" stroke-width="1.5" />
+                  <circle cx="20" cy="22" r="3.5" fill="#F59E0B" />
+                </g>
+                <g transform="translate(252, 32) scale(0.6)">
+                  <path d="M5,24 L25,24 L25,12 C25,4 15,0 15,0 C15,0 5,4 5,12 Z" fill="#FDE68A" stroke="#D97706" stroke-width="1.2" />
+                  <circle cx="15" cy="0" r="2.5" fill="#EA580C" />
+                </g>
+              </svg>
+              <div class="absolute top-1 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
+                <span class="text-2xl drop-shadow-md transform -rotate-3">🛵</span>
+                <span class="text-xs text-stone-400">💨</span>
+              </div>
+            </div>
+          </div>
+          <div class="relative w-full select-none space-y-3">
+            <div class="w-full flex justify-center -mb-2 scroll-reveal reveal-pop-up">
+              <div class="w-full max-w-[350px] aspect-[9/16] rounded-t-[44px] rounded-b-2xl overflow-hidden flex items-center justify-center p-0 drop-shadow-md bg-[#FFFDF7] border-2 border-amber-100">
+                <img src="./images/caricature/pheras_arch.webp" alt="Main Pheras (The Wedding)" class="w-full h-full object-contain object-center" />
+              </div>
+            </div>
+
+            <div class="text-center scroll-reveal" style="transition-delay: 80ms;">
+              <h3 class="font-serif text-2xl font-bold text-[#2B1E17]">Main Pheras (The Wedding)</h3>
+            </div>
+
+            <div class="relative bg-[#FFFDF9] rounded-2xl p-4 sm:p-5 border-2 border-stone-200 shadow-md space-y-2.5 scroll-reveal" style="transition-delay: 160ms;">
+              <div class="space-y-1.5 text-xs text-stone-700">
+                <p class="flex items-center gap-2"><span>📅</span><strong class="text-stone-900">Sunday, 14th February 2027</strong> · ⏰ 04:30 PM (Sunset Barat)</p>
+                <p class="flex items-center gap-2"><span>📍</span><span><strong class="text-stone-900">Lakeside Mandap on Lake Pichola</strong> — The Oberoi Udaivilas, Udaipur</span></p>
+                <p class="flex items-center gap-2"><span>👔</span><span class="text-[#8B6F47] font-semibold">Royal Indian Pastels & Silk Sarees</span></p>
+              </div>
+              <div class="pt-1.5">
+                <a href="https://maps.google.com/?q=Lakeside%20Mandap%20on%20Lake%20Pichola%20The%20Oberoi%20Udaivilas%2C%20Udaipur" target="_blank" class="w-full py-2.5 rounded-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#FCE7F3] text-[#BE185D] hover:bg-[#FBCFE8] transition-all shadow-2xs cursor-pointer">
+                  <span>🧭 Get directions</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Animated Yellow Scooter Divider with Roadside Foliage -->
+          <div class="w-full flex flex-col items-center my-6 overflow-hidden pointer-events-none select-none scroll-reveal reveal-scooter">
+            <div class="relative w-72 h-16 flex items-center justify-center">
+              <svg viewBox="0 0 280 60" class="w-full h-full text-stone-300" fill="none">
+                <path d="M15,48 Q140,-8 265,48" stroke="#CBD5E1" stroke-width="2.5" stroke-dasharray="6,5" class="animate-road-dash" />
+                <g transform="translate(10, 34) scale(0.65)">
+                  <path d="M10,25 C10,12 18,5 20,0 C22,5 30,12 30,25 Z" fill="#16A34A" />
+                  <path d="M5,22 C12,12 18,8 20,0" stroke="#15803D" stroke-width="1.5" />
+                  <circle cx="20" cy="22" r="3.5" fill="#F59E0B" />
+                </g>
+                <g transform="translate(252, 32) scale(0.6)">
+                  <path d="M5,24 L25,24 L25,12 C25,4 15,0 15,0 C15,0 5,4 5,12 Z" fill="#FDE68A" stroke="#D97706" stroke-width="1.2" />
+                  <circle cx="15" cy="0" r="2.5" fill="#EA580C" />
+                </g>
+              </svg>
+              <div class="absolute top-1 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
+                <span class="text-2xl drop-shadow-md transform -rotate-3">🛵</span>
+                <span class="text-xs text-stone-400">💨</span>
+              </div>
+            </div>
+          </div>
+          <div class="relative w-full select-none space-y-3">
+            <div class="w-full flex justify-center -mb-2 scroll-reveal reveal-pop-up">
+              <div class="w-full max-w-[350px] aspect-[9/16] rounded-t-[44px] rounded-b-2xl overflow-hidden flex items-center justify-center p-0 drop-shadow-md bg-[#FFFDF7] border-2 border-amber-100">
+                <img src="./images/caricature/reception_arch.webp" alt="Imperial Gala Reception" class="w-full h-full object-contain object-center" />
+              </div>
+            </div>
+
+            <div class="text-center scroll-reveal" style="transition-delay: 80ms;">
+              <h3 class="font-serif text-2xl font-bold text-[#2B1E17]">Imperial Gala Reception</h3>
+            </div>
+
+            <div class="relative bg-[#FFFDF9] rounded-2xl p-4 sm:p-5 border-2 border-stone-200 shadow-md space-y-2.5 scroll-reveal" style="transition-delay: 160ms;">
+              <div class="space-y-1.5 text-xs text-stone-700">
+                <p class="flex items-center gap-2"><span>📅</span><strong class="text-stone-900">Sunday, 14th February 2027</strong> · ⏰ 08:30 PM onwards</p>
+                <p class="flex items-center gap-2"><span>📍</span><span><strong class="text-stone-900">The Palace Gardens</strong> — The Oberoi Udaivilas, Udaipur</span></p>
+                <p class="flex items-center gap-2"><span>👔</span><span class="text-[#8B6F47] font-semibold">Black Tie or Regal Traditional</span></p>
+              </div>
+              <div class="pt-1.5">
+                <a href="https://maps.google.com/?q=The%20Palace%20Gardens%20The%20Oberoi%20Udaivilas%2C%20Udaipur" target="_blank" class="w-full py-2.5 rounded-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#FCE7F3] text-[#BE185D] hover:bg-[#FBCFE8] transition-all shadow-2xs cursor-pointer">
+                  <span>🧭 Get directions</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Animated Yellow Scooter Divider with Roadside Foliage -->
+          <div class="w-full flex flex-col items-center my-6 overflow-hidden pointer-events-none select-none scroll-reveal reveal-scooter">
+            <div class="relative w-72 h-16 flex items-center justify-center">
+              <svg viewBox="0 0 280 60" class="w-full h-full text-stone-300" fill="none">
+                <path d="M15,48 Q140,-8 265,48" stroke="#CBD5E1" stroke-width="2.5" stroke-dasharray="6,5" class="animate-road-dash" />
+                <g transform="translate(10, 34) scale(0.65)">
+                  <path d="M10,25 C10,12 18,5 20,0 C22,5 30,12 30,25 Z" fill="#16A34A" />
+                  <path d="M5,22 C12,12 18,8 20,0" stroke="#15803D" stroke-width="1.5" />
+                  <circle cx="20" cy="22" r="3.5" fill="#F59E0B" />
+                </g>
+                <g transform="translate(252, 32) scale(0.6)">
+                  <path d="M5,24 L25,24 L25,12 C25,4 15,0 15,0 C15,0 5,4 5,12 Z" fill="#FDE68A" stroke="#D97706" stroke-width="1.2" />
+                  <circle cx="15" cy="0" r="2.5" fill="#EA580C" />
+                </g>
+              </svg>
+              <div class="absolute top-1 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
+                <span class="text-2xl drop-shadow-md transform -rotate-3">🛵</span>
+                <span class="text-xs text-stone-400">💨</span>
+              </div>
+            </div>
+          </div>
+      </section>
+
+      <!-- 5. MOMENTS & MEMORIES PHOTO GALLERY & GUEST UPLOAD -->
+      <section class="py-6 px-2 w-full max-w-[390px] mx-auto select-none" id="moments-section">
+        <div class="text-center space-y-1 mb-4 scroll-reveal">
+          <span class="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">Moments to cherish</span>
+          <h3 class="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">Moments & Memories</h3>
+          <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1"></div>
+          <p class="text-[11px] text-stone-500 font-light max-w-xs mx-auto pt-1 leading-relaxed">
+            A glimpse into our sweetest celebrations & unforgettable memories.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5" id="moments-grid">
+          
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-left -rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 0ms;" onclick="openMomentLightbox('./images/couple-potrait.webp', 'In each other's eyes')">
+              <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FEF08A]/80 border-[#FDE047] rounded shadow-2xs border rotate-1"></div>
+              <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
+                <img src="./images/couple-potrait.webp" class="w-full h-full object-cover" />
+              </div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ In each other's eyes ✦</span></div>
+            </div>
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-right rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 120ms;" onclick="openMomentLightbox('./images/couple-landscape-1.webp', 'Moments under the palace sun')">
+              <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#EDE9FE]/80 border-[#DDD6FE] rounded shadow-2xs border rotate-1"></div>
+              <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
+                <img src="./images/couple-landscape-1.webp" class="w-full h-full object-cover" />
+              </div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Moments under the palace sun ✦</span></div>
+            </div>
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-left -rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 240ms;" onclick="openMomentLightbox('./images/couple-landscape-2.webp', 'Lakeside serenity in Udaipur')">
+              <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FEF08A]/80 border-[#FDE047] rounded shadow-2xs border rotate-1"></div>
+              <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
+                <img src="./images/couple-landscape-2.webp" class="w-full h-full object-cover" />
+              </div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Lakeside serenity in Udaipur ✦</span></div>
+            </div>
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-right rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 360ms;" onclick="openMomentLightbox('./images/couple-potrait-1.webp', 'Laughs & forever promises')">
+              <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#EDE9FE]/80 border-[#DDD6FE] rounded shadow-2xs border rotate-1"></div>
+              <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
+                <img src="./images/couple-potrait-1.webp" class="w-full h-full object-cover" />
+              </div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Laughs & forever promises ✦</span></div>
+            </div>
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-left -rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 0ms;" onclick="openMomentLightbox('./images/couple-landscape-3.webp', 'Golden hour at Lake Pichola')">
+              <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FEF08A]/80 border-[#FDE047] rounded shadow-2xs border rotate-1"></div>
+              <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
+                <img src="./images/couple-landscape-3.webp" class="w-full h-full object-cover" />
+              </div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Golden hour at Lake Pichola ✦</span></div>
+            </div>
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-right rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 120ms;" onclick="openMomentLightbox('./images/couple-landscape-4.webp', 'Under the starlit sky')">
+              <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#EDE9FE]/80 border-[#DDD6FE] rounded shadow-2xs border rotate-1"></div>
+              <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
+                <img src="./images/couple-landscape-4.webp" class="w-full h-full object-cover" />
+              </div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Under the starlit sky ✦</span></div>
+            </div>
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-left -rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 240ms;" onclick="openMomentLightbox('./images/couple-udaipur-boat.webp', 'Sailing together')">
+              <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FEF08A]/80 border-[#FDE047] rounded shadow-2xs border rotate-1"></div>
+              <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
+                <img src="./images/couple-udaipur-boat.webp" class="w-full h-full object-cover" />
+              </div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Sailing together ✦</span></div>
+            </div>
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-right rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 360ms;" onclick="openMomentLightbox('./images/couple-udaipur-rooftop.webp', 'Rooftop whispers')">
+              <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#EDE9FE]/80 border-[#DDD6FE] rounded shadow-2xs border rotate-1"></div>
+              <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
+                <img src="./images/couple-udaipur-rooftop.webp" class="w-full h-full object-cover" />
+              </div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Rooftop whispers ✦</span></div>
+            </div>
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-left -rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 0ms;" onclick="openMomentLightbox('./images/couple-udaipur-bazaar.webp', 'Old city charm')">
+              <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FEF08A]/80 border-[#FDE047] rounded shadow-2xs border rotate-1"></div>
+              <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
+                <img src="./images/couple-udaipur-bazaar.webp" class="w-full h-full object-cover" />
+              </div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Old city charm ✦</span></div>
+            </div>
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-right rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 120ms;" onclick="openMomentLightbox('./images/couple-udaipur-hilltop.webp', 'Monsoon palace views')">
+              <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#EDE9FE]/80 border-[#DDD6FE] rounded shadow-2xs border rotate-1"></div>
+              <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
+                <img src="./images/couple-udaipur-hilltop.webp" class="w-full h-full object-cover" />
+              </div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Monsoon palace views ✦</span></div>
+            </div>
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-left -rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 240ms;" onclick="openMomentLightbox('./images/couple-udaipur-haveli.webp', 'Courtyard royalty')">
+              <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FEF08A]/80 border-[#FDE047] rounded shadow-2xs border rotate-1"></div>
+              <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
+                <img src="./images/couple-udaipur-haveli.webp" class="w-full h-full object-cover" />
+              </div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Courtyard royalty ✦</span></div>
+            </div>
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-right rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 360ms;" onclick="openMomentLightbox('./images/couple-udaipur-ghat.webp', 'At the water's edge')">
+              <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#EDE9FE]/80 border-[#DDD6FE] rounded shadow-2xs border rotate-1"></div>
+              <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
+                <img src="./images/couple-udaipur-ghat.webp" class="w-full h-full object-cover" />
+              </div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ At the water's edge ✦</span></div>
+            </div>
+        </div>
+      </section>
+
+      <!-- 6. THE VENUE ROADMAP (frame 065 - 068) -->
+      <section class="py-6 px-2 w-full max-w-[390px] mx-auto select-none">
+        <div class="text-center space-y-1 mb-5 scroll-reveal">
+          <span class="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">Where it's all happening</span>
+          <h3 class="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">The Venue</h3>
+          <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1"></div>
+        </div>
+
+        <div class="bg-[#FFFDF9] rounded-2xl p-4 border-2 border-stone-200 shadow-md space-y-3 scroll-reveal reveal-pop-up" style="transition-delay: 120ms;">
+          <div class="w-full h-40 rounded-xl bg-gradient-to-b from-[#E6F4EA] to-[#FEF3C7] border border-[#A7F3D0] relative overflow-hidden flex flex-col justify-between p-3">
+            <div class="flex justify-between items-start text-lg opacity-80">
+              <span>🌳</span><span>🏰</span><span>🌳</span>
+            </div>
+            <div class="relative w-full flex items-center justify-center my-auto">
+              <svg viewBox="0 0 200 40" class="w-full h-10" fill="none">
+                <path d="M10,25 Q100,5 190,25" stroke="#94A3B8" stroke-width="2.5" stroke-dasharray="5,4" />
+              </svg>
+              <div class="absolute right-4 top-1/2 -translate-y-1/2 text-rose-600 text-2xl animate-pin-drop">📍</div>
+            </div>
+            <div class="bg-white/90 backdrop-blur-xs rounded-lg p-2 text-center border border-stone-200 shadow-2xs">
+              <h4 class="font-serif text-sm font-bold text-[#2B1E17]">The Courtyard, The Oberoi Udaivilas</h4>
+              <p class="text-[10px] text-stone-500">Udaipur, Rajasthan · Haridas Ji Ki Magri, Udaipur, Rajasthan 313001</p>
+            </div>
+          </div>
+
+          <a href="https://maps.google.com/?q=The%20Courtyard%2C%20The%20Oberoi%20Udaivilas%20Udaipur%2C%20Rajasthan" target="_blank" class="w-full py-2.5 rounded-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#881337] text-white hover:bg-[#9F1239] transition-all shadow-sm cursor-pointer">
+            <span>🧭 Open in Google Maps</span>
+          </a>
+        </div>
+      </section>
+
+      <!-- 7. HASHTAG BANNER (frame 072) -->
+      <section class="py-6 px-2 w-full max-w-[390px] mx-auto text-center select-none space-y-2 scroll-reveal reveal-pop-up">
+        <span class="text-[10px] uppercase tracking-[0.25em] font-bold text-stone-500 block">SHARE THE MOMENTS</span>
+        <h3 class="font-serif text-2xl sm:text-3xl font-bold text-[#2B1E17]">#PreetiWedsAshish</h3>
+        <p class="text-xs text-stone-600 font-light">Tag your photos and stories so we can relive every moment.</p>
+        <div class="pt-1.5">
+          <button id="hashtag-btn" onclick="copyHashtag('#PreetiWedsAshish')" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-[#881337] hover:bg-[#9F1239] text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md cursor-pointer active:scale-95">
+            <span>📋 Copy Hashtag</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 8. PASTEL FOOTER (frame 080) -->
+      <footer class="py-10 px-2 w-full max-w-[390px] mx-auto text-center space-y-3.5 border-t-2 border-dashed border-[#F5D0C5] select-none scroll-reveal">
+        <h3 class="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">See you at the shaadi!</h3>
+        <p class="text-[10px] tracking-[0.3em] uppercase font-bold text-[#8B6F47]">WITH LOVE, Ashish & Preeti</p>
+        <div class="flex items-center justify-center gap-3">
+          <span class="w-6 h-6 rounded-full bg-[#FEF3C7] border border-[#FBBF24] flex items-center justify-center text-xs shadow-xs animate-bounce">💛</span>
+          <span class="w-6 h-6 rounded-full bg-[#D1FAE5] border border-[#34D399] flex items-center justify-center text-xs shadow-xs animate-bounce" style="animation-delay: 0.2s;">💚</span>
+          <span class="w-6 h-6 rounded-full bg-[#EDE9FE] border border-[#A78BFA] flex items-center justify-center text-xs shadow-xs animate-bounce" style="animation-delay: 0.4s;">💜</span>
+          <span class="w-6 h-6 rounded-full bg-[#FCE7F3] border border-[#F472B6] flex items-center justify-center text-xs shadow-xs animate-bounce" style="animation-delay: 0.6s;">💖</span>
+        </div>
+        <div class="flex items-center justify-center gap-1 pt-1.5">
+          <span class="text-3xl drop-shadow">🛵</span>
+          <span class="text-xs text-stone-400">💨</span>
+        </div>
+        <p class="text-xs text-stone-500 font-light italic">We can't wait to celebrate with you</p>
+        <p class="text-[9px] uppercase tracking-widest text-stone-400 pt-1">Powered by Wishlys Free</p>
+      </footer>
+    </div>
+  </main>
+
+  <!-- GROOM & BRIDE ENLARGED PORTRAIT CARD MODAL (BLURRED BACKDROP) -->
+  <div id="person-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/65 backdrop-blur-md transition-all animate-fadeIn" onclick="closePersonModal()">
+    <div class="relative w-full max-w-[330px] bg-[#FFFDF9] rounded-3xl p-5 border-2 border-[#FDE68A] shadow-2xl text-center space-y-3 animate-scaleUp" onclick="event.stopPropagation()">
+      <div id="modal-washi" class="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-5 rounded shadow-xs bg-[#A7F3D0] border border-[#6EE7B7] rotate-1"></div>
+      <button onclick="closePersonModal()" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center text-sm font-bold shadow-xs cursor-pointer z-10 transition-colors" aria-label="Close">✕</button>
+      <div class="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-stone-100 border-2 border-stone-200 shadow-inner mt-2">
+        <img id="modal-person-img" src="" alt="Person" class="w-full h-full object-cover object-top" />
+      </div>
+      <div class="space-y-1 pt-1">
+        <span id="modal-person-role" class="inline-block px-3 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-bold bg-[#E6F4EA] text-[#137333]">The Groom</span>
+        <h3 id="modal-person-name" class="font-serif text-2xl font-bold text-[#2B1E17]"></h3>
+        <p id="modal-person-bio" class="text-xs text-stone-600 italic px-2"></p>
+        <p id="modal-person-lineage" class="text-[10px] text-stone-400 font-sans border-t border-stone-200/60 pt-2 mt-2"></p>
+      </div>
+      <div class="pt-1">
+        <button onclick="closePersonModal()" class="text-[11px] uppercase tracking-widest text-stone-400 font-semibold hover:text-stone-700 cursor-pointer">Tap to close ✕</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STANDALONE 60FPS ATMOSPHERE CANVAS & AUDIO SYNTHESIZER SCRIPT -->
+  <script>
+    // 60fps Full-Page Floating Particle Engine
+    (function initAtmosphere() {
+      const atmoCanvas = document.getElementById('atmosphere-canvas');
+      if (!atmoCanvas || !atmoCanvas.getContext) return;
+      const actx = atmoCanvas.getContext('2d');
+      const resize = () => {
+        atmoCanvas.width = window.innerWidth;
+        atmoCanvas.height = window.innerHeight;
+      };
+      resize();
+      window.addEventListener('resize', resize);
+
+      const isMelaTheme = false;
+      const isPichwaiTheme = false;
+      const isZardoziTheme = false;
+      const isBougainTheme = false;
+
+      const particles = [];
+      const pCount = isPichwaiTheme ? 45 : isMelaTheme ? 40 : 35;
+      for (let i = 0; i < pCount; i++) {
+        particles.push({
+          x: Math.random() * atmoCanvas.width,
+          y: Math.random() * atmoCanvas.height,
+          size: isMelaTheme ? Math.random() * 8 + 6 : isPichwaiTheme ? Math.random() * 4 + 2 : Math.random() * 5 + 3,
+          speedY: isPichwaiTheme ? -(Math.random() * 0.8 + 0.3) : (Math.random() * 1.2 + 0.4),
+          speedX: (Math.random() - 0.5) * 0.8,
+          rotation: Math.random() * Math.PI * 2,
+          rotSpeed: (Math.random() - 0.5) * 0.04,
+          opacity: Math.random() * 0.6 + 0.35,
+          color: isMelaTheme ? (Math.random() > 0.5 ? '#F59E0B' : '#EA580C') : isPichwaiTheme ? '#FFD700' : isZardoziTheme ? '#D4AF37' : '#F472B6',
+        });
+      }
+
+      function loop() {
+        actx.clearRect(0, 0, atmoCanvas.width, atmoCanvas.height);
+        particles.forEach(p => {
+          actx.save();
+          actx.translate(p.x, p.y);
+          actx.rotate(p.rotation);
+          actx.globalAlpha = p.opacity;
+
+          if (isMelaTheme) {
+            actx.fillStyle = p.color;
+            actx.beginPath();
+            actx.ellipse(0, 0, p.size, p.size * 0.55, 0, 0, Math.PI * 2);
+            actx.fill();
+          } else if (isPichwaiTheme) {
+            actx.shadowBlur = 12;
+            actx.shadowColor = '#FFD700';
+            actx.fillStyle = '#FFF8DC';
+            actx.beginPath();
+            actx.arc(0, 0, p.size, 0, Math.PI * 2);
+            actx.fill();
+          } else {
+            actx.fillStyle = p.color;
+            actx.beginPath();
+            actx.arc(0, 0, p.size, 0, Math.PI * 2);
+            actx.fill();
+          }
+
+          actx.restore();
+          p.y += p.speedY;
+          p.x += Math.sin(p.y * 0.01) * 0.5;
+          p.rotation += p.rotSpeed;
+
+          if (p.speedY > 0 && p.y > atmoCanvas.height + 20) { p.y = -20; p.x = Math.random() * atmoCanvas.width; }
+          else if (p.speedY < 0 && p.y < -20) { p.y = atmoCanvas.height + 20; p.x = Math.random() * atmoCanvas.width; }
+        });
+        requestAnimationFrame(loop);
+      }
+      loop();
+    })();
+
+    // STANDALONE AUDIO ENGINE (Original Wishlys 320kbps MP3 Streaming with Offline Synthesizer Fallback)
+    const AUDIO_TRACK_URLS = {
+      'modern-muse': 'https://static.wishlys.com/audio/indian-inspirational-modern.mp3',
+      'eternal-love': 'https://static.wishlys.com/audio/eternal-love.mp3',
+      'saffron-light': 'https://static.wishlys.com/audio/saffron-light.mp3',
+      'morning-promise': 'https://static.wishlys.com/audio/morning-promise.mp3',
+      'saffron-threads': 'https://static.wishlys.com/audio/saffron-threads.mp3',
+      'unfolding-the-invitation': 'https://static.wishlys.com/audio/unfolding-the-invitation.mp3',
+      'romantic-vows': 'https://static.wishlys.com/audio/romantic-vows.mp3',
+      'piano-promise': 'https://static.wishlys.com/audio/piano-promise.mp3',
+      'first-dance': 'https://static.wishlys.com/audio/first-dance.mp3',
+      'mountain-vows': 'https://static.wishlys.com/audio/mountain-vows.mp3',
+      'wedding-celebration': 'https://static.wishlys.com/audio/wedding-celebration.mp3',
+      'sehra-bandi': 'https://static.wishlys.com/audio/sehra-bandi.mp3',
+      'joyful-procession': 'https://static.wishlys.com/audio/joyful-procession.mp3',
+      'bollywood-heart': 'https://static.wishlys.com/audio/bollywood-heart.mp3',
+      'bollywood-nights': 'https://static.wishlys.com/audio/bollywood-nights.mp3',
+      'festival-lights': 'https://static.wishlys.com/audio/festival-lights.mp3',
+      'marigold-morning': 'https://static.wishlys.com/audio/marigold-morning.mp3',
+      'under-the-marigold-canopy': 'https://static.wishlys.com/audio/under-the-marigold-canopy.mp3',
+      'shehnai-express': 'https://static.wishlys.com/audio/shehnai-express.mp3',
+      'lanterns-of-noor': 'https://static.wishlys.com/audio/lanterns-of-noor.mp3',
+      'moonlit-garden': 'https://static.wishlys.com/audio/moonlit-garden.mp3',
+      'haveli-lights': 'https://static.wishlys.com/audio/haveli-lights.mp3',
+      'mangala-isai': 'https://static.wishlys.com/audio/mangala-isai.mp3',
+      'sitar-sunrise': 'https://static.wishlys.com/audio/sitar-sunrise.mp3',
+      'dhol-dance-floor': 'https://static.wishlys.com/audio/dhol-dance-floor.mp3',
+    };
+
+    class StandaloneAudioEngine {
+      constructor() {
+        this.ctx = null;
+        this.isPlaying = false;
+        this.track = 'modern-muse';
+        this.audioEl = null;
+        this.timer = null;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) this.ctx = new AudioCtx();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+      }
+      play() {
+        this.isPlaying = true;
+        const mp3Url = AUDIO_TRACK_URLS[this.track] || '';
+        if (mp3Url) {
+          try {
+            if (!this.audioEl) {
+              this.audioEl = new Audio(mp3Url);
+              this.audioEl.loop = true;
+              this.audioEl.volume = 0.7;
+            }
+            const p = this.audioEl.play();
+            if (p) {
+              p.catch(() => this.startSynth());
+            }
+            return;
+          } catch(e) {}
+        }
+        this.startSynth();
+      }
+      stop() {
+        this.isPlaying = false;
+        if (this.audioEl) {
+          try {
+            this.audioEl.pause();
+          } catch(e) {}
+        }
+        if (this.timer) clearTimeout(this.timer);
+      }
+      startSynth() {
+        this.init();
+        if (!this.isPlaying) return;
+        this.loopMelody();
+      }
+      playChime(f) {
+        if (!this.ctx) return;
+        const o = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(f, this.ctx.currentTime);
+        g.gain.setValueAtTime(0.2, this.ctx.currentTime);
+        g.gain.setTargetAtTime(0.001, this.ctx.currentTime + 0.05, 0.3);
+        o.connect(g);
+        g.connect(this.ctx.destination);
+        o.start();
+        o.stop(this.ctx.currentTime + 0.6);
+      }
+      loopMelody() {
+        if (!this.isPlaying || !this.ctx) return;
+        const notes = [261.63, 329.63, 392.00, 523.25, 440.00, 349.23, 392.00];
+        const freq = notes[Math.floor(Math.random() * notes.length)];
+        this.playChime(freq);
+        this.timer = setTimeout(() => this.loopMelody(), 600);
+      }
+    }
+
+    const sound = new StandaloneAudioEngine();
+    let musicActive = false;
+    const audioBtn = document.getElementById('audio-toggle-btn');
+    const audioEq = document.getElementById('audio-eq');
+    const audioText = document.getElementById('audio-btn-text');
+
+    if (audioBtn) {
+      audioBtn.addEventListener('click', () => {
+        if (musicActive) {
+          sound.stop();
+          musicActive = false;
+          if (audioEq) audioEq.classList.add('hidden');
+          if (audioText) audioText.innerText = '🎵 Play Music';
+        } else {
+          sound.play();
+          musicActive = true;
+          if (audioEq) audioEq.classList.remove('hidden');
+          if (audioText) audioText.innerText = 'Playing';
+        }
+      });
+    }
+
+    // Countdown Timer Script
+    const targetDate = new Date('2027-02-14').getTime();
+    setInterval(() => {
+      const now = new Date().getTime();
+      const diff = Math.max(0, targetDate - now);
+      const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const m = Math.floor((diff / 1000 / 60) % 60);
+      const s = Math.floor((diff / 1000) % 60);
+
+      const elDays = document.getElementById('days');
+      if (elDays) {
+        elDays.innerText = d;
+        const elH = document.getElementById('hours'); if (elH) elH.innerText = h;
+        const elM = document.getElementById('mins'); if (elM) elM.innerText = m;
+        const elS = document.getElementById('secs'); if (elS) elS.innerText = s;
+      }
+      const elPastelDays = document.getElementById('pastel-days');
+      if (elPastelDays) {
+        elPastelDays.innerText = d;
+        const elPH = document.getElementById('pastel-hours'); if (elPH) elPH.innerText = h;
+        const elPM = document.getElementById('pastel-mins'); if (elPM) elPM.innerText = m;
+        const elPS = document.getElementById('pastel-secs'); if (elPS) elPS.innerText = s;
+      }
+    }, 1000);
+
+    function triggerCelebrationEffect() {
+      if (!window.confetti) return;
+      const effectType = 'confetti';
+      if (effectType === 'confetti') {
+        window.confetti({ particleCount: 85, spread: 75, origin: { y: 0.6 }, colors: ['#8B6F47', '#D4AF37', '#FFD700', '#FFFFFF', '#E6D5BF', '#A9825F'], shapes: ['square'], scalar: 1.1 });
+      } else if (effectType === 'colorful') {
+        window.confetti({ particleCount: 110, spread: 90, origin: { y: 0.6 }, colors: ['#FF1493', '#00E5FF', '#FFD700', '#76FF03', '#FF6D00', '#9C27B0', '#FF3D00'], shapes: ['circle', 'square'], scalar: 1.15 });
+      } else if (effectType === 'hearts') {
+        let heartShape = null;
+        try { if (window.confetti.shapeFromText) heartShape = window.confetti.shapeFromText({ text: '❤️', scalar: 2 }); } catch(e){}
+        window.confetti({ particleCount: 50, spread: 80, origin: { y: 0.6 }, shapes: heartShape ? [heartShape] : ['circle'], colors: ['#E11D48', '#BE123C', '#FB7185', '#F43F5E', '#FDA4AF'], scalar: heartShape ? 2 : 1.2 });
+      } else if (effectType === 'stars') {
+        window.confetti({ particleCount: 75, spread: 85, origin: { y: 0.6 }, shapes: ['star'], colors: ['#FFD700', '#FFA500', '#FFE87C', '#F59E0B', '#FFFDF7'], scalar: 1.25 });
+      } else if (effectType === 'dots') {
+        window.confetti({ particleCount: 85, spread: 80, origin: { y: 0.6 }, shapes: ['circle'], colors: ['#334155', '#475569', '#64748B', '#0EA5E9', '#F43F5E', '#F59E0B'], scalar: 0.9 });
+      } else if (effectType === 'petals') {
+        const end = Date.now() + 1200;
+        const frame = () => {
+          window.confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#FFA500', '#FF4500', '#FFD700', '#E91E63', '#FB7185'], shapes: ['circle'], scalar: 1.25 });
+          window.confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#FFA500', '#FF4500', '#FFD700', '#E91E63', '#FB7185'], shapes: ['circle'], scalar: 1.25 });
+          if (Date.now() < end) requestAnimationFrame(frame);
+        };
+        frame();
+      } else {
+        window.confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
+      }
+    }
+
+    function unlockInvitation() {
+      const rev = document.getElementById('reveal-screen');
+      if (rev) {
+        rev.classList.add('opacity-0', 'pointer-events-none');
+        setTimeout(() => {
+          rev.style.display = 'none';
+          const main = document.getElementById('main-invitation');
+          if (main) main.classList.remove('opacity-0');
+          triggerCelebrationEffect();
+          if (!musicActive) {
+            sound.play();
+            musicActive = true;
+            if (audioEq) audioEq.classList.remove('hidden');
+            if (audioText) audioText.innerText = 'Playing';
+          }
+        }, 500);
+      }
+    }
+
+    // 3D Folding Card Doors for Caricature
+    window.unlockCaricatureDoors = function() {
+      if (window._doorsOpened) return;
+      window._doorsOpened = true;
+      const leftDoor = document.getElementById('door-left');
+      const rightDoor = document.getElementById('door-right');
+      const heartSeal = document.getElementById('door-heart-seal');
+      if (leftDoor) leftDoor.style.transform = 'rotateY(-110deg)';
+      if (rightDoor) rightDoor.style.transform = 'rotateY(110deg)';
+      if (heartSeal) {
+        heartSeal.style.transform = 'translate(-50%, -50%) scale(1.5)';
+        heartSeal.style.opacity = '0';
+      }
+      sound.playChime(880);
+      setTimeout(() => {
+        unlockInvitation();
+      }, 700);
+    };
+
+    // Person Modal Open / Close (Groom & Bride Photo Popup)
+    window.openPersonModal = function(role) {
+      const modal = document.getElementById('person-modal');
+      if (!modal) return;
+      const isGroom = role === 'groom';
+      const img = document.getElementById('modal-person-img');
+      const roleEl = document.getElementById('modal-person-role');
+      const nameEl = document.getElementById('modal-person-name');
+      const bioEl = document.getElementById('modal-person-bio');
+      const linEl = document.getElementById('modal-person-lineage');
+      const washi = document.getElementById('modal-washi');
+      if (img) img.src = isGroom ? './images/groom.webp' : './images/bride.webp';
+      if (roleEl) {
+        roleEl.innerText = isGroom ? 'The Groom' : 'The Bride';
+        roleEl.className = 'inline-block px-3 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-bold ' + (isGroom ? 'bg-[#E6F4EA] text-[#137333]' : 'bg-[#FCE8E6] text-[#C5221F]');
+      }
+      if (nameEl) nameEl.innerText = isGroom ? 'Ashish' : 'Preeti';
+      if (bioEl) bioEl.innerText = '"' + (isGroom ? 'Foodie, photography enthusiast, and the architect of their happiest memories.' : 'Loves classic poetry, morning chai, and spontaneous mountain hikes.') + '"';
+      if (linEl) linEl.innerText = isGroom ? 'S/o Mr. Ramesh & Mrs. Sunita Sharma' : 'D/o Mr. Vijay & Mrs. Rekha Malhotra';
+      if (washi) washi.className = 'absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-5 rounded shadow-xs ' + (isGroom ? 'bg-[#A7F3D0] border border-[#6EE7B7] rotate-1' : 'bg-[#FDE68A] border border-[#FCD34D] -rotate-1');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    };
+    window.closePersonModal = function() {
+      const modal = document.getElementById('person-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    };
+
+    // Hashtag Copy
+    window.copyHashtag = function(tag) {
+      navigator.clipboard?.writeText(tag || '#PreetiWedsAshish');
+      const btn = document.getElementById('hashtag-btn');
+      if (btn) btn.innerHTML = '<span>✅ Copied to Clipboard!</span>';
+      setTimeout(() => {
+        if (btn) btn.innerHTML = '<span>📋 Copy Hashtag</span>';
+      }, 2500);
+    };
+
+    // Tabbed Multi-step RSVP for Caricature
+    window.goToRsvpStep = function(step) {
+      ['1', '2', '3'].forEach(s => {
+        const el = document.getElementById('rsvp-step-' + s);
+        if (el) el.classList.toggle('hidden', s !== String(step));
+      });
+      const tEvt = document.getElementById('tab-events');
+      const tDet = document.getElementById('tab-details');
+      const tSng = document.getElementById('tab-song');
+      if (tEvt && tDet && tSng) {
+        tEvt.className = step === 1 ? 'text-[#881337] border-b-2 border-[#881337] pb-0.5' : '';
+        tDet.className = step === 2 ? 'text-[#881337] border-b-2 border-[#881337] pb-0.5' : '';
+        tSng.className = step === 3 ? 'text-[#881337] border-b-2 border-[#881337] pb-0.5' : '';
+      }
+    };
+
+    window.toggleSelectAllEvents = function() {
+      const chks = document.querySelectorAll('.caricature-evt-chk');
+      const allChecked = Array.from(chks).every(c => c.checked);
+      chks.forEach(c => c.checked = !allChecked);
+    };
+
+    window.submitCaricatureRsvp = function() {
+      const name = document.getElementById('rsvp-input-name')?.value || 'Guest';
+      ['1', '2', '3'].forEach(s => {
+        const el = document.getElementById('rsvp-step-' + s);
+        if (el) el.classList.add('hidden');
+      });
+      const step4 = document.getElementById('rsvp-step-4');
+      if (step4) {
+        step4.classList.remove('hidden');
+        const sName = document.getElementById('rsvp-success-name');
+        if (sName) sName.innerText = 'Thank you, ' + name + '! We cannot wait to celebrate with you!';
+      }
+      triggerCelebrationEffect();
+      sound.playChime(1046.5);
+    };
+
+    // Scratch Card Engine (Guarded for non-Caricature themes)
+    const canvas = document.getElementById('scratch-canvas');
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      let isScratching = false;
+      let scratchedPixels = 0;
+      const totalPixels = canvas.width * canvas.height;
+
+      // Draw Gold Foil
+      const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      grad.addColorStop(0, '#D4AF37');
+      grad.addColorStop(0.5, '#F3E5AB');
+      grad.addColorStop(1, '#AA771C');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = '#4A3B32';
+      ctx.font = 'bold 15px Cinzel, serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('SCRATCH TO REVEAL DATE', 160, 115);
+      ctx.font = '11px Plus Jakarta Sans, sans-serif';
+      ctx.fillText('✨ Use touch or mouse ✨', 160, 138);
+
+      function scratch(x, y) {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.beginPath();
+        ctx.arc(x, y, 22, 0, Math.PI * 2);
+        ctx.fill();
+        sound.playChime(1200 + Math.random() * 400);
+
+        scratchedPixels += 80;
+        const pct = Math.min(100, Math.round((scratchedPixels / (totalPixels * 0.4)) * 100));
+        const hint = document.getElementById('scratch-hint');
+        if (hint) hint.innerText = 'Scrubbing foil... ' + pct + '% cleared';
+
+        if (pct >= 85) {
+          unlockInvitation();
+        }
+      }
+
+      canvas.addEventListener('mousedown', () => isScratching = true);
+      window.addEventListener('mouseup', () => isScratching = false);
+      canvas.addEventListener('mousemove', e => {
+        if (!isScratching) return;
+        const rect = canvas.getBoundingClientRect();
+        scratch(e.clientX - rect.left, e.clientY - rect.top);
+      });
+
+      canvas.addEventListener('touchstart', e => { isScratching = true; e.preventDefault(); });
+      window.addEventListener('touchend', () => isScratching = false);
+      canvas.addEventListener('touchmove', e => {
+        if (!isScratching) return;
+        const rect = canvas.getBoundingClientRect();
+        const t = e.touches[0];
+        scratch(t.clientX - rect.left, t.clientY - rect.top);
+        e.preventDefault();
+      });
+    }
+
+    const skipBtn = document.getElementById('skip-reveal-btn');
+    if (skipBtn) skipBtn.addEventListener('click', unlockInvitation);
+
+    const rsvpForm = document.getElementById('standalone-rsvp-form');
+    if (rsvpForm) {
+      rsvpForm.addEventListener('submit', e => {
+        e.preventDefault();
+        rsvpForm.style.display = 'none';
+        const succ = document.getElementById('rsvp-success');
+        if (succ) succ.classList.remove('hidden');
+        if (window.confetti) window.confetti({ particleCount: 80, spread: 60 });
+      });
+    }
+
+    // Scroll Reveal IntersectionObserver (Matches export-1793962607603.mp4)
+    if (typeof IntersectionObserver !== 'undefined') {
+      const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-revealed');
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -25px 0px' });
+      document.querySelectorAll('.scroll-reveal').forEach(el => revealObserver.observe(el));
+    }
+
+    // Standalone 60fps Parallax Scroll Engine for Wedding SVGs
+    (function initParallax() {
+      const bells = document.querySelectorAll('.parallax-bell');
+      const garlands = document.querySelectorAll('.parallax-garland');
+      const motifs = document.querySelectorAll('.parallax-motif');
+      const petals = document.querySelectorAll('.parallax-petal');
+      if (!bells.length && !petals.length) return;
+
+      let ticking = false;
+      window.addEventListener('scroll', () => {
+        if (!ticking) {
+          window.requestAnimationFrame(() => {
+            const sy = window.scrollY || window.pageYOffset;
+            bells.forEach(b => b.style.transform = 'translate3d(0, ' + (sy * 0.09) + 'px, 0)');
+            garlands.forEach(g => g.style.transform = 'translate3d(0, ' + (sy * 0.06) + 'px, 0)');
+            motifs.forEach(m => {
+              const speed = parseFloat(m.dataset.speed || 0.06);
+              const rot = parseFloat(m.dataset.rot || 0);
+              m.style.transform = 'translate3d(0, ' + (sy * speed) + 'px, 0) rotate(' + rot + 'deg)';
+            });
+            petals.forEach((p, idx) => {
+              const speed = parseFloat(p.dataset.speed || 0.2);
+              const rotSpeed = parseFloat(p.dataset.rotspeed || 0.15);
+              const initRot = parseFloat(p.dataset.initrot || 0);
+              const sway = Math.sin((sy * 0.008) + idx) * 6;
+              p.style.transform = 'translate3d(' + sway + 'px, ' + (sy * speed) + 'px, 0) rotate(' + (initRot + sy * rotSpeed) + 'deg)';
+            });
+            ticking = false;
+          });
+          ticking = true;
+        }
+      }, { passive: true });
+    })();
+
+    // MOMENTS & MEMORIES UPLOAD & LIGHTBOX ENGINE
+    let currentUploadedImageBase64 = '';
+
+    window.openMomentsModal = function() {
+      const m = document.getElementById('moments-upload-modal');
+      if (m) {
+        m.classList.remove('hidden');
+        m.classList.add('flex');
+      }
+    };
+
+    window.closeMomentsModal = function() {
+      const m = document.getElementById('moments-upload-modal');
+      if (m) {
+        m.classList.add('hidden');
+        m.classList.remove('flex');
+      }
+    };
+
+    window.handleMomentFileSelected = function(e) {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const r = new FileReader();
+      r.onload = function(ev) {
+        currentUploadedImageBase64 = ev.target.result;
+        const prev = document.getElementById('moment-preview-img');
+        const box = document.getElementById('moment-preview-box');
+        const placeholder = document.getElementById('moment-placeholder');
+        if (prev && box && placeholder) {
+          prev.src = currentUploadedImageBase64;
+          box.classList.remove('hidden');
+          placeholder.classList.add('hidden');
+        }
+      };
+      r.readAsDataURL(file);
+    };
+
+    window.clearMomentPreview = function() {
+      currentUploadedImageBase64 = '';
+      const prev = document.getElementById('moment-preview-img');
+      const box = document.getElementById('moment-preview-box');
+      const placeholder = document.getElementById('moment-placeholder');
+      const inp = document.getElementById('moment-file-input');
+      if (inp) inp.value = '';
+      if (box) box.classList.add('hidden');
+      if (placeholder) placeholder.classList.remove('hidden');
+    };
+
+    window.submitMomentUpload = function(e) {
+      if (e) e.preventDefault();
+      if (!currentUploadedImageBase64) {
+        alert('Please select or capture a photo first!');
+        return;
+      }
+      const uploader = document.getElementById('moment-uploader-name')?.value || 'Guest';
+      const caption = document.getElementById('moment-caption-input')?.value || 'Cherished celebration memory 💕';
+      
+      const newMem = {
+        url: currentUploadedImageBase64,
+        caption: caption,
+        uploader: uploader,
+        id: 'mem_' + Date.now()
+      };
+
+      try {
+        const existing = JSON.parse(localStorage.getItem('wishlys_moments_uploads') || '[]');
+        existing.unshift(newMem);
+        localStorage.setItem('wishlys_moments_uploads', JSON.stringify(existing));
+      } catch(err) {}
+
+      appendMomentToGrid(newMem, true);
+
+      if (window.confetti) window.confetti({ particleCount: 90, spread: 60 });
+      sound.playChime(880);
+      closeMomentsModal();
+      clearMomentPreview();
+      alert('Thank you! Your memory has been posted to the album 💕');
+    };
+
+    function appendMomentToGrid(mem, prepend) {
+      const grid = document.getElementById('moments-grid');
+      if (!grid) return;
+      const card = document.createElement('div');
+      card.className = 'relative bg-white p-2 pb-3.5 rounded-lg shadow-md border-2 border-pink-200 transform hover:rotate-0 transition-transform duration-300 cursor-pointer';
+      card.onclick = function() { openMomentLightbox(mem.url, mem.caption + ' (By ' + mem.uploader + ')'); };
+      card.innerHTML = `
+        <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FCE7F3]/90 border border-[#F472B6] rounded shadow-2xs rotate-1"></div>
+        <div class="absolute top-1 right-1 z-10 bg-[#BE185D] text-white text-[7.5px] uppercase font-bold px-1.5 py-0.5 rounded-full">Guest</div>
+        <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
+          <img src="${mem.url}" class="w-full h-full object-cover" />
+        </div>
+        <div class="text-left px-0.5">
+          <p class="text-[10px] font-bold text-stone-800 line-clamp-1">"${mem.caption}"</p>
+          <span class="text-[8.5px] text-[#BE185D] font-semibold block mt-0.5">By ${mem.uploader}</span>
+        </div>
+      `;
+      if (prepend && grid.firstChild) {
+        grid.insertBefore(card, grid.firstChild);
+      } else {
+        grid.appendChild(card);
+      }
+    }
+
+    try {
+      const stored = JSON.parse(localStorage.getItem('wishlys_moments_uploads') || '[]');
+      stored.forEach(mem => appendMomentToGrid(mem, false));
+    } catch(e) {}
+
+    window.openMomentLightbox = function(url, caption) {
+      const m = document.getElementById('moment-lightbox-modal');
+      const img = document.getElementById('moment-lightbox-img');
+      const cap = document.getElementById('moment-lightbox-cap');
+      if (m && img && cap) {
+        img.src = url;
+        cap.innerText = caption || 'Cherished Memory';
+        m.classList.remove('hidden');
+        m.classList.add('flex');
+      }
+    };
+
+    window.closeMomentLightbox = function() {
+      const m = document.getElementById('moment-lightbox-modal');
+      if (m) {
+        m.classList.add('hidden');
+        m.classList.remove('flex');
+      }
+    };
+  </script>
+
+  <!-- MOMENTS & MEMORIES UPLOAD MODAL -->
+  <div id="moments-upload-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/70 backdrop-blur-md" onclick="closeMomentsModal()">
+    <div class="relative w-full max-w-[340px] bg-[#FFFDF9] rounded-3xl p-5 border-2 border-[#FDE68A] shadow-2xl space-y-3.5" onclick="event.stopPropagation()">
+      <button type="button" onclick="closeMomentsModal()" class="absolute top-3 right-3 w-7 h-7 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center font-bold text-xs cursor-pointer">✕</button>
+      
+      <div class="text-center space-y-0.5">
+        <span class="text-[9.5px] uppercase font-bold text-[#DB2777] tracking-wider">Live Wedding Album</span>
+        <h3 class="font-serif text-xl text-[#2B1E17]">Share Your Memory</h3>
+        <p class="text-[10px] text-stone-500">Upload a selfie or photo with Preeti & Ashish.</p>
+      </div>
+
+      <input type="file" id="moment-file-input" accept="image/*" class="hidden" onchange="handleMomentFileSelected(event)" />
+
+      <!-- Placeholder Dropzone -->
+      <div id="moment-placeholder" onclick="document.getElementById('moment-file-input').click()" class="w-full aspect-[4/3] rounded-2xl border-2 border-dashed border-[#FBBF24] bg-[#FFFDF7] flex flex-col items-center justify-center p-3 text-center cursor-pointer hover:bg-amber-50/50">
+        <span class="text-3xl mb-1">📸</span>
+        <span class="text-xs font-bold text-stone-800">Tap to Choose / Take Photo</span>
+        <span class="text-[9.5px] text-stone-400">Supports phone gallery & camera</span>
+      </div>
+
+      <!-- Preview Box -->
+      <div id="moment-preview-box" class="hidden relative w-full aspect-square rounded-2xl overflow-hidden border-2 border-[#FBBF24] bg-stone-100">
+        <img id="moment-preview-img" src="" class="w-full h-full object-cover" />
+        <button type="button" onclick="clearMomentPreview()" class="absolute top-2 right-2 px-2.5 py-1 rounded-full bg-rose-600 text-white text-[10px] font-bold shadow-md cursor-pointer">✕ Remove</button>
+      </div>
+
+      <div class="space-y-1">
+        <label class="text-[9.5px] uppercase font-bold text-stone-600">Your Name *</label>
+        <input type="text" id="moment-uploader-name" placeholder="e.g. Priya & Rohan" class="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs bg-white focus:outline-none" />
+      </div>
+
+      <div class="space-y-1">
+        <label class="text-[9.5px] uppercase font-bold text-stone-600">Caption / Wish</label>
+        <input type="text" id="moment-caption-input" placeholder="e.g. Sangeet dance night! 🎉" class="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs bg-white focus:outline-none" />
+      </div>
+
+      <button type="button" onclick="submitMomentUpload(event)" class="w-full py-2.5 rounded-full bg-gradient-to-r from-[#F472B6] via-[#EC4899] to-[#DB2777] text-white font-bold text-xs uppercase tracking-wider shadow-md hover:scale-101 cursor-pointer">
+        Post Memory to Album ✨
+      </button>
+    </div>
+  </div>
+
+  <!-- MOMENTS LIGHTBOX MODAL -->
+  <div id="moment-lightbox-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/85 backdrop-blur-md" onclick="closeMomentLightbox()">
+    <div class="relative w-full max-w-[350px] bg-white rounded-3xl p-4 shadow-2xl space-y-2.5 text-center" onclick="event.stopPropagation()">
+      <button type="button" onclick="closeMomentLightbox()" class="absolute top-2 right-2 w-7 h-7 rounded-full bg-stone-100 text-stone-600 font-bold text-xs cursor-pointer">✕</button>
+      <div class="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-stone-900 border border-stone-200">
+        <img id="moment-lightbox-img" src="" class="w-full h-full object-contain" />
+      </div>
+      <p id="moment-lightbox-cap" class="text-xs font-serif font-medium text-stone-800"></p>
+    </div>
+  </div>
+</body>
+</html>
