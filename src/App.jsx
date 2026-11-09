@@ -3,6 +3,7 @@ import LandingPage from './components/landing/LandingPage';
 import StudioWizard from './components/studio/StudioWizard';
 import HostDashboard from './components/dashboard/HostDashboard';
 import InvitationExperience from './components/invitation/InvitationExperience';
+import ErrorBoundary from './components/common/ErrorBoundary';
 import { DEFAULT_INVITATION_DATA, OCCASIONS } from './data/presets';
 
 export default function App() {
@@ -100,46 +101,48 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7]">
-      {view === 'landing' && (
-        <LandingPage 
-          onOpenStudio={handleOpenStudio}
-          onOpenDashboard={() => setView('dashboard')}
-        />
-      )}
+    <ErrorBoundary>
+      <div className="min-h-screen bg-[#FDFBF7]">
+        {view === 'landing' && (
+          <LandingPage 
+            onOpenStudio={handleOpenStudio}
+            onOpenDashboard={() => setView('dashboard')}
+          />
+        )}
 
-      {view === 'studio' && (
-        <StudioWizard 
-          initialData={invitationData}
-          onSave={data => setInvitationData(data)}
-          onExitToHome={() => setView('landing')}
-          onOpenDashboard={() => setView('dashboard')}
-          onOpenLivePreview={() => setView('live')}
-        />
-      )}
+        {view === 'studio' && (
+          <StudioWizard 
+            initialData={invitationData}
+            onSave={data => setInvitationData(data)}
+            onExitToHome={() => setView('landing')}
+            onOpenDashboard={() => setView('dashboard')}
+            onOpenLivePreview={() => setView('live')}
+          />
+        )}
 
-      {view === 'dashboard' && (
-        <HostDashboard 
-          onBackToStudio={() => setView('studio')}
-          onOpenLivePreview={() => setView('live')}
-        />
-      )}
+        {view === 'dashboard' && (
+          <HostDashboard 
+            onBackToStudio={() => setView('studio')}
+            onOpenLivePreview={() => setView('live')}
+          />
+        )}
 
-      {view === 'live' && (
-        <div className="relative">
-          {/* Top Return bar */}
-          <div className="fixed top-4 left-4 z-50">
-            <button
-              type="button"
-              onClick={() => setView('studio')}
-              className="bg-black/70 hover:bg-black/90 text-white text-xs font-semibold px-4 py-2 rounded-full backdrop-blur-md border border-white/20 shadow-lg cursor-pointer"
-            >
-              ← Back to Studio
-            </button>
+        {view === 'live' && (
+          <div className="relative">
+            {/* Top Return bar */}
+            <div className="fixed top-4 left-4 z-50">
+              <button
+                type="button"
+                onClick={() => setView('studio')}
+                className="bg-black/70 hover:bg-black/90 text-white text-xs font-semibold px-4 py-2 rounded-full backdrop-blur-md border border-white/20 shadow-lg cursor-pointer"
+              >
+                ← Back to Studio
+              </button>
+            </div>
+            <InvitationExperience data={invitationData} isPreview={false} />
           </div>
-          <InvitationExperience data={invitationData} isPreview={false} />
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </ErrorBoundary>
   );
 }

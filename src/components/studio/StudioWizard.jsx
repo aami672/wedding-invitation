@@ -3605,13 +3605,13 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                                       />
                                     </label>
 
-                                    {(pic.url || pic.img) && (
+                                    {(item.url || item.img) && (
                                       <button
                                         type="button"
                                         onClick={() => {
                                           setCropModalConfig({
                                             isOpen: true,
-                                            imageSrc: pic.url || pic.img,
+                                            imageSrc: item.url || item.img,
                                             title: `Adjust & Crop - Memory #${idx + 1}`,
                                             targetField: { type: 'galleryItem', index: idx },
                                             defaultAspect: 4 / 5,
