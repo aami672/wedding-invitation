@@ -81,6 +81,13 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
   const [publishedInfo, setPublishedInfo] = useState(null);
   const [isPublishing, setIsPublishing] = useState(false);
   const [copiedPublished, setCopiedPublished] = useState(false);
+  const [isEditCoupleModalOpen, setIsEditCoupleModalOpen] = useState(false);
+  const [clientForm, setClientForm] = useState({
+    bride: initialData?.hosts?.bride || '',
+    groom: initialData?.hosts?.groom || '',
+    date: initialData?.hosts?.date || '2027-02-14',
+    city: initialData?.hosts?.city || 'Udaipur, Rajasthan',
+  });
 
   // Accordion expanded row state
   const [openRow, setOpenRow] = useState('template');
@@ -2888,7 +2895,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
 
         ctx.fillStyle = '#FFFFFF';
         ctx.font = 'bold 54px serif';
-        ctx.fillText(data.hosts?.bride || 'Preeti', 360, 810);
+        ctx.fillText(data.hosts?.bride || 'Bride', 360, 810);
 
         // Subtitle
         ctx.fillStyle = '#FDE68A';
@@ -2978,10 +2985,46 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
             <h1 className="font-serif text-lg font-light text-[#2B1E17] leading-none">
               Wishlys Studio
             </h1>
-            <p className="text-[10px] text-[#8B6F47] tracking-wider uppercase font-semibold">
-              {data.hosts?.bride || 'Bride'} & {data.hosts?.groom || 'Groom'}
-            </p>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className="text-[10px] text-[#8B6F47] tracking-wider uppercase font-semibold">
+                Client: {data.hosts?.bride || 'Bride'} & {data.hosts?.groom || 'Groom'}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setClientForm({
+                    bride: data.hosts?.bride || '',
+                    groom: data.hosts?.groom || '',
+                    date: data.hosts?.date || '2027-02-14',
+                    city: data.hosts?.city || 'Udaipur, Rajasthan',
+                  });
+                  setIsEditCoupleModalOpen(true);
+                }}
+                className="text-[9px] text-stone-400 hover:text-[#8B6F47] underline cursor-pointer"
+                title="Change client / couple name"
+              >
+                (Change)
+              </button>
+            </div>
           </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              setClientForm({
+                bride: '',
+                groom: '',
+                date: '2027-02-14',
+                city: 'Udaipur, Rajasthan',
+              });
+              setIsEditCoupleModalOpen(true);
+            }}
+            className="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#FAF5ED] border border-[#C5A880]/80 text-[11px] font-bold text-[#8B6F47] hover:bg-[#8B6F47] hover:text-white transition-all cursor-pointer shadow-2xs"
+            title="Create an invitation for a new client"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>New Client</span>
+          </button>
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
@@ -3892,7 +3935,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                                     style={{ fontFamily: `"${suite.headingFont}", serif` }} 
                                     className="text-base text-[#2B1E17] font-semibold tracking-wide truncate"
                                   >
-                                    {data.hosts?.bride || 'Preeti'} & {data.hosts?.groom || 'Ashish'}
+                                    {data.hosts?.bride || 'Bride'} & {data.hosts?.groom || 'Groom'}
                                   </p>
                                   <p 
                                     style={{ fontFamily: `"${suite.scriptFont}", cursive` }} 
@@ -5263,6 +5306,147 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           onApply={handleApplyCrop}
           onCancel={() => setCropModalConfig(null)}
         />
+      )}
+
+      {/* QUICK CLIENT & COUPLE DETAILS MODAL */}
+      {isEditCoupleModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-md rounded-3xl p-6 sm:p-7 shadow-2xl border border-stone-200 space-y-5 animate-scaleUp">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-[#FAF5ED] border border-[#E6D5BF] flex items-center justify-center text-[#8B6F47]">
+                  <Users className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-serif text-xl font-normal text-[#2B1E17]">Client & Couple Information</h3>
+                  <p className="text-xs text-stone-500 font-light">Set the client name for this wedding invitation</p>
+                </div>
+              </div>
+              <button 
+                type="button" 
+                onClick={() => setIsEditCoupleModalOpen(false)}
+                className="w-8 h-8 rounded-full hover:bg-stone-100 flex items-center justify-center text-stone-400 hover:text-stone-700 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[10px] uppercase font-bold tracking-wider text-stone-600 mb-1">
+                    Bride's Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Riya"
+                    value={clientForm.bride}
+                    onChange={e => setClientForm(prev => ({ ...prev, bride: e.target.value }))}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-sm focus:ring-2 focus:ring-[#8B6F47] focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase font-bold tracking-wider text-stone-600 mb-1">
+                    Groom's Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Karan"
+                    value={clientForm.groom}
+                    onChange={e => setClientForm(prev => ({ ...prev, groom: e.target.value }))}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-sm focus:ring-2 focus:ring-[#8B6F47] focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[10px] uppercase font-bold tracking-wider text-stone-600 mb-1">
+                    Wedding Date
+                  </label>
+                  <input
+                    type="date"
+                    value={clientForm.date}
+                    onChange={e => setClientForm(prev => ({ ...prev, date: e.target.value }))}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-sm focus:ring-2 focus:ring-[#8B6F47] focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase font-bold tracking-wider text-stone-600 mb-1">
+                    City / Destination
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Udaipur"
+                    value={clientForm.city}
+                    onChange={e => setClientForm(prev => ({ ...prev, city: e.target.value }))}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-sm focus:ring-2 focus:ring-[#8B6F47] focus:outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
+              <button
+                type="button"
+                onClick={() => {
+                  const b = clientForm.bride.trim() || 'Bride';
+                  const g = clientForm.groom.trim() || 'Groom';
+                  const bI = b[0].toUpperCase();
+                  const gI = g[0].toUpperCase();
+                  setData(prev => ({
+                    ...prev,
+                    hosts: {
+                      ...prev.hosts,
+                      bride: b,
+                      groom: g,
+                      date: clientForm.date,
+                      city: clientForm.city,
+                      hashtag: `#${b}Weds${g}`,
+                    },
+                    monogram: {
+                      ...prev.monogram,
+                      initials: `${bI} & ${gI}`,
+                    }
+                  }));
+                  setIsEditCoupleModalOpen(false);
+                }}
+                className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-[#8B6F47] to-[#A9825F] text-white text-xs font-bold uppercase tracking-wider shadow-md hover:opacity-95 cursor-pointer text-center"
+              >
+                Save Client Names
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const b = clientForm.bride.trim() || 'Bride';
+                  const g = clientForm.groom.trim() || 'Groom';
+                  const bI = b[0].toUpperCase();
+                  const gI = g[0].toUpperCase();
+                  setData({
+                    ...DEFAULT_INVITATION_DATA,
+                    hosts: {
+                      ...DEFAULT_INVITATION_DATA.hosts,
+                      bride: b,
+                      groom: g,
+                      date: clientForm.date,
+                      city: clientForm.city,
+                      hashtag: `#${b}Weds${g}`,
+                    },
+                    monogram: {
+                      ...DEFAULT_INVITATION_DATA.monogram,
+                      initials: `${bI} & ${gI}`,
+                    }
+                  });
+                  setIsEditCoupleModalOpen(false);
+                }}
+                className="py-3 px-4 rounded-xl border border-stone-300 bg-white text-stone-700 text-xs font-bold uppercase tracking-wider hover:bg-stone-50 cursor-pointer text-center"
+              >
+                Start Clean Client
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

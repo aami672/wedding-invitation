@@ -737,7 +737,7 @@ export const DEFAULT_INVITATION_DATA = {
     intensity: 'medium',
   },
   monogram: {
-    initials: 'P & A',
+    initials: 'B & G',
     style: 'classic-crest',
   },
   photos: {
@@ -749,9 +749,9 @@ export const DEFAULT_INVITATION_DATA = {
   },
   hosts: {
     title: 'Together with their families',
-    bride: 'Preeti',
-    groom: 'Ashish',
-    hashtag: '#PreetiWedsAshish',
+    bride: 'Bride',
+    groom: 'Groom',
+    hashtag: '#BrideWedsGroom',
     date: '2027-02-14',
     day: 'Sunday',
     city: 'Udaipur, Rajasthan',
