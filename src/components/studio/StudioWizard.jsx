@@ -2812,7 +2812,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         const videoUrl = URL.createObjectURL(finalBlob);
         const a = document.createElement('a');
         a.href = videoUrl;
-        const slug = `${data.hosts?.bride || 'preeti'}-and-${data.hosts?.groom || 'ashish'}`.toLowerCase().replace(/\s+/g, '-');
+        const slug = `${data.hosts?.bride || 'bride'}-and-${data.hosts?.groom || 'groom'}`.toLowerCase().replace(/\s+/g, '-');
         a.download = `wedding-reel-${slug}.${fileExt}`;
         a.click();
         URL.revokeObjectURL(videoUrl);
@@ -2985,49 +2985,27 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
             <h1 className="font-serif text-lg font-light text-[#2B1E17] leading-none">
               Wishlys Studio
             </h1>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="text-[10px] text-[#8B6F47] tracking-wider uppercase font-semibold">
-                Client: {data.hosts?.bride || 'Bride'} & {data.hosts?.groom || 'Groom'}
-              </span>
-              <button
-                type="button"
-                onClick={() => {
-                  setClientForm({
-                    bride: data.hosts?.bride || '',
-                    groom: data.hosts?.groom || '',
-                    date: data.hosts?.date || '2027-02-14',
-                    city: data.hosts?.city || 'Udaipur, Rajasthan',
-                  });
-                  setIsEditCoupleModalOpen(true);
-                }}
-                className="text-[9px] text-stone-400 hover:text-[#8B6F47] underline cursor-pointer"
-                title="Change client / couple name"
-              >
-                (Change)
-              </button>
-            </div>
           </div>
+        </div>
 
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
             type="button"
             onClick={() => {
               setClientForm({
-                bride: '',
-                groom: '',
-                date: '2027-02-14',
-                city: 'Udaipur, Rajasthan',
+                bride: data.hosts?.bride || '',
+                groom: data.hosts?.groom || '',
+                date: data.hosts?.date || '2027-02-14',
+                city: data.hosts?.city || 'Udaipur, Rajasthan',
               });
               setIsEditCoupleModalOpen(true);
             }}
-            className="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#FAF5ED] border border-[#C5A880]/80 text-[11px] font-bold text-[#8B6F47] hover:bg-[#8B6F47] hover:text-white transition-all cursor-pointer shadow-2xs"
-            title="Create an invitation for a new client"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF5ED] border border-[#C5A880] text-xs font-bold text-[#8B6F47] hover:bg-[#8B6F47] hover:text-white transition-all cursor-pointer shadow-2xs"
+            title="Set Bride & Groom names"
           >
-            <Plus className="w-3.5 h-3.5" />
-            <span>New Client</span>
+            <Users className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Couple / Client</span>
           </button>
-        </div>
-
-        <div className="flex items-center gap-2 sm:gap-3">
           {onOpenLivePreview && (
             <button
               type="button"

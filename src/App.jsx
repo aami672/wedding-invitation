@@ -23,6 +23,13 @@ export default function App() {
         let text = saved;
         text = text.replaceAll('"/images/', '"./images/').replaceAll('"/audio/', '"./audio/');
         const parsed = JSON.parse(text);
+        // Clear old demo Preeti & Ashish cache if present in localStorage
+        if (parsed.hosts?.bride === 'Preeti' && parsed.hosts?.groom === 'Ashish') {
+          parsed.hosts.bride = 'Bride';
+          parsed.hosts.groom = 'Groom';
+          parsed.hosts.hashtag = '#BrideWedsGroom';
+          if (parsed.monogram) parsed.monogram.initials = 'B & G';
+        }
         // Ensure valid initials if monogram initials are missing
         if (!parsed.monogram?.initials && (parsed.hosts?.bride || parsed.hosts?.groom)) {
           const bI = (parsed.hosts?.bride || 'B')[0]?.toUpperCase() || 'B';
