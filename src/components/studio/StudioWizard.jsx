@@ -644,11 +644,47 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     const firstDayIndex = validDate ? new Date(calYear, d.getMonth(), 1).getDay() : 0;
 
     const standaloneHtml = `<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-publish-time="${Date.now()}" data-slug="${slug}">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>${data.hosts?.bride} & ${data.hosts?.groom} — Wedding Invitation</title>
+  <script>
+    // Wishlys Instant Client-Side Hydration
+    // When opened on the browser where the invitation was published, immediately renders the latest version
+    (function() {
+      try {
+        var currentSlug = "${slug}";
+        var pathSlug = window.location.pathname.split('/').pop().replace('.html', '') || currentSlug;
+        var savedHtml = localStorage.getItem('wishlys_published_html_' + pathSlug)
+                     || localStorage.getItem('wishlys_published_html_' + currentSlug)
+                     || localStorage.getItem('wishlys_published_html_latest')
+                     || localStorage.getItem('wishlys_published_html');
+        var savedTime = localStorage.getItem('wishlys_published_time');
+        var myTime = document.documentElement.getAttribute('data-publish-time');
+        if (savedHtml && (!myTime || !savedTime || Number(savedTime) > Number(myTime))) {
+          if (!window.__wishlys_hydrating) {
+            window.__wishlys_hydrating = true;
+            document.open();
+            document.write(savedHtml);
+            document.close();
+          }
+        }
+      } catch (e) {
+        console.warn('Hydration skipped:', e);
+      }
+    })();
+
+    // GitHub Pages subpath asset error auto-resolver
+    window.addEventListener('error', function(e) {
+      if (e.target && (e.target.tagName === 'IMG' || e.target.tagName === 'AUDIO')) {
+        var src = e.target.src;
+        if (src && src.includes('github.io/images/')) {
+          e.target.src = src.replace('github.io/images/', 'github.io/wedding-invitation/images/');
+        }
+      }
+    }, true);
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2447,17 +2483,36 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
 </body>
 </html>`;
 
+    // Cache published standalone HTML in localStorage for instant same-origin client hydration
+    const nowTime = String(Date.now());
+    try {
+      localStorage.setItem('wishlys_published_html_' + slug, standaloneHtml);
+      localStorage.setItem('wishlys_published_html_preeti-and-ashish', standaloneHtml);
+      localStorage.setItem('wishlys_published_html', standaloneHtml);
+      localStorage.setItem('wishlys_published_html_latest', standaloneHtml);
+      localStorage.setItem('wishlys_published_slug', slug);
+      localStorage.setItem('wishlys_published_time', nowTime);
+      localStorage.setItem('wishlys_free_saved_data', JSON.stringify(data));
+    } catch (storageErr) {
+      console.warn('Could not cache standaloneHtml in localStorage:', storageErr);
+    }
+
     // Auto-save to public/published folder if running locally
     try {
       await fetch('/api/save-published', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filename: `${slug}.html`, content: standaloneHtml })
+        body: JSON.stringify({ filename: `${slug}.html`, content: standaloneHtml, data, slug })
       });
       await fetch('/api/save-published', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filename: 'index.html', content: standaloneHtml })
+        body: JSON.stringify({ filename: 'preeti-and-ashish.html', content: standaloneHtml, data, slug })
+      });
+      await fetch('/api/save-published', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: 'index.html', content: standaloneHtml, data, slug })
       });
     } catch (e) {
       // ignore
@@ -4782,6 +4837,25 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                         <span>WhatsApp</span>
                       </a>
                     </div>
+                  </div>
+
+                  {/* ALSO DISPLAY THE INSTANT LIVE APP LINK */}
+                  <div className="pt-2.5 border-t border-white/10 flex flex-wrap items-center justify-between gap-2 text-[11px] text-stone-300">
+                    <span className="flex items-center gap-1.5 text-stone-300">
+                      <Sparkles className="w-3.5 h-3.5 text-[#FFD700]" />
+                      <span>Instant Live View:</span>
+                      <a
+                        href={getShareUrl()}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline text-[#FFD700] hover:text-[#FFE57F] font-mono text-[11.5px]"
+                      >
+                        {getShareUrl()}
+                      </a>
+                    </span>
+                    <span className="text-[10px] text-stone-400">
+                      Auto-synced with browser storage & GitHub Pages
+                    </span>
                   </div>
                 </div>
               </div>

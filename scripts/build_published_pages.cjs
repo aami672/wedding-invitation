@@ -18,10 +18,20 @@ if (startIdx === -1 || endIdx === -1) {
 
 const templateStr = wizCode.slice(startIdx + 'const standaloneHtml = `'.length, endIdx + '</html>'.length);
 
-// Default Data for Preeti & Ashish
-const data = {
+// Base Default Data
+const defaultData = {
   template: 'caricature',
   revealStyle: 'scratch-date',
+  typography: {
+    preset: 'heritage',
+    headingFont: 'Cinzel',
+    bodyFont: 'Cormorant Garamond',
+    scriptFont: 'Great Vibes',
+  },
+  atmosphere: {
+    style: 'petals',
+    intensity: 'medium',
+  },
   hosts: {
     bride: 'Preeti',
     groom: 'Ashish',
@@ -105,20 +115,45 @@ const data = {
   ]
 };
 
-const slug = 'preeti-and-ashish';
-const isCaricature = true;
-const isPichwai = false;
-const isZardozi = false;
-const isMela = false;
-const isNewspaper = false;
-const isBougain = false;
+// Check if user has saved custom data in src/data/published_invitation.json
+let customData = {};
+const savedJsonPath = path.join(__dirname, '../src/data/published_invitation.json');
+if (fs.existsSync(savedJsonPath)) {
+  try {
+    customData = JSON.parse(fs.readFileSync(savedJsonPath, 'utf8'));
+  } catch (e) {
+    console.warn('Could not read published_invitation.json:', e.message);
+  }
+}
+
+const data = {
+  ...defaultData,
+  ...customData,
+  hosts: { ...defaultData.hosts, ...(customData.hosts || {}) },
+  photos: { ...defaultData.photos, ...(customData.photos || {}) },
+  typography: { ...defaultData.typography, ...(customData.typography || {}) },
+  atmosphere: { ...defaultData.atmosphere, ...(customData.atmosphere || {}) },
+  events: (customData.events && customData.events.length) ? customData.events : defaultData.events,
+  gallery: (customData.gallery && customData.gallery.length) ? customData.gallery : defaultData.gallery,
+};
+
+const brideSlug = (data.hosts?.bride || 'preeti').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+const groomSlug = (data.hosts?.groom || 'ashish').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+const slug = (brideSlug && groomSlug) ? `${brideSlug}-and-${groomSlug}` : 'preeti-and-ashish';
+
+const isCaricature = data.template === 'caricature';
+const isPichwai = data.template === 'pichwai';
+const isZardozi = data.template === 'zardozi';
+const isMela = data.template === 'mela';
+const isNewspaper = data.template === 'newspaper';
+const isBougain = data.template === 'bougain' || data.template === 'bougainvillea';
 
 // For files inside /published/, assets in /images/ are at ../images/
 const assetPrefix = '../';
 
-const b64Cover = `${assetPrefix}images/caricature/scooter_couple.webp`;
-const b64Bride = `${assetPrefix}images/bride.webp`;
-const b64Groom = `${assetPrefix}images/groom.webp`;
+const b64Cover = data.photos?.cover ? `${assetPrefix}${data.photos.cover.replace(/^\.?\//, '')}` : `${assetPrefix}images/templates/caricature.webp`;
+const b64Bride = data.photos?.bride ? `${assetPrefix}${data.photos.bride.replace(/^\.?\//, '')}` : `${assetPrefix}images/bride.webp`;
+const b64Groom = data.photos?.groom ? `${assetPrefix}${data.photos.groom.replace(/^\.?\//, '')}` : `${assetPrefix}images/groom.webp`;
 const b64Tmpl = `${assetPrefix}images/templates/caricature.webp`;
 const b64Scooter = `${assetPrefix}images/caricature/scooter_couple.webp`;
 const b64Haldi = `${assetPrefix}images/caricature/haldi_arch.webp`;
@@ -127,20 +162,21 @@ const b64Sangeet = `${assetPrefix}images/caricature/sangeet_arch.webp`;
 const b64Pheras = `${assetPrefix}images/caricature/pheras_arch.webp`;
 const b64Reception = `${assetPrefix}images/caricature/reception_arch.webp`;
 
-const b64Gallery = data.gallery.map(item => ({
-  b64: `${assetPrefix}${item.url.replace(/^\.?\//, '')}`,
-  caption: item.caption
+const b64Gallery = (data.gallery || []).map(item => ({
+  b64: `${assetPrefix}${(item.url || item.img || 'images/couple-potrait.webp').replace(/^\.?\//, '')}`,
+  caption: item.caption || item.title || 'Wedding Memory'
 }));
 
-const eventsJson = JSON.stringify(data.events);
+const eventsJson = JSON.stringify(data.events || []);
 
 // Calendar math
-const d = new Date(data.hosts.date);
-const calMonthName = 'February';
-const calYear = 2027;
-const calDayNum = 14;
-const daysInMonth = 28;
-const firstDayIndex = 0; // Sunday
+const d = new Date(data.hosts.date || '2027-02-14');
+const validDate = !isNaN(d.getTime());
+const calMonthName = validDate ? d.toLocaleString('en-US', { month: 'long' }) : 'February';
+const calYear = validDate ? d.getFullYear() : 2027;
+const calDayNum = validDate ? d.getDate() : 14;
+const daysInMonth = validDate ? new Date(calYear, d.getMonth() + 1, 0).getDate() : 28;
+const firstDayIndex = validDate ? new Date(calYear, d.getMonth(), 1).getDay() : 0;
 
 // Build HTML using Function constructor to evaluate templateStr in context
 const buildFn = new Function(
@@ -156,8 +192,33 @@ let html = buildFn(
   b64Gallery, eventsJson, d, calMonthName, calYear, calDayNum, daysInMonth, firstDayIndex
 );
 
-// Add automatic asset resolver for GitHub Pages subpath to published HTML
-const resolverScript = `  <script>
+// Add automatic asset resolver and instant localStorage auto-hydration
+const hydrationScript = `  <script>
+    // Wishlys Instant Client-Side Hydration
+    // Syncs immediately if a newer version was saved/published in this browser
+    (function() {
+      try {
+        var currentSlug = "${slug}";
+        var pathSlug = window.location.pathname.split('/').pop().replace('.html', '') || currentSlug;
+        var savedHtml = localStorage.getItem('wishlys_published_html_' + pathSlug)
+                     || localStorage.getItem('wishlys_published_html_' + currentSlug)
+                     || localStorage.getItem('wishlys_published_html_latest')
+                     || localStorage.getItem('wishlys_published_html');
+        var savedTime = localStorage.getItem('wishlys_published_time');
+        var myTime = document.documentElement.getAttribute('data-publish-time');
+        if (savedHtml && (!myTime || !savedTime || Number(savedTime) > Number(myTime))) {
+          if (!window.__wishlys_hydrating) {
+            window.__wishlys_hydrating = true;
+            document.open();
+            document.write(savedHtml);
+            document.close();
+          }
+        }
+      } catch (e) {
+        console.warn('Hydration skipped:', e);
+      }
+    })();
+
     // GitHub Pages subpath image error auto-resolver
     window.addEventListener('error', function(e) {
       if (e.target && (e.target.tagName === 'IMG' || e.target.tagName === 'AUDIO')) {
@@ -170,7 +231,7 @@ const resolverScript = `  <script>
   </script>
 </head>`;
 
-html = html.replace('</head>', resolverScript);
+html = html.replace('</head>', hydrationScript);
 
 // Write to public/published/
 const pubDir = path.join(__dirname, '../public/published');
@@ -178,18 +239,39 @@ if (!fs.existsSync(pubDir)) {
   fs.mkdirSync(pubDir, { recursive: true });
 }
 
-const file1 = path.join(pubDir, 'preeti-and-ashish.html');
-const file2 = path.join(pubDir, 'index.html');
+// 1. Write preeti-and-ashish.html
+const filePreeti = path.join(pubDir, 'preeti-and-ashish.html');
+fs.writeFileSync(filePreeti, html, 'utf8');
 
-fs.writeFileSync(file1, html, 'utf8');
-fs.writeFileSync(file2, html, 'utf8');
+// 2. Write index.html
+const fileIndex = path.join(pubDir, 'index.html');
+fs.writeFileSync(fileIndex, html, 'utf8');
 
-// For root public/preeti-and-ashish.html, prefix is ./images/
+// 3. Write client specific slug file (e.g. pooja-and-rahul.html)
+if (slug !== 'preeti-and-ashish') {
+  const fileSlug = path.join(pubDir, `${slug}.html`);
+  fs.writeFileSync(fileSlug, html, 'utf8');
+}
+
+// 4. For root public/preeti-and-ashish.html, prefix is ./images/
 const rootHtml = html.replaceAll('../images/', './images/').replaceAll('../audio/', './audio/');
-const file3 = path.join(__dirname, '../public/preeti-and-ashish.html');
-fs.writeFileSync(file3, rootHtml, 'utf8');
+const fileRoot = path.join(__dirname, '../public/preeti-and-ashish.html');
+fs.writeFileSync(fileRoot, rootHtml, 'utf8');
 
-console.log(`Generated:
-  - ${file1} (${(html.length / 1024).toFixed(1)} KB)
-  - ${file2} (${(html.length / 1024).toFixed(1)} KB)
-  - ${file3} (${(rootHtml.length / 1024).toFixed(1)} KB)`);
+// 5. Also update dist/ if dist exists
+const distDir = path.join(__dirname, '../dist');
+if (fs.existsSync(distDir)) {
+  const distPubDir = path.join(distDir, 'published');
+  if (!fs.existsSync(distPubDir)) fs.mkdirSync(distPubDir, { recursive: true });
+  fs.writeFileSync(path.join(distPubDir, 'preeti-and-ashish.html'), html, 'utf8');
+  fs.writeFileSync(path.join(distPubDir, 'index.html'), html, 'utf8');
+  if (slug !== 'preeti-and-ashish') {
+    fs.writeFileSync(path.join(distPubDir, `${slug}.html`), html, 'utf8');
+  }
+  fs.writeFileSync(path.join(distDir, 'preeti-and-ashish.html'), rootHtml, 'utf8');
+}
+
+console.log(`Successfully built published pages:
+  - public/published/preeti-and-ashish.html (${(html.length / 1024).toFixed(1)} KB)
+  - public/published/index.html (${(html.length / 1024).toFixed(1)} KB)
+  ${slug !== 'preeti-and-ashish' ? `- public/published/${slug}.html\n` : ''}  - public/preeti-and-ashish.html (${(rootHtml.length / 1024).toFixed(1)} KB)`);

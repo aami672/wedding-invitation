@@ -1,9 +1,45 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-publish-time="1794228615768" data-slug="preeti-and-ashish">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>Preeti & Ashish — Wedding Invitation</title>
+  <script>
+    // Wishlys Instant Client-Side Hydration
+    // When opened on the browser where the invitation was published, immediately renders the latest version
+    (function() {
+      try {
+        var currentSlug = "preeti-and-ashish";
+        var pathSlug = window.location.pathname.split('/').pop().replace('.html', '') || currentSlug;
+        var savedHtml = localStorage.getItem('wishlys_published_html_' + pathSlug)
+                     || localStorage.getItem('wishlys_published_html_' + currentSlug)
+                     || localStorage.getItem('wishlys_published_html_latest')
+                     || localStorage.getItem('wishlys_published_html');
+        var savedTime = localStorage.getItem('wishlys_published_time');
+        var myTime = document.documentElement.getAttribute('data-publish-time');
+        if (savedHtml && (!myTime || !savedTime || Number(savedTime) > Number(myTime))) {
+          if (!window.__wishlys_hydrating) {
+            window.__wishlys_hydrating = true;
+            document.open();
+            document.write(savedHtml);
+            document.close();
+          }
+        }
+      } catch (e) {
+        console.warn('Hydration skipped:', e);
+      }
+    })();
+
+    // GitHub Pages subpath asset error auto-resolver
+    window.addEventListener('error', function(e) {
+      if (e.target && (e.target.tagName === 'IMG' || e.target.tagName === 'AUDIO')) {
+        var src = e.target.src;
+        if (src && src.includes('github.io/images/')) {
+          e.target.src = src.replace('github.io/images/', 'github.io/wedding-invitation/images/');
+        }
+      }
+    }, true);
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -127,6 +163,31 @@
     .animate-scaleUp { animation: scaleUpModal 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   </style>
   <script>
+    // Wishlys Instant Client-Side Hydration
+    // Syncs immediately if a newer version was saved/published in this browser
+    (function() {
+      try {
+        var currentSlug = "preeti-and-ashish";
+        var pathSlug = window.location.pathname.split('/').pop().replace('.html', '') || currentSlug;
+        var savedHtml = localStorage.getItem('wishlys_published_html_' + pathSlug)
+                     || localStorage.getItem('wishlys_published_html_' + currentSlug)
+                     || localStorage.getItem('wishlys_published_html_latest')
+                     || localStorage.getItem('wishlys_published_html');
+        var savedTime = localStorage.getItem('wishlys_published_time');
+        var myTime = document.documentElement.getAttribute('data-publish-time');
+        if (savedHtml && (!myTime || !savedTime || Number(savedTime) > Number(myTime))) {
+          if (!window.__wishlys_hydrating) {
+            window.__wishlys_hydrating = true;
+            document.open();
+            document.write(savedHtml);
+            document.close();
+          }
+        }
+      } catch (e) {
+        console.warn('Hydration skipped:', e);
+      }
+    })();
+
     // GitHub Pages subpath image error auto-resolver
     window.addEventListener('error', function(e) {
       if (e.target && (e.target.tagName === 'IMG' || e.target.tagName === 'AUDIO')) {
@@ -413,7 +474,7 @@
           </div>
 
           <div class="grid grid-cols-7 gap-1 text-center text-xs text-stone-700">
-            
+            <span></span>
             <div class="h-7 sm:h-8 flex items-center justify-center"><span>1</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>2</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>3</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>4</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>5</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>6</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>7</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>8</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>9</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>10</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>11</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>12</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>13</span></div><div class="relative w-8 h-8 sm:w-9 sm:h-9 mx-auto flex items-center justify-center font-bold text-rose-600 select-none">
                     <svg viewBox="0 0 36 36" class="absolute -inset-1 w-9 h-9 sm:w-10 sm:h-10 pointer-events-none overflow-visible">
                       <path
@@ -892,7 +953,7 @@
       resize();
       window.addEventListener('resize', resize);
 
-      const atmoStyle = 'auto';
+      const atmoStyle = 'petals';
       const atmoIntensity = 'medium';
 
       if (atmoIntensity === 'none' || atmoStyle === 'none') {
