@@ -83,7 +83,7 @@ export const TEMPLATES = [
     category: 'Parallax & Luxury',
     description: 'Full-bleed photos told as an immersive scrolling film with gold leaf typography and smooth transitions.',
     badge: 'Signature',
-    image: './images/themes/Luxe-Rajwada-Miniature/04-pheras.webp',
+    image: './images/themes/Luxe-Rajwada-Miniature/03-sangeet.webp',
   },
   {
     id: 'caricature',
@@ -91,7 +91,7 @@ export const TEMPLATES = [
     category: 'Hand-Drawn Pop-up',
     description: 'You two as hand-drawn pastel caricatures riding a vintage scooter with floral garlands and palace skyline.',
     badge: 'Popular',
-    image: './images/themes/Luxe-Pastel-Caricature/04-pheras.webp',
+    image: './images/themes/Luxe-Pastel-Caricature/03-sangeet.webp',
   },
   {
     id: 'mela',
@@ -99,7 +99,7 @@ export const TEMPLATES = [
     category: 'Festive Shaadi',
     description: 'You two on a classic motorcycle at a joyful marigold wedding mela with dhol and festive colours.',
     badge: 'Festive',
-    image: './images/themes/Luxe-Marigold-Mela/04-pheras.webp',
+    image: './images/themes/Luxe-Marigold-Mela/03-sangeet.webp',
   },
   {
     id: 'pichwai',
@@ -107,7 +107,7 @@ export const TEMPLATES = [
     category: 'Heritage Art',
     description: 'Painted as a Nathdwara pichwai in gold leaf, on a midnight lotus pond with Kamdhenu cows and peacocks.',
     badge: 'Royal Heritage',
-    image: './images/themes/Luxe-Pichwai-Lotus/04-pheras.webp',
+    image: './images/themes/Luxe-Pichwai-Lotus/03-sangeet.webp',
   },
   {
     id: 'rajwada',
@@ -115,7 +115,7 @@ export const TEMPLATES = [
     category: 'Palace Courtyard',
     description: 'Painted as a Rajput miniature in a Rajasthan palace courtyard, in rich ruby, emerald and gold leaf.',
     badge: 'Royal Palace',
-    image: './images/themes/Luxe-Rajwada-Miniature/04-pheras.webp',
+    image: './images/themes/Luxe-Rajwada-Miniature/03-sangeet.webp',
   },
   {
     id: 'zardozi',
@@ -123,7 +123,7 @@ export const TEMPLATES = [
     category: 'Raw Silk & Pearls',
     description: 'Embroidered in gold zari, pearls and pastel silk thread on ivory raw silk, like an heirloom.',
     badge: 'Artisanal',
-    image: './images/themes/Luxe-Heirloom-Zardozi/04-pheras.webp',
+    image: './images/themes/Luxe-Heirloom-Zardozi/03-sangeet.webp',
   },
   {
     id: 'storybook',
@@ -131,7 +131,7 @@ export const TEMPLATES = [
     category: 'Handcrafted Watercolor',
     description: 'Charming custom illustrations painted for each chapter of your journey together.',
     badge: 'Warm',
-    image: './images/themes/Storybook/04-pheras.webp',
+    image: './images/themes/Storybook/03-sangeet.webp',
   },
   {
     id: 'newspaper',
@@ -139,7 +139,7 @@ export const TEMPLATES = [
     category: 'Vintage News',
     description: 'Your wedding as front-page news, complete with headlines, editorial columns and celebration dates.',
     badge: 'Unique',
-    image: './images/themes/The-Shaadi-Times/04-pheras.webp',
+    image: './images/themes/The-Shaadi-Times/03-sangeet.webp',
   },
   {
     id: 'bougain',
@@ -147,7 +147,7 @@ export const TEMPLATES = [
     category: 'Paper-cut Diorama',
     description: 'You two as a handmade paper-cut diorama in a lush garden of paper bougainvillea and marigolds.',
     badge: 'Floral',
-    image: './images/themes/Luxe-Bougainvillea-Blossom/04-pheras.webp',
+    image: './images/themes/Luxe-Bougainvillea-Blossom/03-sangeet.webp',
   },
   {
     id: 'mandap',
@@ -155,7 +155,7 @@ export const TEMPLATES = [
     category: 'Paper-cut Diorama',
     description: 'You two as a handmade paper-cut diorama under a floral mandap canopy in vibrant pastel papers.',
     badge: 'Mandap',
-    image: './images/themes/Paper-Blossom/04-pheras.webp',
+    image: './images/themes/Paper-Blossom/03-sangeet.webp',
   },
   {
     id: 'peaks',
@@ -163,7 +163,7 @@ export const TEMPLATES = [
     category: 'Mountain Shaadi',
     description: 'Your wedding in the hills: caricatures in every scene with misty mountains behind you.',
     badge: 'Hills',
-    image: './images/themes/Pastel-Peaks/04-pheras.webp',
+    image: './images/themes/Pastel-Peaks/03-sangeet.webp',
   },
   {
     id: 'resort',
@@ -171,7 +171,7 @@ export const TEMPLATES = [
     category: 'Destination Sea',
     description: 'Your wedding by the sea, painted with you two in every scene, plus guests travel plans.',
     badge: 'Beach',
-    image: './images/themes/Luxury-Beach-Resort/04-pheras.webp',
+    image: './images/themes/Luxury-Beach-Resort/03-sangeet.webp',
   },
   {
     id: 'ballroom',
@@ -179,7 +179,7 @@ export const TEMPLATES = [
     category: 'Rococo Royal',
     description: 'You two painted waltzing in a palace ballroom, a rococo oil painting in ivory and gold.',
     badge: 'Ballroom',
-    image: './images/themes/Gilded-Ballroom/04-pheras.webp',
+    image: './images/themes/Gilded-Ballroom/03-sangeet.webp',
   },
   {
     id: 'truck',
@@ -187,7 +187,7 @@ export const TEMPLATES = [
     category: 'Fun & Loud',
     description: 'You two as truck-art caricatures, die-cut stickers on a loud, happy page: Horn OK Please!',
     badge: 'Quirky',
-    image: './images/themes/Desi-Truck-Art/04-pheras.webp',
+    image: './images/themes/Desi-Truck-Art/03-sangeet.webp',
   },
   {
     id: 'nikah',
@@ -195,7 +195,7 @@ export const TEMPLATES = [
     category: 'Emerald & Gold',
     description: 'Your Nikah in emerald and gold, with the Bismillah and Quranic verse: rich and serene.',
     badge: 'Islamic',
-    image: './images/themes/Nikah/04-pheras.webp',
+    image: './images/themes/Nikah/03-sangeet.webp',
   },
   {
     id: 'rangla',
@@ -203,7 +203,7 @@ export const TEMPLATES = [
     category: 'Punjabi Silk',
     description: 'Your Punjabi wedding in phulkari red and golden silk before the palki sahib with ੴ and shabad.',
     badge: 'Punjabi',
-    image: './images/themes/Rangla-Viah/04-pheras.webp',
+    image: './images/themes/Rangla-Viah/03-sangeet.webp',
   },
   {
     id: 'royal',
@@ -211,7 +211,7 @@ export const TEMPLATES = [
     category: 'Heritage Classic',
     description: 'Royal textures, classic borders, and heritage motifs with ornate gold foil frames.',
     badge: 'Heritage',
-    image: './images/themes/Luxe-Rajwada-Miniature/04-pheras.webp',
+    image: './images/themes/Luxe-Rajwada-Miniature/03-sangeet.webp',
   },
   {
     id: 'editorial',
@@ -219,7 +219,7 @@ export const TEMPLATES = [
     category: 'Vogue Minimalist',
     description: 'Clean layouts, bold typefaces, and minimalist modern frames with generous whitespace.',
     badge: 'Modern',
-    image: './images/themes/The-Shaadi-Times/04-pheras.webp',
+    image: './images/themes/The-Shaadi-Times/03-sangeet.webp',
   },
   {
     id: 'botanical',
@@ -227,7 +227,7 @@ export const TEMPLATES = [
     category: 'Watercolor Flora',
     description: 'Delicate watercolor leaves, garden vines, and hand-drawn florals.',
     badge: 'Garden',
-    image: './images/themes/Luxe-Bougainvillea-Blossom/04-pheras.webp',
+    image: './images/themes/Luxe-Bougainvillea-Blossom/03-sangeet.webp',
   },
   {
     id: '3d-pixar',
@@ -235,7 +235,7 @@ export const TEMPLATES = [
     category: '3D Story & Joy',
     description: 'Charming 3D animated couple with expressive eyes, vivid colors, and storybook cinema charm.',
     badge: '3D Pixar',
-    image: './images/themes/3D-Pixar/04-pheras.webp',
+    image: './images/themes/3D-Pixar/03-sangeet.webp',
   },
   {
     id: '3d-human',
@@ -243,7 +243,7 @@ export const TEMPLATES = [
     category: 'Hyper-detailed 3D',
     description: 'Stylized 3D characters dressed in vibrant festive attire under scenic celebratory mandaps.',
     badge: '3D Colorful',
-    image: './images/themes/3D-Model-Human-Colorful-v3/04-pheras.webp',
+    image: './images/themes/3D-Model-Human-Colorful-v3/03-sangeet.webp',
   },
   {
     id: 'aladdin',
@@ -251,7 +251,7 @@ export const TEMPLATES = [
     category: 'Arabian Night Fairytale',
     description: 'Enchanted palace domes, magic lanterns, starry twilight skies, and regal fairytale elegance.',
     badge: 'Fairytale',
-    image: './images/themes/Aladdin-Jasmine/04-pheras.webp',
+    image: './images/themes/Aladdin-Jasmine/03-sangeet.webp',
   },
   {
     id: 'cute-couples',
@@ -259,7 +259,7 @@ export const TEMPLATES = [
     category: 'Adorable Kawaii',
     description: 'Sweet chibi couple illustrations with oversized smiles, blushing cheeks, and adorable joy.',
     badge: 'Cute Romance',
-    image: './images/themes/Cute-Couples/04-pheras.webp',
+    image: './images/themes/Cute-Couples/03-sangeet.webp',
   },
   {
     id: 'kalyanam',
@@ -267,7 +267,7 @@ export const TEMPLATES = [
     category: 'South Indian Heritage',
     description: 'Brass vilakku lamps, golden silk veshti and Kanjeevaram sarees, temple gopuram pillars, and jasmine garlands.',
     badge: 'Kalyanam',
-    image: './images/themes/Kalyanam/04-pheras.webp',
+    image: './images/themes/Kalyanam/03-sangeet.webp',
   },
   {
     id: 'marble',
@@ -275,7 +275,7 @@ export const TEMPLATES = [
     category: 'Sculpted Classical',
     description: 'Opulent sculpted marble arches, golden veins, classical Roman colonnades, and timeless luxury.',
     badge: 'Marble Luxury',
-    image: './images/themes/Marble-Style/04-pheras.webp',
+    image: './images/themes/Marble-Style/03-sangeet.webp',
   },
   {
     id: 'paper-blossom',
@@ -283,7 +283,7 @@ export const TEMPLATES = [
     category: 'Intricate Paper Craft',
     description: 'Layered multi-tone paper-cut flora, 3D origami mandap arches, and delicate pastel floral petals.',
     badge: 'Paper Art',
-    image: './images/themes/Paper-Blossom/04-pheras.webp',
+    image: './images/themes/Paper-Blossom/03-sangeet.webp',
   },
   {
     id: 'water',
@@ -291,7 +291,7 @@ export const TEMPLATES = [
     category: 'Seaside Coastal Vows',
     description: 'Crystalline turquoise water reflections, tropical palms, sunset shores, and sea-breeze romance.',
     badge: 'Coastal Water',
-    image: './images/themes/Water/04-pheras.webp',
+    image: './images/themes/Water/03-sangeet.webp',
   },
   {
     id: 'watercolor',
@@ -299,7 +299,7 @@ export const TEMPLATES = [
     category: 'Fine Art Wash',
     description: 'Soft watercolor pigments, deckled-edge paper textures, and dreamy pastel color transitions.',
     badge: 'Fine Art',
-    image: './images/themes/Watercolor-Portrait/04-pheras.webp',
+    image: './images/themes/Watercolor-Portrait/03-sangeet.webp',
   },
 ];
 
@@ -787,7 +787,7 @@ export const DEFAULT_INVITATION_DATA = {
     style: 'classic-crest',
   },
   photos: {
-    cover: './images/themes/Luxe-Pastel-Caricature/04-pheras.webp',
+    cover: './images/themes/Luxe-Pastel-Caricature/03-sangeet.webp',
     bride: './images/preeti_bride.jpg',
     groom: './images/ashish_groom.jpg',
     brideBio: 'Loves classic poetry, morning chai, and spontaneous mountain hikes.',

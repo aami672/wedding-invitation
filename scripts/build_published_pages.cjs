@@ -155,10 +155,10 @@ const assetPrefix = '../';
 
 function getBuildThemeHeroImage(templateId) {
   const folder = THEME_FOLDER_MAP[templateId] || 'Luxe-Pastel-Caricature';
-  return `${assetPrefix}images/themes/${folder}/04-pheras.webp`;
+  return `${assetPrefix}images/themes/${folder}/03-sangeet.webp`;
 }
 const defaultThemeHero = getBuildThemeHeroImage(data.template);
-const b64Cover = (data.photos?.cover && !data.photos.cover.includes('templates/caricature.webp') && !data.photos.cover.includes('scooter_couple.webp'))
+const b64Cover = (data.photos?.cover && !data.photos.cover.includes('templates/caricature.webp') && !data.photos.cover.includes('scooter_couple.webp') && !data.photos.cover.includes('04-pheras.webp'))
   ? `${assetPrefix}${data.photos.cover.replace(/^\.?\//, '')}`
   : defaultThemeHero;
 const b64Bride = data.photos?.bride ? `${assetPrefix}${data.photos.bride.replace(/^\.?\//, '')}` : `${assetPrefix}images/bride.webp`;

@@ -19,7 +19,7 @@ import InvitationExperience from '../invitation/InvitationExperience';
 import { soundManager } from '../../utils/audio';
 import { triggerCelebration } from '../../utils/confetti';
 import { toBase64Optimized } from '../../utils/imageOptimizer';
-import { getThemeEventImage, getThemeHeroImage } from '../../utils/themeImages';
+import { getThemeEventImage, getThemeHeroImage, THEMES_LIST, CEREMONY_FILES, ALL_THEME_ARTWORKS } from '../../utils/themeImages';
 
 const REVEAL_ICON_MAP = {
   Mail,
@@ -100,6 +100,10 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
   const [copiedLink, setCopiedLink] = useState(false);
   const [isExportingHtml, setIsExportingHtml] = useState(false);
   const [galleryPickerField, setGalleryPickerField] = useState(null);
+  const [galleryTab, setGalleryTab] = useState('themes');
+  const [galleryThemeFilter, setGalleryThemeFilter] = useState('all');
+  const [galleryCeremonyFilter, setGalleryCeremonyFilter] = useState('all');
+  const [gallerySearchQuery, setGallerySearchQuery] = useState('');
   const [cropModalConfig, setCropModalConfig] = useState(null);
   const [publishedInfo, setPublishedInfo] = useState(null);
   const [isPublishing, setIsPublishing] = useState(false);
@@ -210,7 +214,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           ...prev.photos,
           bride: './images/bride.webp',
           groom: './images/groom.webp',
-          cover: './images/themes/Luxe-Pastel-Caricature/04-pheras.webp',
+          cover: './images/themes/Luxe-Pastel-Caricature/03-sangeet.webp',
         },
         gallery: [
           { url: './images/couple-potrait.webp', caption: 'In each other\'s eyes' },
@@ -234,7 +238,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     } else if (presetType === 'caricature') {
       updatePhotos('bride', './images/bride.webp');
       updatePhotos('groom', './images/groom.webp');
-      updatePhotos('cover', './images/themes/Luxe-Pastel-Caricature/04-pheras.webp');
+      updatePhotos('cover', './images/themes/Luxe-Pastel-Caricature/03-sangeet.webp');
     } else if (presetType === 'bougain') {
       updatePhotos('bride', './images/bride.webp');
       updatePhotos('groom', './images/groom.webp');
@@ -421,7 +425,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     }
   };
 
-  const handlePickAsset = (url) => {
+  const handlePickAsset = (url, shouldCrop = false) => {
     if (!galleryPickerField) return;
     const currentTarget = galleryPickerField;
     setGalleryPickerField(null);
@@ -430,6 +434,48 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     const isBride = currentTarget === 'bride';
     const isGroom = currentTarget === 'groom';
     const isEvent = typeof currentTarget === 'object' && currentTarget.type === 'event';
+    const isAddGallery = typeof currentTarget === 'object' && currentTarget.type === 'addGalleryItem';
+    const isGalleryItem = typeof currentTarget === 'object' && currentTarget.type === 'galleryItem';
+
+    if (isAddGallery) {
+      setData(prev => ({
+        ...prev,
+        gallery: [...(prev.gallery || []), { url, caption: 'Cherished Celebration', tag: 'General' }]
+      }));
+      triggerCelebration();
+      return;
+    }
+
+    if (!shouldCrop) {
+      if (isCover) {
+        updatePhotos('cover', url);
+        triggerCelebration();
+        return;
+      }
+      if (isBride) {
+        updatePhotos('bride', url);
+        return;
+      }
+      if (isGroom) {
+        updatePhotos('groom', url);
+        return;
+      }
+      if (isEvent) {
+        updateEvent(currentTarget.eventId, 'image', url);
+        return;
+      }
+      if (isGalleryItem) {
+        setData(prev => {
+          const g = [...(prev.gallery || [])];
+          if (g[currentTarget.index]) {
+            g[currentTarget.index] = { ...g[currentTarget.index], url };
+          }
+          return { ...prev, gallery: g };
+        });
+        return;
+      }
+    }
+
     const fieldTitle = isCover
       ? 'Hero Cover Photo'
       : isBride
@@ -4088,6 +4134,15 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                           </label>
                           <button
                             type="button"
+                            onClick={() => setGalleryPickerField({ type: 'addGalleryItem' })}
+                            className="px-3.5 py-2 rounded-lg border border-[#8B6F47] bg-[#FAF5ED] hover:bg-[#8B6F47] hover:text-white text-[#8B6F47] font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                            title="Add any theme artwork to your album"
+                          >
+                            <Eye className="w-4 h-4" />
+                            <span>+ CHOOSE FROM THEMES</span>
+                          </button>
+                          <button
+                            type="button"
                             onClick={resetGalleryToDefault}
                             className="px-3 py-2 rounded-lg border border-stone-300 hover:border-stone-400 hover:bg-white text-stone-600 font-semibold text-xs transition-colors flex items-center gap-1 cursor-pointer"
                             title="Reset to 12 curated royal palace photos"
@@ -5752,142 +5807,388 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       </div>
 
       {/* GALLERY PICKER MODAL (When clicking 👁 GALLERY on any photo) */}
-      {galleryPickerField && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-sm animate-fadeIn"
-          onClick={() => setGalleryPickerField(null)}
-        >
+      {galleryPickerField && (() => {
+        const isCover = galleryPickerField === 'cover';
+        const isBride = galleryPickerField === 'bride';
+        const isGroom = galleryPickerField === 'groom';
+        const isEvent = typeof galleryPickerField === 'object' && galleryPickerField.type === 'event';
+        const isAddGallery = typeof galleryPickerField === 'object' && galleryPickerField.type === 'addGalleryItem';
+        const isGalleryItem = typeof galleryPickerField === 'object' && galleryPickerField.type === 'galleryItem';
+
+        const fieldTitle = isCover
+          ? 'Hero Cover Banner'
+          : isBride
+          ? 'Bride Photo'
+          : isGroom
+          ? 'Groom Photo'
+          : isEvent
+          ? (galleryPickerField.eventName || 'Event Photo')
+          : isAddGallery
+          ? 'Moments & Memories Album'
+          : 'Gallery Memory';
+
+        // Filter theme artworks
+        const filteredThemeArtworks = (ALL_THEME_ARTWORKS || []).filter(art => {
+          if (galleryThemeFilter !== 'all' && art.themeId !== galleryThemeFilter && art.folder !== galleryThemeFilter) {
+            return false;
+          }
+          if (galleryCeremonyFilter !== 'all' && art.ceremony !== galleryCeremonyFilter) {
+            return false;
+          }
+          if (gallerySearchQuery.trim()) {
+            const q = gallerySearchQuery.toLowerCase();
+            const matchTheme = (art.themeName || '').toLowerCase().includes(q);
+            const matchCeremony = (art.ceremony || '').toLowerCase().includes(q) || (art.title || '').toLowerCase().includes(q);
+            if (!matchTheme && !matchCeremony) return false;
+          }
+          return true;
+        });
+
+        return (
           <div 
-            className="relative w-full max-w-xl bg-white rounded-3xl p-6 shadow-2xl border border-stone-200 max-h-[88vh] flex flex-col space-y-4 animate-scaleUp"
-            onClick={e => e.stopPropagation()}
+            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/75 backdrop-blur-sm animate-fadeIn"
+            onClick={() => setGalleryPickerField(null)}
           >
-            {/* Header */}
-            <div className="flex justify-between items-center border-b border-stone-100 pb-3">
-              <div>
-                <span className="text-[10px] uppercase font-bold tracking-wider text-[#8B6F47] block">
-                  Select Photo for {typeof galleryPickerField === 'object' ? (galleryPickerField.eventName || 'Event') : String(galleryPickerField).toUpperCase()}
-                </span>
-                <h3 className="font-serif text-2xl font-normal text-[#2B1E17]">
-                  Wedding Photo Gallery
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setGalleryPickerField(null)}
-                className="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center text-sm font-bold cursor-pointer transition-colors"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Photo Grid with Categories */}
-            <div className="overflow-y-auto space-y-5 pr-1 flex-1">
-              {/* Category 1: Caricatures */}
-              <div>
-                <span className="text-[11px] font-bold tracking-wider uppercase text-stone-500 block mb-2.5">
-                  🎨 Theme Caricature Artworks
-                </span>
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
-                  {[
-                    { title: 'Scooter Couple', url: './images/caricature/scooter_couple.webp' },
-                    { title: 'Haldi Ceremony', url: './images/caricature/haldi.webp' },
-                    { title: 'Mehendi Celebration', url: './images/caricature/mehendi.webp' },
-                    { title: 'Sangeet Night', url: './images/caricature/sangeet.webp' },
-                    { title: 'Pheras Mandap', url: './images/caricature/pheras.webp' },
-                    { title: 'Reception Gala', url: './images/caricature/reception.webp' },
-                  ].map((pic, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={() => {
-                        handlePickAsset(pic.url);
-                      }}
-                      className="group relative aspect-[3/4] rounded-xl overflow-hidden border border-stone-200 bg-stone-50 hover:border-[#8B6F47] hover:ring-2 hover:ring-[#8B6F47]/30 transition-all cursor-pointer shadow-xs"
-                    >
-                      <img src={pic.url} alt={pic.title} className="w-full h-full object-contain p-1 group-hover:scale-105 transition-transform" />
-                      <div className="absolute inset-x-0 bottom-0 bg-black/60 p-1 text-[9px] text-white text-center font-medium truncate">
-                        {pic.title}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Category 2: Classic Couple Photography */}
-              <div>
-                <span className="text-[11px] font-bold tracking-wider uppercase text-stone-500 block mb-2.5">
-                  📸 Couple Portraits & Moments
-                </span>
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
-                  {[
-                    { title: 'The Bride', url: './images/bride.webp' },
-                    { title: 'The Groom', url: './images/groom.webp' },
-                    { title: 'Portrait One', url: './images/couple-potrait.webp' },
-                    { title: 'Portrait Two', url: './images/couple-potrait-1.webp' },
-                    { title: 'Landscape Sun', url: './images/couple-landscape-1.webp' },
-                    { title: 'Landscape Palace', url: './images/couple-landscape-2.webp' },
-                    { title: 'Palace Stroll', url: './images/couple-landscape-3.webp' },
-                    { title: 'Udaipur Boat', url: './images/couple-udaipur-boat.webp' },
-                    { title: 'Lake Rooftop', url: './images/couple-udaipur-rooftop.webp' },
-                  ].map((pic, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={() => {
-                        handlePickAsset(pic.url);
-                      }}
-                      className="group relative aspect-[3/4] rounded-xl overflow-hidden border border-stone-200 bg-stone-50 hover:border-[#8B6F47] hover:ring-2 hover:ring-[#8B6F47]/30 transition-all cursor-pointer shadow-xs"
-                    >
-                      <img src={pic.url} alt={pic.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                      <div className="absolute inset-x-0 bottom-0 bg-black/60 p-1 text-[9px] text-white text-center font-medium truncate">
-                        {pic.title}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Category 3: Moments & Memories / Album uploads */}
-              {data.gallery && data.gallery.length > 0 && (
-                <div>
-                  <span className="text-[11px] font-bold tracking-wider uppercase text-stone-500 block mb-2.5">
-                    🌟 From Your Album & Uploads
+            <div 
+              className="relative w-full max-w-4xl bg-white rounded-3xl p-5 sm:p-7 shadow-2xl border border-stone-200 max-h-[92vh] flex flex-col space-y-4 animate-scaleUp overflow-hidden"
+              onClick={e => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex justify-between items-start border-b border-stone-100 pb-3">
+                <div className="space-y-0.5">
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-[#8B6F47] block">
+                    Choose Photo for: <strong className="text-stone-800">{fieldTitle}</strong>
                   </span>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
-                    {data.gallery.map((pic, i) => (
-                      <button
-                        key={pic.id || i}
-                        type="button"
-                        onClick={() => {
-                          handlePickAsset(pic.url || pic.img);
-                        }}
-                        className="group relative aspect-square rounded-xl overflow-hidden border border-stone-200 bg-stone-50 hover:border-[#8B6F47] hover:ring-2 hover:ring-[#8B6F47]/30 transition-all cursor-pointer shadow-xs"
+                  <h3 className="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">
+                    Themes & Wedding Artworks Gallery
+                  </h3>
+                  <p className="text-xs text-stone-500">
+                    Browse all 192 artworks across 24 themes, couple portraits, or your uploaded album memories.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setGalleryPickerField(null)}
+                  className="w-9 h-9 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center text-base font-bold cursor-pointer transition-colors shrink-0 ml-2"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Navigation Tabs */}
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-100 pb-2.5">
+                <div className="flex items-center gap-1.5 p-1 bg-stone-100 rounded-xl">
+                  <button
+                    type="button"
+                    onClick={() => setGalleryTab('themes')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      galleryTab === 'themes' 
+                        ? 'bg-white text-[#8B6F47] shadow-xs' 
+                        : 'text-stone-600 hover:text-stone-900'
+                    }`}
+                  >
+                    🎨 All Theme Artworks (192)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setGalleryTab('portraits')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      galleryTab === 'portraits' 
+                        ? 'bg-white text-[#8B6F47] shadow-xs' 
+                        : 'text-stone-600 hover:text-stone-900'
+                    }`}
+                  >
+                    📸 Couple Portraits & Caricatures
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setGalleryTab('album')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      galleryTab === 'album' 
+                        ? 'bg-white text-[#8B6F47] shadow-xs' 
+                        : 'text-stone-600 hover:text-stone-900'
+                    }`}
+                  >
+                    🌟 Your Album ({(data.gallery || []).length})
+                  </button>
+                </div>
+
+                {galleryTab === 'themes' && (
+                  <div className="text-[11px] text-stone-500 font-medium">
+                    Showing <strong className="text-stone-800">{filteredThemeArtworks.length}</strong> of 192 artworks
+                  </div>
+                )}
+              </div>
+
+              {/* Theme Artworks Tab Content */}
+              {galleryTab === 'themes' && (
+                <div className="space-y-3 flex-1 flex flex-col min-h-0">
+                  {/* Filters Row */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 bg-[#FAF8F5] p-3 rounded-2xl border border-stone-200/70">
+                    {/* Theme Filter */}
+                    <div>
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-stone-500 block mb-1">
+                        Select Theme
+                      </label>
+                      <select
+                        value={galleryThemeFilter}
+                        onChange={e => setGalleryThemeFilter(e.target.value)}
+                        className="w-full px-2.5 py-1.5 text-xs rounded-xl border border-stone-200 bg-white text-stone-800 font-medium focus:border-[#8B6F47] focus:ring-1 focus:ring-[#8B6F47] outline-hidden cursor-pointer"
                       >
-                        <img src={pic.url || pic.img} alt={pic.caption || 'Memory'} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                        <div className="absolute inset-x-0 bottom-0 bg-black/60 p-1 text-[9px] text-white text-center font-medium truncate">
-                          {pic.caption || `Moment ${i + 1}`}
-                        </div>
+                        <option value="all">🌟 All 24 Themes (192 Artworks)</option>
+                        {(THEMES_LIST || []).map(t => (
+                          <option key={t.id} value={t.id}>
+                            {t.name} {t.id === data.template ? '★ (Active Theme)' : ''}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Ceremony Filter */}
+                    <div>
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-stone-500 block mb-1">
+                        Select Ceremony / Event
+                      </label>
+                      <select
+                        value={galleryCeremonyFilter}
+                        onChange={e => setGalleryCeremonyFilter(e.target.value)}
+                        className="w-full px-2.5 py-1.5 text-xs rounded-xl border border-stone-200 bg-white text-stone-800 font-medium focus:border-[#8B6F47] focus:ring-1 focus:ring-[#8B6F47] outline-hidden cursor-pointer"
+                      >
+                        <option value="all">All Ceremonies</option>
+                        {(CEREMONY_FILES || []).map(c => (
+                          <option key={c.ceremony} value={c.ceremony}>
+                            {c.title}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Search */}
+                    <div>
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-stone-500 block mb-1">
+                        Search
+                      </label>
+                      <input
+                        type="text"
+                        value={gallerySearchQuery}
+                        onChange={e => setGallerySearchQuery(e.target.value)}
+                        placeholder="Search theme or event..."
+                        className="w-full px-2.5 py-1.5 text-xs rounded-xl border border-stone-200 bg-white text-stone-800 font-medium focus:border-[#8B6F47] focus:ring-1 focus:ring-[#8B6F47] outline-hidden"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Ceremony Quick Pills */}
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs shrink-0 no-scrollbar">
+                    <button
+                      type="button"
+                      onClick={() => setGalleryCeremonyFilter('all')}
+                      className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all shrink-0 cursor-pointer ${
+                        galleryCeremonyFilter === 'all'
+                          ? 'bg-[#8B6F47] text-white'
+                          : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                      }`}
+                    >
+                      All
+                    </button>
+                    {(CEREMONY_FILES || []).map(c => (
+                      <button
+                        key={c.ceremony}
+                        type="button"
+                        onClick={() => setGalleryCeremonyFilter(c.ceremony)}
+                        className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all shrink-0 cursor-pointer ${
+                          galleryCeremonyFilter === c.ceremony
+                            ? 'bg-[#8B6F47] text-white shadow-xs'
+                            : c.isHero
+                            ? 'bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200 font-bold'
+                            : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                        }`}
+                      >
+                        {c.isHero ? '⭐ ' : ''}{c.title}
                       </button>
                     ))}
                   </div>
+
+                  {/* Grid of Artworks */}
+                  <div className="overflow-y-auto flex-1 pr-1 min-h-[320px]">
+                    {filteredThemeArtworks.length === 0 ? (
+                      <div className="text-center py-12 text-stone-400 space-y-2">
+                        <p className="text-sm">No artworks match your selected filters.</p>
+                        <button
+                          type="button"
+                          onClick={() => { setGalleryThemeFilter('all'); setGalleryCeremonyFilter('all'); setGallerySearchQuery(''); }}
+                          className="text-xs text-[#8B6F47] underline font-bold cursor-pointer"
+                        >
+                          Clear Filters
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                        {filteredThemeArtworks.map((pic, i) => (
+                          <div
+                            key={`${pic.folder}-${pic.file}-${i}`}
+                            onClick={() => handlePickAsset(pic.url, false)}
+                            className="group relative aspect-[9/16] rounded-2xl overflow-hidden border border-stone-200 bg-[#FAF8F5] hover:border-[#8B6F47] hover:ring-2 hover:ring-[#8B6F47]/40 transition-all cursor-pointer shadow-xs flex flex-col justify-between"
+                          >
+                            {/* Ceremony Badge */}
+                            <div className="absolute top-2 left-2 z-10 bg-black/65 backdrop-blur-xs text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-xs flex items-center gap-1">
+                              {pic.isHero && <span className="text-amber-300">⭐</span>}
+                              <span>{pic.ceremony}</span>
+                            </div>
+
+                            {/* Image */}
+                            <img
+                              src={pic.url}
+                              alt={`${pic.themeName} ${pic.title}`}
+                              loading="lazy"
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+
+                            {/* Hover Overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2.5 text-white">
+                              <span className="text-[10px] text-amber-300 font-bold uppercase tracking-wider block">
+                                {pic.themeName}
+                              </span>
+                              <h5 className="font-serif text-sm font-light leading-snug">
+                                {pic.title}
+                              </h5>
+                              <div className="mt-2 flex items-center justify-between gap-1 pt-1 border-t border-white/20">
+                                <span className="text-[10px] bg-white text-stone-900 font-bold px-2 py-1 rounded-md shadow-xs">
+                                  Use Photo
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handlePickAsset(pic.url, true);
+                                  }}
+                                  className="text-[9px] bg-white/20 hover:bg-white/40 text-white font-medium px-2 py-1 rounded-md transition-colors"
+                                >
+                                  Crop
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Bottom Theme Label when not hovered */}
+                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-1.5 text-[9px] text-white text-center font-medium truncate group-hover:opacity-0 transition-opacity">
+                              {pic.themeName}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
-            </div>
 
-            {/* Footer */}
-            <div className="pt-2 border-t border-stone-100 flex justify-between items-center text-xs">
-              <span className="text-stone-400">Click any image above to select.</span>
-              <button
-                type="button"
-                onClick={() => setGalleryPickerField(null)}
-                className="px-4 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold cursor-pointer"
-              >
-                Close
-              </button>
+              {/* Portraits & Caricatures Tab */}
+              {galleryTab === 'portraits' && (
+                <div className="overflow-y-auto space-y-5 pr-1 flex-1 min-h-[320px]">
+                  {/* Caricatures */}
+                  <div>
+                    <span className="text-[11px] font-bold tracking-wider uppercase text-stone-500 block mb-2.5">
+                      🎨 Theme Caricature Artworks
+                    </span>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2.5">
+                      {[
+                        { title: 'Scooter Couple', url: './images/caricature/scooter_couple.webp' },
+                        { title: 'Haldi Ceremony', url: './images/caricature/haldi.webp' },
+                        { title: 'Mehendi Celebration', url: './images/caricature/mehendi.webp' },
+                        { title: 'Sangeet Night', url: './images/caricature/sangeet.webp' },
+                        { title: 'Pheras Mandap', url: './images/caricature/pheras.webp' },
+                        { title: 'Reception Gala', url: './images/caricature/reception.webp' },
+                      ].map((pic, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => handlePickAsset(pic.url, false)}
+                          className="group relative aspect-[3/4] rounded-xl overflow-hidden border border-stone-200 bg-stone-50 hover:border-[#8B6F47] hover:ring-2 hover:ring-[#8B6F47]/30 transition-all cursor-pointer shadow-xs"
+                        >
+                          <img src={pic.url} alt={pic.title} className="w-full h-full object-contain p-1 group-hover:scale-105 transition-transform" />
+                          <div className="absolute inset-x-0 bottom-0 bg-black/60 p-1 text-[9px] text-white text-center font-medium truncate">
+                            {pic.title}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Classic Portraits */}
+                  <div>
+                    <span className="text-[11px] font-bold tracking-wider uppercase text-stone-500 block mb-2.5">
+                      📸 Couple Portraits & Moments
+                    </span>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
+                      {[
+                        { title: 'The Bride', url: './images/bride.webp' },
+                        { title: 'The Groom', url: './images/groom.webp' },
+                        { title: 'Portrait One', url: './images/couple-potrait.webp' },
+                        { title: 'Portrait Two', url: './images/couple-potrait-1.webp' },
+                        { title: 'Landscape Sun', url: './images/couple-landscape-1.webp' },
+                        { title: 'Landscape Palace', url: './images/couple-landscape-2.webp' },
+                        { title: 'Palace Stroll', url: './images/couple-landscape-3.webp' },
+                        { title: 'Udaipur Boat', url: './images/couple-udaipur-boat.webp' },
+                        { title: 'Lake Rooftop', url: './images/couple-udaipur-rooftop.webp' },
+                      ].map((pic, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => handlePickAsset(pic.url, false)}
+                          className="group relative aspect-[3/4] rounded-xl overflow-hidden border border-stone-200 bg-stone-50 hover:border-[#8B6F47] hover:ring-2 hover:ring-[#8B6F47]/30 transition-all cursor-pointer shadow-xs"
+                        >
+                          <img src={pic.url} alt={pic.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                          <div className="absolute inset-x-0 bottom-0 bg-black/60 p-1 text-[9px] text-white text-center font-medium truncate">
+                            {pic.title}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Album & Uploads Tab */}
+              {galleryTab === 'album' && (
+                <div className="overflow-y-auto space-y-4 pr-1 flex-1 min-h-[320px]">
+                  {data.gallery && data.gallery.length > 0 ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+                      {data.gallery.map((pic, i) => (
+                        <button
+                          key={pic.id || i}
+                          type="button"
+                          onClick={() => handlePickAsset(pic.url || pic.img, false)}
+                          className="group relative aspect-square rounded-xl overflow-hidden border border-stone-200 bg-stone-50 hover:border-[#8B6F47] hover:ring-2 hover:ring-[#8B6F47]/30 transition-all cursor-pointer shadow-xs"
+                        >
+                          <img src={pic.url || pic.img} alt={pic.caption || 'Memory'} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                          <div className="absolute inset-x-0 bottom-0 bg-black/60 p-1 text-[9px] text-white text-center font-medium truncate">
+                            {pic.caption || `Moment ${i + 1}`}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 text-stone-400">
+                      <p className="text-sm">No photos uploaded to your album yet.</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Footer */}
+              <div className="pt-2 border-t border-stone-100 flex justify-between items-center text-xs">
+                <span className="text-stone-400">Click any image to choose it for {fieldTitle}.</span>
+                <button
+                  type="button"
+                  onClick={() => setGalleryPickerField(null)}
+                  className="px-4 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold cursor-pointer transition-colors"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* PHOTO ADJUST & CROP MODAL */}
       {cropModalConfig && (

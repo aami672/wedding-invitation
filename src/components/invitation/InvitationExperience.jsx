@@ -536,7 +536,7 @@ export default function InvitationExperience({
           {/* THEME HERO & COUPLE & CALENDAR (ALL THEMES SHARE THIS LUXURY STYLE) */}
           <div className="relative z-10 w-full flex flex-col items-center">
             <PastelCaricatureHero 
-              couplePhoto={(data.photos?.cover && !data.photos.cover.includes('caricature.webp') && !data.photos.cover.includes('scooter_couple.webp')) ? data.photos.cover : getThemeHeroImage(currentTemplate.id)} 
+              couplePhoto={(data.photos?.cover && !data.photos.cover.includes('caricature.webp') && !data.photos.cover.includes('scooter_couple.webp') && !data.photos.cover.includes('04-pheras.webp')) ? data.photos.cover : getThemeHeroImage(currentTemplate.id)} 
               bride={data.hosts?.bride} 
               groom={data.hosts?.groom} 
               date={data.hosts?.date}

@@ -89,9 +89,61 @@ export function getThemeEventImage(templateId, event, eventIndex = 0, prefix = '
 
 /**
  * Returns a default hero image for a theme if no cover photo is uploaded.
+ * All themes use 03-sangeet.webp as the default hero poster.
  */
 export function getThemeHeroImage(templateId, prefix = './') {
   const folder = THEME_FOLDER_MAP[templateId];
   if (!folder) return `${prefix}images/templates/${templateId}.webp`;
-  return `${prefix}images/themes/${folder}/04-pheras.webp`;
+  return `${prefix}images/themes/${folder}/03-sangeet.webp`;
 }
+
+export const THEMES_LIST = [
+  { id: 'caricature', folder: 'Luxe-Pastel-Caricature', name: 'Luxe Pastel Caricature' },
+  { id: 'mela', folder: 'Luxe-Marigold-Mela', name: 'Luxe Marigold Mela' },
+  { id: 'pichwai', folder: 'Luxe-Pichwai-Lotus', name: 'Luxe Pichwai Lotus' },
+  { id: 'rajwada', folder: 'Luxe-Rajwada-Miniature', name: 'Luxe Rajwada Miniature' },
+  { id: 'zardozi', folder: 'Luxe-Heirloom-Zardozi', name: 'Luxe Heirloom Zardozi' },
+  { id: 'storybook', folder: 'Storybook', name: 'Storybook Fairytale' },
+  { id: 'newspaper', folder: 'The-Shaadi-Times', name: 'The Shaadi Times' },
+  { id: 'bougain', folder: 'Luxe-Bougainvillea-Blossom', name: 'Luxe Bougainvillea Blossom' },
+  { id: 'ballroom', folder: 'Gilded-Ballroom', name: 'Gilded Ballroom' },
+  { id: 'peaks', folder: 'Pastel-Peaks', name: 'Pastel Peaks' },
+  { id: 'resort', folder: 'Luxury-Beach-Resort', name: 'Luxury Beach Resort' },
+  { id: 'luxury-resort', folder: 'Luxury-Resort', name: 'Luxury Resort' },
+  { id: 'mandap', folder: 'Paper-Blossom', name: 'Paper Blossom' },
+  { id: 'truck', folder: 'Desi-Truck-Art', name: 'Desi Truck Art' },
+  { id: 'nikah', folder: 'Nikah', name: 'Royal Nikah Mubarak' },
+  { id: 'rangla', folder: 'Rangla-Viah', name: 'Rangla Viah' },
+  { id: '3d-human', folder: '3D-Model-Human-Colorful-v3', name: '3D Model Human' },
+  { id: '3d-pixar', folder: '3D-Pixar', name: '3D Pixar' },
+  { id: 'aladdin', folder: 'Aladdin-Jasmine', name: 'Aladdin & Jasmine' },
+  { id: 'cute-couples', folder: 'Cute-Couples', name: 'Cute Couples' },
+  { id: 'kalyanam', folder: 'Kalyanam', name: 'Kalyanam' },
+  { id: 'marble', folder: 'Marble-Style', name: 'Marble Style' },
+  { id: 'water', folder: 'Water', name: 'Serene Water' },
+  { id: 'watercolor', folder: 'Watercolor-Portrait', name: 'Watercolor Portrait' }
+];
+
+export const CEREMONY_FILES = [
+  { file: '03-sangeet.webp', ceremony: 'Sangeet', title: 'Sangeet Night (Hero Banner)', isHero: true },
+  { file: '01-haldi.webp', ceremony: 'Haldi', title: 'Haldi Ceremony' },
+  { file: '02-mehndi.webp', ceremony: 'Mehndi', title: 'Mehndi Celebration' },
+  { file: '04-pheras.webp', ceremony: 'Pheras', title: 'Pheras Mandap' },
+  { file: '05-arrival-of-barat.webp', ceremony: 'Barat', title: 'Arrival of Barat' },
+  { file: '06-varmala.webp', ceremony: 'Varmala', title: 'Varmala Garland' },
+  { file: '07-wedding-dinner.webp', ceremony: 'Dinner', title: 'Wedding Dinner' },
+  { file: '08-main-fere-ceremony.webp', ceremony: 'Main Fere', title: 'Main Fere Ceremony' },
+];
+
+export const ALL_THEME_ARTWORKS = THEMES_LIST.flatMap(t => 
+  CEREMONY_FILES.map(c => ({
+    themeId: t.id,
+    themeName: t.name,
+    folder: t.folder,
+    ceremony: c.ceremony,
+    title: c.title,
+    isHero: Boolean(c.isHero),
+    file: c.file,
+    url: `./images/themes/${t.folder}/${c.file}`
+  }))
+);

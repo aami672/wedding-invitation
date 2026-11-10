@@ -749,7 +749,7 @@ export function PastelCaricatureHero({
           {/* Main Illustration: Scooter Couple Artwork Filled in Card - Full 9:16 Ratio */}
           <div className="w-full aspect-[9/16] rounded-2xl overflow-hidden relative flex items-center justify-center group bg-[#FFFDF7] shadow-inner">
             <img 
-              src={couplePhoto && !couplePhoto.includes('zardozi') && !couplePhoto.includes('mela') && !couplePhoto.includes('rajwada') ? couplePhoto : "./images/caricature/scooter_couple.webp"} 
+              src={couplePhoto || "./images/themes/Luxe-Pastel-Caricature/03-sangeet.webp"} 
               alt={`${groom} & ${bride}`}
               className="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-700"
             />
