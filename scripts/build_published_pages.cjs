@@ -193,8 +193,11 @@ let html = buildFn(
   displayWeddingDate, monogramInitials
 );
 
-// The buildFn generates the up-to-date standalone HTML directly from StudioWizard.jsx
-// with all latest hydration IDs, lineages, event arches, and gallery items.
+// If user has a verified downloaded published master file, use it as the definitive HTML source
+const masterDownloadedPath = path.join(__dirname, '../src/data/downloaded_published.html');
+if (fs.existsSync(masterDownloadedPath)) {
+  html = fs.readFileSync(masterDownloadedPath, 'utf8');
+}
 
 // Write to public/published/
 const pubDir = path.join(__dirname, '../public/published');

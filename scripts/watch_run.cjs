@@ -8,7 +8,7 @@ const pat = match[1].trim();
 function check() {
   const options = {
     hostname: 'api.github.com',
-    path: '/repos/aami672/wedding-invitation/actions/runs/42790021379',
+    path: '/repos/aami672/wedding-invitation/actions/runs/42800570997',
     method: 'GET',
     headers: {
       'User-Agent': 'NodeJS',
