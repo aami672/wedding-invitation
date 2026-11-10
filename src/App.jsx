@@ -2,17 +2,24 @@ import React, { useState, useEffect } from 'react';
 import LandingPage from './components/landing/LandingPage';
 import StudioWizard from './components/studio/StudioWizard';
 import HostDashboard from './components/dashboard/HostDashboard';
-import InvitationExperience from './components/invitation/InvitationExperience';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import { DEFAULT_INVITATION_DATA, OCCASIONS } from './data/presets';
 
 export default function App() {
   const [view, setView] = useState(() => {
     const hash = window.location.hash.replace('#', '');
-    if (['studio', 'dashboard', 'live'].includes(hash)) return hash;
+    if (hash === 'live') {
+      window.location.replace('./published/preeti-and-ashish.html');
+      return 'studio';
+    }
+    if (['studio', 'dashboard', 'landing'].includes(hash)) return hash;
     const params = new URLSearchParams(window.location.search);
     const v = params.get('view');
-    if (['studio', 'dashboard', 'live'].includes(v)) return v;
+    if (v === 'live') {
+      window.location.replace('./published/preeti-and-ashish.html');
+      return 'studio';
+    }
+    if (['studio', 'dashboard', 'landing'].includes(v)) return v;
     return 'studio'; // Default directly to studio so user immediately sees studio & phone simulator
   });
 
@@ -116,31 +123,25 @@ export default function App() {
             onSave={data => setInvitationData(data)}
             onExitToHome={() => setView('landing')}
             onOpenDashboard={() => setView('dashboard')}
-            onOpenLivePreview={() => setView('live')}
+            onOpenLivePreview={() => {
+              const b = (invitationData?.hosts?.bride || 'preeti').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
+              const g = (invitationData?.hosts?.groom || 'ashish').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
+              const slug = (b && g) ? `${b}-and-${g}` : 'preeti-and-ashish';
+              window.open(`./published/${slug}.html`, '_blank');
+            }}
           />
         )}
 
         {view === 'dashboard' && (
           <HostDashboard 
             onBackToStudio={() => setView('studio')}
-            onOpenLivePreview={() => setView('live')}
+            onOpenLivePreview={() => {
+              const b = (invitationData?.hosts?.bride || 'preeti').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
+              const g = (invitationData?.hosts?.groom || 'ashish').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
+              const slug = (b && g) ? `${b}-and-${g}` : 'preeti-and-ashish';
+              window.open(`./published/${slug}.html`, '_blank');
+            }}
           />
-        )}
-
-        {view === 'live' && (
-          <div className="relative">
-            {/* Top Return bar */}
-            <div className="fixed top-4 left-4 z-50">
-              <button
-                type="button"
-                onClick={() => setView('studio')}
-                className="bg-black/70 hover:bg-black/90 text-white text-xs font-semibold px-4 py-2 rounded-full backdrop-blur-md border border-white/20 shadow-lg cursor-pointer"
-              >
-                ← Back to Studio
-              </button>
-            </div>
-            <InvitationExperience data={invitationData} isPreview={false} />
-          </div>
         )}
       </div>
     </ErrorBoundary>
