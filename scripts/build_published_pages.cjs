@@ -55,54 +55,14 @@ const defaultData = {
   },
   events: [
     {
-      id: 'evt-haldi',
-      name: 'Haldi Ceremony',
-      date: 'Monday, 7th December 2026',
-      time: '10:30 AM onwards',
-      venue: 'The Courtyard, Bravura Gold Resort',
-      address: 'NH-58, Delhi-Roorkee Bypass, Meerut, Uttar Pradesh 250005',
-      mapsUrl: 'https://maps.google.com/?q=Bravura+Gold+Resort+Meerut',
-      dressCode: 'Haldi Yellow & Warm Mustard'
-    },
-    {
-      id: 'evt-mehndi',
-      name: 'Mehndi Ceremony',
-      date: 'Monday, 7th December 2026',
-      time: '04:00 PM onwards',
-      venue: 'The Poolside Lawns, Bravura Gold Resort',
-      address: 'NH-58, Delhi-Roorkee Bypass, Meerut, Uttar Pradesh 250005',
-      mapsUrl: 'https://maps.google.com/?q=Bravura+Gold+Resort+Meerut',
-      dressCode: 'Mint Green & Floral Pastels'
-    },
-    {
-      id: 'evt-sangeet',
-      name: 'Sangeet & Cocktail Night',
-      date: 'Tuesday, 8th December 2026',
-      time: '07:00 PM onwards',
-      venue: 'The Grand Ballroom, Bravura Gold Resort',
-      address: 'NH-58, Delhi-Roorkee Bypass, Meerut, Uttar Pradesh 250005',
-      mapsUrl: 'https://maps.google.com/?q=Bravura+Gold+Resort+Meerut',
-      dressCode: 'Glamorous Indian Cocktails'
-    },
-    {
       id: 'evt-pheras',
       name: 'Main Pheras (The Wedding)',
       date: 'Wednesday, 9th December 2026',
-      time: '04:30 PM (Sunset Barat)',
-      venue: 'The Royal Mandap, Bravura Gold Resort',
-      address: 'NH-58, Delhi-Roorkee Bypass, Meerut, Uttar Pradesh 250005',
-      mapsUrl: 'https://maps.google.com/?q=Bravura+Gold+Resort+Meerut',
-      dressCode: 'Royal Indian Pastels & Silk Sarees'
-    },
-    {
-      id: 'evt-reception',
-      name: 'Imperial Gala Reception',
-      date: 'Wednesday, 9th December 2026',
-      time: '08:30 PM onwards',
-      venue: 'The Palace Gardens, Bravura Gold Resort',
-      address: 'NH-58, Delhi-Roorkee Bypass, Meerut, Uttar Pradesh 250005',
-      mapsUrl: 'https://maps.google.com/?q=Bravura+Gold+Resort+Meerut',
-      dressCode: 'Black Tie or Regal Traditional'
+      time: '06:00 PM (Sunset Barat)',
+      venue: 'Diaz Banquet,',
+      address: '111, Delhi Road, Opposite Deewan International Public School, Rithani (near Rajkamal Enclave), Meerut, Uttar Pradesh – 250001',
+      mapsUrl: 'https://maps.google.com/?q=Diaz%20Banquet%2C%20111%2C%20Delhi%20Road%2C%20Opposite%20Deewan%20International%20Public%20School%2C%20Rithani%20(near%20Rajkamal%20Enclave)%2C%20Meerut%2C%20Uttar%20Pradesh%20%E2%80%93%20250001',
+      dressCode: 'Royal Indian Pastels, Silk Sarees & Bandhgalas'
     }
   ],
   gallery: [
@@ -227,6 +187,12 @@ let html = buildFn(
   b64Gallery, eventsJson, d, calMonthName, calYear, calDayNum, daysInMonth, firstDayIndex,
   displayWeddingDate, monogramInitials
 );
+
+// If user has a verified downloaded published master file, use it as the definitive HTML source
+const masterDownloadedPath = path.join(__dirname, '../src/data/downloaded_published.html');
+if (fs.existsSync(masterDownloadedPath)) {
+  html = fs.readFileSync(masterDownloadedPath, 'utf8');
+}
 
 // Write to public/published/
 const pubDir = path.join(__dirname, '../public/published');
