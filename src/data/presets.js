@@ -126,28 +126,12 @@ export const TEMPLATES = [
     image: './images/themes/Luxe-Heirloom-Zardozi/04-pheras.webp',
   },
   {
-    id: 'express',
-    name: 'Luxe Shaadi Express',
-    category: 'Storybook Journey',
-    description: 'Your wedding as one train journey: station boards, vintage timetable, and window seat for every photo.',
-    badge: 'Creative',
-    image: './images/themes/Storybook/04-pheras.webp',
-  },
-  {
     id: 'storybook',
     name: 'Charming Storybook',
     category: 'Handcrafted Watercolor',
     description: 'Charming custom illustrations painted for each chapter of your journey together.',
     badge: 'Warm',
     image: './images/themes/Storybook/04-pheras.webp',
-  },
-  {
-    id: 'darkroom',
-    name: 'Luxe Darkroom',
-    category: 'Monochrome to Color',
-    description: 'Your photos developing from black & white into vibrant colour as guests scroll down the page.',
-    badge: 'Photographic',
-    image: './images/themes/Luxe-Rajwada-Miniature/04-pheras.webp',
   },
   {
     id: 'newspaper',
@@ -432,16 +416,6 @@ export const REVEAL_STYLES = [
     icon: 'Film',
   },
   // Row 8
-  {
-    id: 'train-arrival',
-    name: 'TRAIN ARRIVAL',
-    subtitle: 'Select Shaadi Express template',
-    description: 'Select Shaadi Express template',
-    isNew: true,
-    icon: 'Train',
-    template: 'express',
-    templateName: 'Shaadi Express',
-  },
   {
     id: 'tying-knot',
     name: 'TYING THE KNOT',

@@ -31,9 +31,7 @@ export const THEME_FOLDER_MAP = {
   'royal': 'Luxe-Rajwada-Miniature',
   'classic': 'Luxe-Pichwai-Lotus',
   'editorial': 'The-Shaadi-Times',
-  'botanical': 'Luxe-Bougainvillea-Blossom',
-  'express': 'Storybook',
-  'darkroom': 'Luxe-Rajwada-Miniature'
+  'botanical': 'Luxe-Bougainvillea-Blossom'
 };
 
 const EVENT_FILE_SEQUENCE = [

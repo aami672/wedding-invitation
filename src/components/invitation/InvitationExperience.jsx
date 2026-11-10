@@ -171,7 +171,6 @@ export default function InvitationExperience({
   const isRajwada = currentTemplate.id === 'rajwada';
   const isNewspaper = currentTemplate.id === 'newspaper';
   const isCaricature = currentTemplate.id === 'caricature';
-  const isExpress = currentTemplate.id === 'express';
   const isBougain = currentTemplate.id === 'bougain' || currentTemplate.id === 'bougainvillea';
 
   return (
