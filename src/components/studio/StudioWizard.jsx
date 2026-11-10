@@ -3772,6 +3772,18 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                           <p className="text-xs text-stone-400 font-light leading-relaxed">
                             Displayed in the bride's portrait card and profile modal.
                           </p>
+                          <div className="pt-1">
+                            <label className="block text-[10px] uppercase font-bold text-stone-600 mb-1">
+                              Bride's Parents / Lineage (D/o)
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="e.g. D/o Mr. Vijay & Mrs. Rekha Malhotra"
+                              value={data.hosts?.brideParents || ''}
+                              onChange={e => updateHosts('brideParents', e.target.value)}
+                              className="w-full px-3 py-1.5 rounded-lg border border-stone-200 text-xs bg-white focus:ring-1 focus:ring-[#8B6F47]"
+                            />
+                          </div>
                         </div>
 
                         {/* GROOM PHOTO */}
@@ -3834,6 +3846,18 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                           <p className="text-xs text-stone-400 font-light leading-relaxed">
                             Displayed in the groom's portrait card and profile modal.
                           </p>
+                          <div className="pt-1">
+                            <label className="block text-[10px] uppercase font-bold text-stone-600 mb-1">
+                              Groom's Parents / Lineage (S/o)
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="e.g. S/o Mr. Ramesh & Mrs. Sunita Sharma"
+                              value={data.hosts?.groomParents || ''}
+                              onChange={e => updateHosts('groomParents', e.target.value)}
+                              className="w-full px-3 py-1.5 rounded-lg border border-stone-200 text-xs bg-white focus:ring-1 focus:ring-[#8B6F47]"
+                            />
+                          </div>
                         </div>
 
                         {/* Quick Shortcut to Moments & Memories Gallery */}
@@ -4776,7 +4800,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                       type="text"
                       value={data.hosts?.bride || ''}
                       onChange={e => updateHosts('bride', e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs"
+                      className="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs focus:ring-1 focus:ring-[#8B6F47]"
                     />
                   </div>
                   <div>
@@ -4785,7 +4809,47 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                       type="text"
                       value={data.hosts?.groom || ''}
                       onChange={e => updateHosts('groom', e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs"
+                      className="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs focus:ring-1 focus:ring-[#8B6F47]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] uppercase font-bold text-stone-600 mb-1">Bride's Parents / Lineage (D/o)</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. D/o Mr. Vijay & Mrs. Rekha Malhotra"
+                      value={data.hosts?.brideParents || ''}
+                      onChange={e => updateHosts('brideParents', e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs focus:ring-1 focus:ring-[#8B6F47]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] uppercase font-bold text-stone-600 mb-1">Groom's Parents / Lineage (S/o)</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. S/o Mr. Ramesh & Mrs. Sunita Sharma"
+                      value={data.hosts?.groomParents || ''}
+                      onChange={e => updateHosts('groomParents', e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs focus:ring-1 focus:ring-[#8B6F47]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] uppercase font-bold text-stone-600 mb-1">Bride's Short Bio / Quote</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Loves classic poetry, morning chai..."
+                      value={data.photos?.brideBio || ''}
+                      onChange={e => updatePhotos('brideBio', e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs focus:ring-1 focus:ring-[#8B6F47]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] uppercase font-bold text-stone-600 mb-1">Groom's Short Bio / Quote</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Foodie, photography enthusiast..."
+                      value={data.photos?.groomBio || ''}
+                      onChange={e => updatePhotos('groomBio', e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs focus:ring-1 focus:ring-[#8B6F47]"
                     />
                   </div>
                   <div>
@@ -4794,7 +4858,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                       type="date"
                       value={data.hosts?.date || ''}
                       onChange={e => updateHosts('date', e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs"
+                      className="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs focus:ring-1 focus:ring-[#8B6F47]"
                     />
                   </div>
                   <div>
@@ -4803,7 +4867,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                       type="text"
                       value={data.hosts?.city || ''}
                       onChange={e => updateHosts('city', e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs"
+                      className="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs focus:ring-1 focus:ring-[#8B6F47]"
                     />
                   </div>
                   <div className="sm:col-span-2">
@@ -4812,7 +4876,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                       type="text"
                       value={data.hosts?.welcomeQuote || ''}
                       onChange={e => updateHosts('welcomeQuote', e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs"
+                      className="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs focus:ring-1 focus:ring-[#8B6F47]"
                     />
                   </div>
                 </div>

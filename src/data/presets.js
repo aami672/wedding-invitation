@@ -756,6 +756,8 @@ export const DEFAULT_INVITATION_DATA = {
     day: 'Wednesday',
     city: 'Meerut',
     welcomeQuote: "We are stepping into our next great chapter, and our celebration wouldn't be complete without you by our side.",
+    brideParents: 'D/o Mr. Vijay & Mrs. Rekha Malhotra',
+    groomParents: 'S/o Mr. Ramesh & Mrs. Sunita Sharma',
   },
   story: [
     {
