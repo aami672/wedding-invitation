@@ -643,30 +643,43 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
   // - Interactive Multi-Step RSVP & clipboard hashtag copy
     const handleFinishAndPublish = async () => {
     setIsPublishing(true);
-    await handleExportHtml();
-    const slug = getCoupleSlug();
-    const filename = `${slug}.html`;
-    const isGitHubPages = typeof window !== 'undefined' && window.location.hostname.endsWith('github.io');
-    const liveUrl = isGitHubPages
-      ? `https://aami672.github.io/wedding-invitation/published/${filename}`
-      : `${window.location.origin}/published/${filename}`;
+    try {
+      await handleExportHtml();
+      const slug = getCoupleSlug();
+      const filename = `${slug}.html`;
+      const isGitHubPages = typeof window !== 'undefined' && window.location.hostname.endsWith('github.io');
+      const liveUrl = isGitHubPages
+        ? `https://aami672.github.io/wedding-invitation/published/${filename}`
+        : `${window.location.origin}/published/${filename}`;
 
-    setPublishedInfo({
-      slug,
-      filename,
-      liveUrl,
-      publishedAt: new Date().toLocaleTimeString(),
-    });
-    setIsPublishing(false);
-    triggerCelebration('fireworks');
+      setPublishedInfo({
+        slug,
+        filename,
+        liveUrl,
+        publishedAt: new Date().toLocaleTimeString(),
+      });
+      triggerCelebration('fireworks');
+    } catch (err) {
+      console.error('Error during publish:', err);
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   const handleExportHtml = async () => {
     setIsExportingHtml(true);
-    const slug = getCoupleSlug();
-    const selectedTmpl = TEMPLATES.find(t => t.id === data.template) || TEMPLATES[0];
+    try {
+      const slug = getCoupleSlug();
+      const selectedTmpl = TEMPLATES.find(t => t.id === data.template) || TEMPLATES[0];
 
-    // Convert local images to base64 DataURIs (high-fidelity Retina resolution)
+      const isCaricature = selectedTmpl.id === 'caricature';
+      const isPichwai = selectedTmpl.id === 'pichwai';
+      const isZardozi = selectedTmpl.id === 'zardozi';
+      const isMela = selectedTmpl.id === 'mela';
+      const isNewspaper = selectedTmpl.id === 'newspaper';
+      const isBougain = selectedTmpl.id === 'bougain' || selectedTmpl.id === 'bougainvillea';
+
+      // Convert local images to base64 DataURIs (high-fidelity Retina resolution)
     const [
       b64Cover, b64Bride, b64Groom, b64Tmpl,
       b64Scooter, b64Haldi, b64Mehndi, b64Sangeet, b64Pheras, b64Reception,
@@ -724,13 +737,6 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       b64: await toBase64Optimized(item.url || item.img, 1600, 0.92, false),
       caption: item.caption || item.title || 'Wedding Memory',
     })));
-
-    const isCaricature = selectedTmpl.id === 'caricature';
-    const isPichwai = selectedTmpl.id === 'pichwai';
-    const isZardozi = selectedTmpl.id === 'zardozi';
-    const isMela = selectedTmpl.id === 'mela';
-    const isNewspaper = selectedTmpl.id === 'newspaper';
-    const isBougain = selectedTmpl.id === 'bougain' || selectedTmpl.id === 'bougainvillea';
 
     const eventsJson = JSON.stringify(data.events || []);
 
@@ -2952,7 +2958,12 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       liveUrl,
       publishedAt: new Date().toLocaleTimeString(),
     });
-    setIsExportingHtml(false);
+    } catch (err) {
+      console.error('Error in handleExportHtml:', err);
+      throw err;
+    } finally {
+      setIsExportingHtml(false);
+    }
   };
 
   // 2. PRINT-READY PDF EXPORT (High-Resolution Isolated Print Document)
