@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Compass, Sparkles, Heart, Copy, Check, MapPin, Calendar, Clock, Phone, Car, Bed, Send, Music } from 'lucide-react';
 import { soundManager } from '../../utils/audio';
 import { triggerCelebration } from '../../utils/confetti';
+import { getThemeEventImage } from '../../utils/themeImages';
 
 /**
  * 1. INDIAN BIOSCOPE BOOTH (from Wishlys video frame 130)
@@ -1251,7 +1252,7 @@ export function PastelScooterDivider() {
  * 15. PASTEL CARICATURE EVENT POP-UP (from Wishlys video frame 035 - 062)
  * Authentic illustrated scalloped arches for Mehndi, Sangeet, Wedding, Reception!
  */
-export function PastelEventCard({ event, index }) {
+export function PastelEventCard({ event, index, templateId = 'caricature' }) {
   const nameLower = (event.name || '').toLowerCase();
   const isHaldi = nameLower.includes('haldi');
   const isMehndi = nameLower.includes('mehndi') || nameLower.includes('mehendi');
@@ -1260,12 +1261,16 @@ export function PastelEventCard({ event, index }) {
   const isReception = nameLower.includes('reception') || nameLower.includes('party');
 
   const archImg = event.image || event.img || (
-    isHaldi ? './images/caricature/haldi_arch.webp'
-    : isMehndi ? './images/caricature/mehndi_arch.webp'
-    : isSangeet ? './images/caricature/sangeet_arch.webp'
-    : isWedding ? './images/caricature/pheras_arch.webp'
-    : isReception ? './images/caricature/reception_arch.webp'
-    : './images/caricature/scooter_couple.webp'
+    (templateId && templateId !== 'caricature')
+      ? getThemeEventImage(templateId, event, index)
+      : (
+        isHaldi ? './images/caricature/haldi_arch.webp'
+        : isMehndi ? './images/caricature/mehndi_arch.webp'
+        : isSangeet ? './images/caricature/sangeet_arch.webp'
+        : isWedding ? './images/caricature/pheras_arch.webp'
+        : isReception ? './images/caricature/reception_arch.webp'
+        : './images/caricature/scooter_couple.webp'
+      )
   );
 
   return (

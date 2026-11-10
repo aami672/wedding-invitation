@@ -40,7 +40,7 @@ import { ParallaxWeddingDecorations } from './ParallaxWeddingDecorations';
 import { soundManager } from '../../utils/audio';
 import { triggerCelebration } from '../../utils/confetti';
 import { PALETTES, TEMPLATES, MUSIC_TRACKS } from '../../data/presets';
-import { getThemeEventImage } from '../../utils/themeImages';
+import { getThemeEventImage, getThemeHeroImage } from '../../utils/themeImages';
 
 export default function InvitationExperience({ 
   data, 
@@ -534,404 +534,74 @@ export default function InvitationExperience({
             &
           </span>
 
-          {/* THEME HERO: PASTEL CARICATURE OR DEFAULT HERO */}
-          {isCaricature ? (
-            <div className="relative z-10 w-full flex flex-col items-center">
-              <PastelCaricatureHero 
-                couplePhoto={data.photos?.cover || currentTemplate.image} 
-                bride={data.hosts?.bride} 
-                groom={data.hosts?.groom} 
-                date={data.hosts?.date}
-                monogram={data.monogram}
-                palette={palette}
-              />
-              <PastelPolaroidCouple 
-                bride={data.hosts?.bride} 
-                groom={data.hosts?.groom} 
-                bridePhoto={data.photos?.bride}
-                groomPhoto={data.photos?.groomPhoto || data.photos?.groom}
-                brideBio={data.photos?.brideBio}
-                groomBio={data.photos?.groomBio}
-                groomLineage={data.hosts?.groomParents}
-                brideLineage={data.hosts?.brideParents}
-              />
-              <PastelHangingCalendar 
-                date={data.hosts?.date}
-                timeLeft={timeLeft}
-              />
-
-            </div>
-          ) : (
-            <>
-              {/* THEMATIC HERO OBJECT: BIOSCOPE BOOTH FOR MARIGOLD MELA (from Wishlys video frame 130) */}
-              {isMela && (
-                <div className="relative z-10 w-full flex flex-col items-center">
-                  <span className="text-[11px] tracking-[0.35em] uppercase font-bold text-[#EA580C] mb-1">
-                    YOU ARE CORDIALLY INVITED
-                  </span>
-                  <BioscopeBooth 
-                    couplePhoto={data.photos?.cover || currentTemplate.image} 
-                    names={`${data.hosts?.bride} & ${data.hosts?.groom}`} 
-                  />
-                </div>
-              )}
-
-              <div className="relative z-10 max-w-3xl mx-auto space-y-5">
-                {/* Monogram Seal */}
-                <div 
-                  className="w-16 h-16 mx-auto rounded-full border-2 flex items-center justify-center shadow-lg font-royal text-lg font-bold tracking-widest bg-white/80 backdrop-blur-sm"
-                  style={{ borderColor: palette.colors[2], color: palette.colors[1] }}
-                >
-                  {data.monogram?.initials || 'A & S'}
-                </div>
-
-                <p className="text-[11px] tracking-[0.3em] uppercase font-semibold text-[#8B6F47]">
-                  {data.hosts?.title || 'Together with their families'}
-                </p>
-
-                <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl font-light tracking-tight leading-none text-[#2B1E17]">
-                  {data.hosts?.bride} <br />
-                  <span className="font-script text-4xl sm:text-5xl md:text-6xl text-[#8B6F47] lowercase">and</span> <br />
-                  {data.hosts?.groom}
-                </h1>
-
-                <div className="flex items-center justify-center gap-3 text-[#C5A880]">
-                  <span className="h-px w-16 bg-gradient-to-r from-transparent to-[#C5A880]" />
-                  <span className="rotate-45 inline-block w-1.5 h-1.5 border border-[#C5A880]" />
-                  <span className="h-px w-16 bg-gradient-to-l from-transparent to-[#C5A880]" />
-                </div>
-
-                <p className="font-royal text-sm sm:text-base tracking-[0.2em] uppercase font-medium text-[#2B1E17]/80">
-                  {data.hosts?.city || 'Meerut'} · {formatDisplayDate(data.hosts?.date) || '9th December 2026'}
-                </p>
-
-                <p className="text-stone-600 text-sm sm:text-base font-light italic max-w-lg mx-auto leading-relaxed">
-                  "{data.hosts?.welcomeQuote}"
-                </p>
-
-                {data.hosts?.hashtag && (
-                  <span className="inline-block text-[11px] tracking-widest uppercase font-semibold text-[#8B6F47] bg-[#FAF5ED] border border-[#E6D5BF] px-4 py-1.5 rounded-full shadow-xs">
-                    {data.hosts?.hashtag}
-                  </span>
-                )}
-              </div>
-
-              {/* Live Countdown Bar */}
-              <div className="relative z-10 mt-10 w-full max-w-xl mx-auto bg-white/85 backdrop-blur-md rounded-2xl border border-[#E6D5BF] p-5 shadow-sm">
-                <p className="text-[10px] tracking-[0.25em] uppercase font-bold text-[#8B6F47] mb-3">
-                  Counting Down To The Celebration
-                </p>
-                <div className="grid grid-cols-4 gap-2 sm:gap-4 text-center">
-                  <div className="bg-[#FAF5ED]/80 p-2.5 rounded-xl border border-[#E6D5BF]/60">
-                    <span className="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">{timeLeft.days}</span>
-                    <p className="text-[9px] uppercase tracking-wider text-stone-500 font-semibold mt-0.5">Days</p>
-                  </div>
-                  <div className="bg-[#FAF5ED]/80 p-2.5 rounded-xl border border-[#E6D5BF]/60">
-                    <span className="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">{timeLeft.hours}</span>
-                    <p className="text-[9px] uppercase tracking-wider text-stone-500 font-semibold mt-0.5">Hours</p>
-                  </div>
-                  <div className="bg-[#FAF5ED]/80 p-2.5 rounded-xl border border-[#E6D5BF]/60">
-                    <span className="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">{timeLeft.mins}</span>
-                    <p className="text-[9px] uppercase tracking-wider text-stone-500 font-semibold mt-0.5">Mins</p>
-                  </div>
-                  <div className="bg-[#FAF5ED]/80 p-2.5 rounded-xl border border-[#E6D5BF]/60">
-                    <span className="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">{timeLeft.secs}</span>
-                    <p className="text-[9px] uppercase tracking-wider text-stone-500 font-semibold mt-0.5">Secs</p>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
+          {/* THEME HERO & COUPLE & CALENDAR (ALL THEMES SHARE THIS LUXURY STYLE) */}
+          <div className="relative z-10 w-full flex flex-col items-center">
+            <PastelCaricatureHero 
+              couplePhoto={data.photos?.cover || (currentTemplate.id !== 'caricature' ? getThemeHeroImage(currentTemplate.id) : currentTemplate.image)} 
+              bride={data.hosts?.bride} 
+              groom={data.hosts?.groom} 
+              date={data.hosts?.date}
+              monogram={data.monogram}
+              palette={palette}
+            />
+            <PastelPolaroidCouple 
+              bride={data.hosts?.bride} 
+              groom={data.hosts?.groom} 
+              bridePhoto={data.photos?.bride}
+              groomPhoto={data.photos?.groomPhoto || data.photos?.groom}
+              brideBio={data.photos?.brideBio}
+              groomBio={data.photos?.groomBio}
+              groomLineage={data.hosts?.groomParents}
+              brideLineage={data.hosts?.brideParents}
+            />
+            <PastelHangingCalendar 
+              date={data.hosts?.date}
+              timeLeft={timeLeft}
+            />
+          </div>
         </section>
 
-        {/* MEET THE BRIDE & GROOM & GALLERY (ONLY FOR NON-CARICATURE THEMES) */}
-        {!isCaricature && (
-          <>
-            <section className="py-16 px-4 sm:px-6 max-w-4xl mx-auto">
-              <div className="text-center space-y-2 mb-10">
-                <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#8B6F47]">The Couple</span>
-                <h2 className="font-serif text-3xl sm:text-4xl font-light text-[#2B1E17]">Meet Bride & Groom</h2>
-                <div className="h-0.5 w-12 bg-[#C5A880] mx-auto mt-2" />
-              </div>
+        {/* CELEBRATIONS ITINERARY & MOMENTS & MAP & RSVP (ALL THEMES SHARE THIS LUXURY CARICATURE STYLE) */}
+        <section className="py-8 px-2 w-full max-w-[390px] mx-auto space-y-5">
+          <div className="text-center space-y-1 mb-8">
+            <span className="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">
+              Programme
+            </span>
+            <h2 className="font-serif text-3xl font-light text-[#2B1E17]">
+              The Celebrations
+            </h2>
+            <div className="w-20 h-1 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1" />
+          </div>
 
-              {/* TWO CIRCULAR PORTRAIT CARDS SIDE-BY-SIDE */}
-              <div className="grid grid-cols-2 gap-3.5 sm:gap-6 max-w-xl mx-auto">
-                {/* The Groom Card */}
-                <div 
-                  onClick={() => setActivePersonModal('groom')}
-                  className="bg-white/95 backdrop-blur-sm rounded-3xl p-4 sm:p-7 border border-[#C5A880]/60 shadow-lg text-center flex flex-col items-center group transition-all duration-300 hover:shadow-xl hover:border-amber-400 hover:-translate-y-0.5 cursor-pointer"
-                >
-                  <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-4 border-[#C5A880] shadow-md mb-3.5 p-1 bg-white ring-4 ring-[#FAF5ED] group-hover:ring-amber-300 transition-all">
-                    <img 
-                      src={data.photos?.groom || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80'} 
-                      alt={data.hosts?.groom || 'Groom'} 
-                      className="w-full h-full object-cover rounded-full group-hover:scale-105 transition-transform duration-500"
-                    />
-                  </div>
-                  <span className="inline-block px-3 py-0.5 rounded-full text-[9px] sm:text-[10px] uppercase tracking-widest font-bold mb-1.5 bg-[#FAF5ED] border border-[#E6D5BF] text-[#8B6F47]">
-                    The Groom
-                  </span>
-                  <h4 className="font-serif text-lg sm:text-2xl text-[#2B1E17] font-semibold group-hover:text-amber-800 transition-colors">
-                    {data.hosts?.groom || 'Groom'}
-                  </h4>
-                  <p className="text-[11px] sm:text-xs text-stone-600 italic mt-1.5 leading-relaxed">
-                    "{data.photos?.groomBio || 'Foodie, photography enthusiast, and the architect of their happiest memories.'}"
-                  </p>
-                  {data.hosts?.groomParents && (
-                    <p className="text-[10px] text-stone-400 font-sans border-t border-stone-100 pt-1.5 mt-2 w-full">
-                      {data.hosts.groomParents}
-                    </p>
-                  )}
-                  <span className="text-[9px] text-[#8B6F47] font-semibold mt-2 flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
-                    🔍 Tap to view
-                  </span>
-                </div>
+          {/* Events with Authentic Theme Arches and Scooter Dividers */}
+          <div className="space-y-6">
+            {visibleEvents.map((evt, eIdx) => (
+              <React.Fragment key={evt.id || eIdx}>
+                <PastelEventCard event={evt} index={eIdx} templateId={currentTemplate.id} />
+                {eIdx < visibleEvents.length - 1 && <PastelScooterDivider />}
+              </React.Fragment>
+            ))}
+          </div>
 
-                {/* The Bride Card */}
-                <div 
-                  onClick={() => setActivePersonModal('bride')}
-                  className="bg-white/95 backdrop-blur-sm rounded-3xl p-4 sm:p-7 border border-[#C5A880]/60 shadow-lg text-center flex flex-col items-center group transition-all duration-300 hover:shadow-xl hover:border-rose-400 hover:-translate-y-0.5 cursor-pointer"
-                >
-                  <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-4 border-[#C5A880] shadow-md mb-3.5 p-1 bg-white ring-4 ring-[#FAF5ED] group-hover:ring-rose-300 transition-all">
-                    <img 
-                      src={data.photos?.bride || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80'} 
-                      alt={data.hosts?.bride || 'Bride'} 
-                      className="w-full h-full object-cover rounded-full group-hover:scale-105 transition-transform duration-500"
-                    />
-                  </div>
-                  <span className="inline-block px-3 py-0.5 rounded-full text-[9px] sm:text-[10px] uppercase tracking-widest font-bold mb-1.5 bg-[#FAF5ED] border border-[#E6D5BF] text-[#8B6F47]">
-                    The Bride
-                  </span>
-                  <h4 className="font-serif text-lg sm:text-2xl text-[#2B1E17] font-semibold group-hover:text-rose-800 transition-colors">
-                    {data.hosts?.bride || 'Bride'}
-                  </h4>
-                  <p className="text-[11px] sm:text-xs text-stone-600 italic mt-1.5 leading-relaxed">
-                    "{data.photos?.brideBio || 'Loves classic poetry, morning chai, and spontaneous mountain hikes.'}"
-                  </p>
-                  {data.hosts?.brideParents && (
-                    <p className="text-[10px] text-stone-400 font-sans border-t border-stone-100 pt-1.5 mt-2 w-full">
-                      {data.hosts.brideParents}
-                    </p>
-                  )}
-                  <span className="text-[9px] text-[#8B6F47] font-semibold mt-2 flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
-                    🔍 Tap to view
-                  </span>
-                </div>
-              </div>
-            </section>
+          <MomentsAndMemories 
+            photos={data.gallery || []} 
+            isCaricature={true} 
+            bride={data.hosts?.bride} 
+            groom={data.hosts?.groom} 
+            palette={palette} 
+          />
+          
+          <PastelVenueMap 
+            venue={data.events?.[0]?.venue || data.hosts?.city || 'Diaz Banquet'} 
+            city={data.hosts?.city || 'Meerut, Uttar Pradesh'} 
+            address={data.events?.[0]?.address || '111, Delhi Road, Opposite Deewan International Public School, Rithani, Meerut'} 
+          />
 
-            {/* PERSON POPUP MODAL FOR NON-CARICATURE THEMES */}
-            {activePersonModal && (
-              <div 
-                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-md transition-all animate-fadeIn" 
-                onClick={() => setActivePersonModal(null)}
-              >
-                <div 
-                  className="relative w-full max-w-[340px] bg-[#FFFDF9] rounded-3xl p-5 border-2 border-[#C5A880]/80 shadow-2xl text-center space-y-3 animate-scaleUp"
-                  onClick={e => e.stopPropagation()}
-                >
-                  <button 
-                    type="button"
-                    onClick={() => setActivePersonModal(null)} 
-                    className="absolute top-3 right-3 w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center text-sm font-bold shadow-xs cursor-pointer z-10 transition-colors"
-                  >
-                    ✕
-                  </button>
-                  <div className="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-stone-100 border-2 border-[#E6D5BF] shadow-inner mt-2">
-                    <img 
-                      src={activePersonModal === 'groom' ? (data.photos?.groom || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80') : (data.photos?.bride || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80')} 
-                      alt={activePersonModal === 'groom' ? (data.hosts?.groom || 'Groom') : (data.hosts?.bride || 'Bride')} 
-                      className="w-full h-full object-cover object-top"
-                    />
-                  </div>
-                  <div className="space-y-1 pt-1">
-                    <span className={`inline-block px-3 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-bold ${
-                      activePersonModal === 'groom' ? 'bg-[#E6F4EA] text-[#137333]' : 'bg-[#FCE8E6] text-[#C5221F]'
-                    }`}>
-                      {activePersonModal === 'groom' ? 'The Groom' : 'The Bride'}
-                    </span>
-                    <h3 className="font-serif text-2xl font-bold text-[#2B1E17]">
-                      {activePersonModal === 'groom' ? (data.hosts?.groom || 'Groom') : (data.hosts?.bride || 'Bride')}
-                    </h3>
-                    <p className="text-xs text-stone-600 italic px-2">
-                      "{activePersonModal === 'groom' ? (data.photos?.groomBio || 'Foodie, photography enthusiast, and the architect of their happiest memories.') : (data.photos?.brideBio || 'Loves classic poetry, morning chai, and spontaneous mountain hikes.')}"
-                    </p>
-                    {(activePersonModal === 'groom' ? data.hosts?.groomParents : data.hosts?.brideParents) && (
-                      <p className="text-[10px] text-stone-500 font-sans border-t border-stone-200/60 pt-2 mt-2">
-                        {activePersonModal === 'groom' ? data.hosts?.groomParents : data.hosts?.brideParents}
-                      </p>
-                    )}
-                  </div>
-                  <div className="pt-1">
-                    <button 
-                      type="button"
-                      onClick={() => setActivePersonModal(null)} 
-                      className="text-[11px] uppercase tracking-widest text-[#8B6F47] font-semibold hover:underline cursor-pointer"
-                    >
-                      Tap to close ✕
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
+          <PastelMultiStepRsvp events={visibleEvents} />
 
-            {/* MOMENTS & MEMORIES GALLERY & GUEST PHOTO UPLOAD SECTION */}
-            <MomentsAndMemories 
-              photos={data.gallery || []} 
-              isCaricature={false} 
-              bride={data.hosts?.bride} 
-              groom={data.hosts?.groom} 
-              palette={palette} 
-            />
-          </>
-        )}
-
-        {/* CELEBRATIONS ITINERARY */}
-        {isCaricature ? (
-          <section className="py-8 px-2 w-full max-w-[390px] mx-auto space-y-5">
-            <div className="text-center space-y-1 mb-8">
-              <span className="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">
-                Programme
-              </span>
-              <h2 className="font-serif text-3xl font-light text-[#2B1E17]">
-                The Celebrations
-              </h2>
-              <div className="w-20 h-1 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1" />
-            </div>
-
-            {/* Events with Authentic Caricature Arches and Scooter Dividers */}
-            <div className="space-y-6">
-              {visibleEvents.map((evt, idx) => (
-                <React.Fragment key={evt.id}>
-                  <PastelEventCard event={evt} index={idx} />
-                  {idx < visibleEvents.length - 1 && <PastelScooterDivider />}
-                </React.Fragment>
-              ))}
-            </div>
-
-
-
-            <MomentsAndMemories 
-              photos={data.gallery || []} 
-              isCaricature={true} 
-              bride={data.hosts?.bride} 
-              groom={data.hosts?.groom} 
-              palette={palette} 
-            />
-            
-            <PastelVenueMap 
-              venue={data.events?.[0]?.venue || data.hosts?.city || 'Umaid Bhawan Palace'} 
-              city={data.hosts?.city || 'Udaipur, Rajasthan'} 
-              address={data.events?.[0]?.address || 'Circuit House Rd, Cantt Area, Jodhpur'} 
-            />
-
-
-
-            <PastelHashtagBanner hashtag={data.hosts?.hashtag || `#${(data.hosts?.bride || 'Bride').replace(/\s+/g, '')}Weds${(data.hosts?.groom || 'Groom').replace(/\s+/g, '')}`} />
-            <PastelFooter bride={data.hosts?.bride} groom={data.hosts?.groom} />
-          </section>
-        ) : (
-          <>
-            <section className="py-16 px-4 sm:px-6 bg-[#FAF5ED]/50 border-y border-[#E6D5BF]/60">
-              <div className="max-w-3xl mx-auto">
-                <div className="text-center space-y-2 mb-10">
-                  <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#8B6F47]">The Itinerary</span>
-                  <h2 className="font-serif text-3xl sm:text-4xl font-light text-[#2B1E17]">Celebration Events</h2>
-                  <p className="text-xs text-stone-500 font-light">Dates, timings, dress codes, and interactive venue maps.</p>
-                </div>
-
-                <div className="space-y-10">
-                  {visibleEvents.map((evt, idx) => {
-                    const isHaldiMehndi = evt.name?.toLowerCase().includes('haldi') || evt.name?.toLowerCase().includes('mehndi');
-                    const isWeddingPheras = evt.name?.toLowerCase().includes('wedding') || evt.name?.toLowerCase().includes('phera') || evt.name?.toLowerCase().includes('shaadi');
-
-                    return (
-                      <div 
-                        key={evt.id} 
-                        className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E6D5BF] shadow-md hover:shadow-lg transition-shadow space-y-5"
-                      >
-                        <div className="flex justify-between items-start gap-2">
-                          <div>
-                            <span className="text-[9px] uppercase tracking-widest font-bold text-[#8B6F47] block mb-1">
-                              CHAPTER {idx + 1}
-                            </span>
-                            <h3 className="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">{evt.name}</h3>
-                            <p className="text-xs text-stone-600 font-semibold mt-0.5">{evt.date} · {evt.time}</p>
-                          </div>
-                          {evt.dressCode && (
-                            <span className="text-[9px] tracking-wider uppercase font-bold text-[#8B6F47] bg-[#FAF5ED] border border-[#E6D5BF] px-3 py-1.5 rounded-full shrink-0">
-                              {evt.dressCode}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Thematic Pop-up Arch Artwork (Theme-specific or Custom Upload) */}
-                        {(() => {
-                          const eventArch = getThemeEventImage(currentTemplate.id, evt, idx);
-                          if (!eventArch) return null;
-                          return (
-                            <div className="w-full flex justify-center -mb-2">
-                              <div className="w-full max-w-[340px] aspect-[9/16] rounded-t-[40px] rounded-b-2xl overflow-hidden flex items-center justify-center p-0 drop-shadow-md bg-[#FFFDF7] border-2 border-[#E6D5BF]">
-                                <img 
-                                  src={eventArch} 
-                                  alt={evt.name} 
-                                  className="w-full h-full object-contain object-center hover:scale-105 transition-transform duration-500" 
-                                />
-                              </div>
-                            </div>
-                          );
-                        })()}
-
-                        <DirectionalSignpost 
-                          venue={evt.venue} 
-                          address={evt.address} 
-                          mapsUrl={evt.mapsUrl} 
-                        />
-
-                        <div className="rounded-2xl overflow-hidden border border-stone-200 shadow-inner">
-                          <iframe
-                            title={`Map for ${evt.name}`}
-                            width="100%"
-                            height="180"
-                            style={{ border: 0 }}
-                            loading="lazy"
-                            allowFullScreen
-                            referrerPolicy="no-referrer-when-downgrade"
-                            src={evt.mapsEmbedUrl || `https://maps.google.com/maps?q=${encodeURIComponent((evt.venue || '') + ' ' + (evt.address || 'Udaipur'))}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </section>
-
-            {/* INTERACTIVE MULTI-STEP RSVP */}
-            <div className="py-10 px-3 max-w-xl mx-auto">
-              <PastelMultiStepRsvp events={visibleEvents} />
-            </div>
-
-            {/* HASHTAG BANNER */}
-            <PastelHashtagBanner hashtag={data.hosts?.hashtag || `#${(data.hosts?.bride || 'Bride').replace(/\s+/g, '')}Weds${(data.hosts?.groom || 'Groom').replace(/\s+/g, '')}`} />
-
-            {/* RADIATING CELEBRATORY FIREWORKS SPARKLERS */}
-            <CelebratoryFireworks />
-
-            {/* LUXURY FOOTER */}
-            <footer className="py-14 text-center space-y-3 border-t border-[#E6D5BF]/60 bg-white/40">
-              <div className="w-10 h-10 mx-auto rounded-full border border-[#C5A880] flex items-center justify-center font-royal text-xs font-bold text-[#8B6F47]">
-                {data.monogram?.initials || 'P & A'}
-              </div>
-              <p className="font-serif text-2xl font-light text-[#2B1E17]">
-                See you at the shaadi!
-              </p>
-              <p className="text-xs text-stone-500 font-light">
-                With love, {data.hosts?.bride} & {data.hosts?.groom}
-              </p>
-            </footer>
-          </>
-        )}
+          <PastelHashtagBanner hashtag={data.hosts?.hashtag || `#${(data.hosts?.bride || 'Bride').replace(/\s+/g, '')}Weds${(data.hosts?.groom || 'Groom').replace(/\s+/g, '')}`} />
+          <PastelFooter bride={data.hosts?.bride} groom={data.hosts?.groom} />
+        </section>
       </div>
     </div>
   );
