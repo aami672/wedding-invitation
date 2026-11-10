@@ -192,6 +192,29 @@ let html = buildFn(
 const masterDownloadedPath = path.join(__dirname, '../src/data/downloaded_published.html');
 if (fs.existsSync(masterDownloadedPath)) {
   html = fs.readFileSync(masterDownloadedPath, 'utf8');
+
+  // For high-performance web delivery, convert large embedded base64 images to relative asset paths
+  const regex = /data:image\/jpeg;base64,[A-Za-z0-9+/=]+/g;
+  const matches = [];
+  let m;
+  while ((m = regex.exec(html)) !== null) {
+    matches.push(m[0]);
+  }
+
+  if (matches.length >= 33) {
+    const oldCover = matches[0];
+    const oldGroom = matches[1];
+    const oldBride = matches[2];
+
+    html = html.replaceAll(oldCover, '../images/templates/caricature.webp');
+    html = html.replaceAll(oldGroom, '../images/ashish_groom.jpg');
+    html = html.replaceAll(oldBride, '../images/preeti_bride.jpg');
+
+    for (let i = 1; i <= 14; i++) {
+      const oldMoment = matches[3 + (i - 1) * 2];
+      html = html.replaceAll(oldMoment, `../images/gallery/moment_${i}.jpg`);
+    }
+  }
 }
 
 // Write to public/published/

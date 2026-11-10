@@ -7,7 +7,7 @@ const pat = match[1].trim();
 
 const options = {
   hostname: 'api.github.com',
-  path: '/repos/aami672/wedding-invitation/actions/runs?per_page=3',
+  path: '/repos/aami672/wedding-invitation/actions/runs?per_page=6',
   method: 'GET',
   headers: {
     'User-Agent': 'NodeJS',
@@ -27,8 +27,7 @@ const req = https.request(options, (res) => {
         name: r.name,
         status: r.status,
         conclusion: r.conclusion,
-        head_commit: r.head_commit?.message?.split('\n')[0],
-        html_url: r.html_url
+        head_commit: r.head_commit?.message?.split('\n')[0]
       }));
       console.log('Recent Workflow Runs:', JSON.stringify(runs, null, 2));
     } catch(e) {
@@ -36,6 +35,4 @@ const req = https.request(options, (res) => {
     }
   });
 });
-
-req.on('error', (e) => console.error('Req error:', e));
 req.end();
