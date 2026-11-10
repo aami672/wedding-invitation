@@ -172,9 +172,76 @@ const firstDayIndex = validDate ? new Date(calYear, d.getMonth(), 1).getDay() : 
 const displayWeddingDate = formatDisplayDate(data.hosts.date || '2026-12-09');
 const monogramInitials = getMonogramInitials(data.hosts, data.monogram);
 
-const b64Events = (data.events || []).map(evt => ({
+const THEME_FOLDER_MAP = {
+  'caricature': 'Luxe-Pastel-Caricature',
+  'mela': 'Luxe-Marigold-Mela',
+  'pichwai': 'Luxe-Pichwai-Lotus',
+  'rajwada': 'Luxe-Rajwada-Miniature',
+  'zardozi': 'Luxe-Heirloom-Zardozi',
+  'storybook': 'Storybook',
+  'newspaper': 'The-Shaadi-Times',
+  'bougain': 'Luxe-Bougainvillea-Blossom',
+  'bougainvillea': 'Luxe-Bougainvillea-Blossom',
+  'ballroom': 'Gilded-Ballroom',
+  'peaks': 'Pastel-Peaks',
+  'resort': 'Luxury-Beach-Resort',
+  'luxury-resort': 'Luxury-Resort',
+  'mandap': 'Paper-Blossom',
+  'paper-blossom': 'Paper-Blossom',
+  'truck': 'Desi-Truck-Art',
+  'nikah': 'Nikah',
+  'rangla': 'Rangla-Viah',
+  '3d-human': '3D-Model-Human-Colorful-v3',
+  '3d-pixar': '3D-Pixar',
+  'aladdin': 'Aladdin-Jasmine',
+  'cute-couples': 'Cute-Couples',
+  'kalyanam': 'Kalyanam',
+  'marble': 'Marble-Style',
+  'water': 'Water',
+  'watercolor': 'Watercolor-Portrait',
+  'cinematic': 'Luxe-Rajwada-Miniature',
+  'royal': 'Luxe-Rajwada-Miniature',
+  'classic': 'Luxe-Pichwai-Lotus',
+  'editorial': 'The-Shaadi-Times',
+  'botanical': 'Luxe-Bougainvillea-Blossom',
+  'express': 'Storybook',
+  'darkroom': 'Luxe-Rajwada-Miniature'
+};
+
+const EVENT_FILE_SEQUENCE = [
+  '01-haldi.webp',
+  '02-mehndi.webp',
+  '03-sangeet.webp',
+  '04-pheras.webp',
+  '05-arrival-of-barat.webp',
+  '06-varmala.webp',
+  '07-wedding-dinner.webp',
+  '08-main-fere-ceremony.webp'
+];
+
+function getBuildThemeEventImage(templateId, event, eventIndex) {
+  if (event?.image) {
+    return (event.image.startsWith('http') || event.image.startsWith('data:')) ? event.image : `${assetPrefix}${event.image.replace(/^\.?\//, '')}`;
+  }
+  if (templateId === 'caricature') return '';
+  const folder = THEME_FOLDER_MAP[templateId] || 'Luxe-Pichwai-Lotus';
+  const nameLower = (event?.name || '').toLowerCase();
+  let filename = '04-pheras.webp';
+  if (nameLower.includes('haldi')) filename = '01-haldi.webp';
+  else if (nameLower.includes('mehndi') || nameLower.includes('mehendi')) filename = '02-mehndi.webp';
+  else if (nameLower.includes('sangeet') || nameLower.includes('dance')) filename = '03-sangeet.webp';
+  else if (nameLower.includes('main') && (nameLower.includes('fere') || nameLower.includes('phera'))) filename = '08-main-fere-ceremony.webp';
+  else if (nameLower.includes('phera') || nameLower.includes('wedding')) filename = '04-pheras.webp';
+  else if (nameLower.includes('barat') || nameLower.includes('arrival')) filename = '05-arrival-of-barat.webp';
+  else if (nameLower.includes('varmala') || nameLower.includes('jaimala')) filename = '06-varmala.webp';
+  else if (nameLower.includes('dinner') || nameLower.includes('reception')) filename = '07-wedding-dinner.webp';
+  else filename = EVENT_FILE_SEQUENCE[eventIndex % EVENT_FILE_SEQUENCE.length];
+  return `${assetPrefix}images/themes/${folder}/${filename}`;
+}
+
+const b64Events = (data.events || []).map((evt, idx) => ({
   ...evt,
-  customB64: evt.image ? (evt.image.startsWith('http') || evt.image.startsWith('data:') ? evt.image : `${assetPrefix}${evt.image.replace(/^\.?\//, '')}`) : ''
+  customB64: getBuildThemeEventImage(data.template, evt, idx)
 }));
 
 // Build HTML using Function constructor to evaluate templateStr in context

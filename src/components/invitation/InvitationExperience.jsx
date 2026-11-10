@@ -40,6 +40,7 @@ import { ParallaxWeddingDecorations } from './ParallaxWeddingDecorations';
 import { soundManager } from '../../utils/audio';
 import { triggerCelebration } from '../../utils/confetti';
 import { PALETTES, TEMPLATES, MUSIC_TRACKS } from '../../data/presets';
+import { getThemeEventImage } from '../../utils/themeImages';
 
 export default function InvitationExperience({ 
   data, 
@@ -864,21 +865,22 @@ export default function InvitationExperience({
                           )}
                         </div>
 
-                        {/* Custom Event Photo or Arch Artwork */}
-                        {(evt.image || evt.img) && (
-                          <div className="w-full flex justify-center -mb-2">
-                            <div className="w-full max-w-[340px] aspect-[9/16] rounded-t-[40px] rounded-b-2xl overflow-hidden flex items-center justify-center p-0 drop-shadow-md bg-[#FFFDF7] border-2 border-[#E6D5BF]">
-                              <img 
-                                src={evt.image || evt.img} 
-                                alt={evt.name} 
-                                className="w-full h-full object-contain object-center hover:scale-105 transition-transform duration-500" 
-                              />
+                        {/* Thematic Pop-up Arch Artwork (Theme-specific or Custom Upload) */}
+                        {(() => {
+                          const eventArch = getThemeEventImage(currentTemplate.id, evt, idx);
+                          if (!eventArch) return null;
+                          return (
+                            <div className="w-full flex justify-center -mb-2">
+                              <div className="w-full max-w-[340px] aspect-[9/16] rounded-t-[40px] rounded-b-2xl overflow-hidden flex items-center justify-center p-0 drop-shadow-md bg-[#FFFDF7] border-2 border-[#E6D5BF]">
+                                <img 
+                                  src={eventArch} 
+                                  alt={evt.name} 
+                                  className="w-full h-full object-contain object-center hover:scale-105 transition-transform duration-500" 
+                                />
+                              </div>
                             </div>
-                          </div>
-                        )}
-
-                        {isHaldiMehndi && !evt.image && !evt.img && <UrliCeremonyScene title={evt.name} />}
-                        {isWeddingPheras && !evt.image && !evt.img && <RoyalWeddingMandap bride={data.hosts?.bride} groom={data.hosts?.groom} />}
+                          );
+                        })()}
 
                         <DirectionalSignpost 
                           venue={evt.venue} 

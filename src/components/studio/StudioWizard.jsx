@@ -19,6 +19,7 @@ import InvitationExperience from '../invitation/InvitationExperience';
 import { soundManager } from '../../utils/audio';
 import { triggerCelebration } from '../../utils/confetti';
 import { toBase64Optimized } from '../../utils/imageOptimizer';
+import { getThemeEventImage, getThemeHeroImage } from '../../utils/themeImages';
 
 const REVEAL_ICON_MAP = {
   Mail,
@@ -636,10 +637,15 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       toBase64Optimized('./images/caricature/reception_arch.webp', 800, 0.85, true),
     ]);
 
-    const b64Events = await Promise.all((data.events || []).map(async (evt) => {
+    const b64Events = await Promise.all((data.events || []).map(async (evt, idx) => {
       let customB64 = '';
       if (evt.image || evt.img) {
         customB64 = await toBase64Optimized(evt.image || evt.img, 1200, 0.90, false);
+      } else if (!isCaricature) {
+        const themeArch = getThemeEventImage(data.template, evt, idx);
+        if (themeArch) {
+          customB64 = await toBase64Optimized(themeArch, 1200, 0.90, true);
+        }
       }
       return {
         ...evt,
