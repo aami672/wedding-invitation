@@ -751,6 +751,25 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         var elScTitle = document.getElementById('scratch-title-names');
         if (elScTitle) elScTitle.textContent = bride + ' & ' + groom;
 
+        // Toggle Reveal Screen between 3D Folding Doors & Scratch Card
+        var revStyle = d.revealStyle || 'folding-doors';
+        var isDoors = (revStyle === 'folding-doors') || (!revStyle && d.template === 'caricature') || (revStyle !== 'scratch-date');
+        var foldingEl = document.getElementById('reveal-screen-folding');
+        var scratchEl = document.getElementById('reveal-screen-scratch');
+        if (foldingEl && scratchEl) {
+          if (isDoors) {
+            foldingEl.classList.remove('hidden');
+            scratchEl.classList.add('hidden');
+          } else {
+            scratchEl.classList.remove('hidden');
+            foldingEl.classList.add('hidden');
+          }
+        }
+        var doorsGroom = document.getElementById('doors-groom-name');
+        if (doorsGroom) doorsGroom.textContent = groom;
+        var doorsBride = document.getElementById('doors-bride-name');
+        if (doorsBride) doorsBride.textContent = bride;
+
         // Hero elements
         var elHeroGroom = document.getElementById('hero-groom-name');
         if (elHeroGroom) elHeroGroom.textContent = groom;
@@ -991,9 +1010,8 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     </div>
   </div>` : ''}
 
-  <!-- REVEAL SCREEN: 3D FOLDING CARD DOORS FOR CARICATURE OR SCRATCH THE DATE -->
-  ${(data.revealStyle === 'folding-doors' || (isCaricature && (!data.revealStyle || data.revealStyle === 'folding-doors'))) ? `
-  <div id="reveal-screen" onclick="unlockCaricatureDoors()" class="fixed inset-0 z-40 bg-[#FAF7F2] flex flex-col items-center justify-center p-4 transition-opacity duration-700 select-none cursor-pointer">
+  <!-- REVEAL SCREEN 1: 3D FOLDING CARD DOORS FOR CARICATURE -->
+  <div id="reveal-screen-folding" onclick="unlockCaricatureDoors()" class="fixed inset-0 z-40 bg-[#FAF7F2] flex flex-col items-center justify-center p-4 transition-opacity duration-700 select-none cursor-pointer ${(data.revealStyle === 'scratch-date') ? 'hidden' : ''}">
     <!-- Top Hanging Marigold Garland -->
     <div class="w-full max-w-sm flex justify-center -mb-2 pointer-events-none">
       <svg viewBox="0 0 320 30" class="w-full h-auto text-amber-500">
@@ -1009,9 +1027,9 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     <div class="text-center space-y-1 mb-5">
       <span class="text-[10px] tracking-[0.3em] uppercase font-bold text-[#8B6F47]">You Are Cordially Invited</span>
       <h2 class="font-serif text-3xl sm:text-4xl font-light text-[#2B1E17] flex items-center justify-center gap-2">
-        <span>${data.hosts?.groom}</span>
-        <span class="text-rose-400 font-sans text-xl animate-pulse">♡</span>
-        <span>${data.hosts?.bride}</span>
+        <span id="doors-bride-name">${data.hosts?.bride || 'Preeti'}</span>
+        <span class="text-rose-400 font-sans text-xl animate-pulse">&#9825;</span>
+        <span id="doors-groom-name">${data.hosts?.groom || 'Ashish'}</span>
       </h2>
       <div class="w-24 h-1 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full"></div>
     </div>
@@ -1020,7 +1038,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     <div id="door-card-container" onclick="unlockCaricatureDoors()" class="relative w-[85vw] max-w-[310px] aspect-[9/16] max-h-[72vh] cursor-pointer group" style="perspective: 1000px;">
       <!-- Inside Couple Artwork -->
       <div class="absolute inset-0 rounded-2xl bg-[#FFFDF7] border-2 border-[#FDE68A] shadow-inner overflow-hidden flex flex-col items-center justify-center p-0">
-        <img src="${b64Cover || b64Scooter || selectedTmpl?.image}" alt="${data.hosts?.groom} & ${data.hosts?.bride}" class="w-full h-full object-contain object-center" />
+        <img src="${b64Cover || b64Scooter || selectedTmpl?.image}" alt="${data.hosts?.groom || 'Ashish'} & ${data.hosts?.bride || 'Preeti'}" class="w-full h-full object-contain object-center" />
       </div>
 
       <!-- Left Folding Door -->
@@ -1073,9 +1091,10 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         👆 Tap to Open
       </button>
     </div>
-  </div>` : `
-  <!-- REVEAL SCREEN: SCRATCH THE DATE TO REVEAL -->
-  <div id="reveal-screen" class="fixed inset-0 z-40 bg-gradient-to-b from-[#FAF8F5]/95 via-[#F5EFE6]/95 to-[#FAF8F5]/95 backdrop-blur-md flex flex-col items-center justify-center p-4 transition-opacity duration-700">
+  </div>
+
+  <!-- REVEAL SCREEN 2: SCRATCH THE DATE TO REVEAL -->
+  <div id="reveal-screen-scratch" class="fixed inset-0 z-40 bg-gradient-to-b from-[#FAF8F5]/95 via-[#F5EFE6]/95 to-[#FAF8F5]/95 backdrop-blur-md flex flex-col items-center justify-center p-4 transition-opacity duration-700 ${(data.revealStyle === 'scratch-date') ? '' : 'hidden'}">
     <div class="text-center space-y-2 mb-6 max-w-md">
       <span class="text-[10px] tracking-[0.3em] uppercase font-bold text-[#8B6F47] border border-[#C5A880]/50 bg-[#FAF5ED] px-3.5 py-1 rounded-full shadow-xs">
         Exclusive Invitation
@@ -1110,7 +1129,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         <span>↓</span>
       </button>
     </div>
-  </div>`}
+  </div>
 
   <!-- MAIN INVITATION WEBPAGE (Revealed) -->
   <main id="main-invitation" class="opacity-0 transition-opacity duration-1000 relative">
@@ -2229,22 +2248,24 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     }
 
     function unlockInvitation() {
-      const rev = document.getElementById('reveal-screen');
-      if (rev) {
+      const revs = document.querySelectorAll('#reveal-screen, #reveal-screen-folding, #reveal-screen-scratch');
+      revs.forEach(function(rev) {
         rev.classList.add('opacity-0', 'pointer-events-none');
-        setTimeout(() => {
+        setTimeout(function() {
           rev.style.display = 'none';
-          const main = document.getElementById('main-invitation');
-          if (main) main.classList.remove('opacity-0');
-          triggerCelebrationEffect();
-          if (!musicActive) {
-            sound.play();
-            musicActive = true;
-            if (audioEq) audioEq.classList.remove('hidden');
-            if (audioText) audioText.innerText = 'Playing';
-          }
         }, 500);
-      }
+      });
+      setTimeout(function() {
+        const main = document.getElementById('main-invitation');
+        if (main) main.classList.remove('opacity-0');
+        triggerCelebrationEffect();
+        if (!musicActive) {
+          sound.play();
+          musicActive = true;
+          if (audioEq) audioEq.classList.remove('hidden');
+          if (audioText) audioText.innerText = 'Playing';
+        }
+      }, 500);
     }
 
     // 3D Folding Card Doors for Caricature

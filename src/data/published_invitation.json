@@ -1,6 +1,6 @@
 {
   "template": "caricature",
-  "revealStyle": "scratch-date",
+  "revealStyle": "folding-doors",
   "typography": {
     "preset": "heritage",
     "headingFont": "Cinzel",

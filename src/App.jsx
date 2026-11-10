@@ -39,8 +39,8 @@ export default function App() {
         if (parsed.template === 'truck' || !parsed.template) {
           parsed.template = 'caricature';
         }
-        if (parsed.revealStyle === 'scratch' || !parsed.revealStyle) {
-          parsed.revealStyle = 'scratch-date';
+        if (!parsed.revealStyle || parsed.revealStyle === 'scratch') {
+          parsed.revealStyle = parsed.template === 'caricature' ? 'folding-doors' : 'scratch-date';
         }
         if (!parsed.photos) parsed.photos = {};
         if (!parsed.photos.cover || parsed.photos.cover.includes('zardozi') || parsed.photos.cover.includes('truck')) {

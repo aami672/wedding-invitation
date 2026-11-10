@@ -21,7 +21,7 @@ const templateStr = wizCode.slice(startIdx + 'const standaloneHtml = `'.length, 
 // Base Default Data
 const defaultData = {
   template: 'caricature',
-  revealStyle: 'scratch-date',
+  revealStyle: 'folding-doors',
   typography: {
     preset: 'heritage',
     headingFont: 'Cinzel',

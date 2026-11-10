@@ -501,9 +501,9 @@ export function PastelFoldingDoorsReveal({ onReveal, bride = 'Bride', groom = 'G
       <div className="text-center space-y-1 mb-5">
         <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#8B6F47]">You Are Cordially Invited</span>
         <h2 className="font-serif text-3xl font-light text-[#2B1E17] flex items-center justify-center gap-2">
-          <span>{groom}</span>
-          <span className="text-rose-400 font-sans text-xl animate-pulse">♡</span>
           <span>{bride}</span>
+          <span className="text-rose-400 font-sans text-xl animate-pulse">♡</span>
+          <span>{groom}</span>
         </h2>
         <div className="w-24 h-1 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full" />
       </div>

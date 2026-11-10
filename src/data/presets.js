@@ -721,7 +721,7 @@ export const DEFAULT_INVITATION_DATA = {
   occasion: 'wedding',
   type: 'full', // 'full' or 'save-the-date'
   template: 'caricature',
-  revealStyle: 'scratch-date',
+  revealStyle: 'folding-doors',
   palette: 'champagne',
   typography: {
     preset: 'heritage',
