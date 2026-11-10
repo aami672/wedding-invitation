@@ -737,7 +737,7 @@ export const DEFAULT_INVITATION_DATA = {
     intensity: 'medium',
   },
   monogram: {
-    initials: 'B & G',
+    initials: 'P & A',
     style: 'classic-crest',
   },
   photos: {
@@ -749,12 +749,12 @@ export const DEFAULT_INVITATION_DATA = {
   },
   hosts: {
     title: 'Together with their families',
-    bride: 'Bride',
-    groom: 'Groom',
-    hashtag: '#BrideWedsGroom',
-    date: '2027-02-14',
-    day: 'Sunday',
-    city: 'Udaipur, Rajasthan',
+    bride: 'Preeti',
+    groom: 'Ashish',
+    hashtag: '#PreetiWedsAshish',
+    date: '2026-12-09',
+    day: 'Wednesday',
+    city: 'Meerut',
     welcomeQuote: "We are stepping into our next great chapter, and our celebration wouldn't be complete without you by our side.",
   },
   story: [

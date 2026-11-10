@@ -10,6 +10,7 @@ import WaxSeal from '../reveals/WaxSeal';
 import RingBox from '../reveals/RingBox';
 import Doorbell from '../reveals/Doorbell';
 import ThemeAtmosphere from './ThemeAtmosphere';
+import { formatDisplayDate } from '../studio/StudioWizard';
 import { 
   BioscopeBooth, 
   DirectionalSignpost, 
@@ -80,7 +81,7 @@ export default function InvitationExperience({
   }, [previewMode, isPreview]);
 
   useEffect(() => {
-    const targetDate = new Date(data.hosts?.date || '2027-02-14').getTime();
+    const targetDate = new Date(data.hosts?.date || '2026-12-09').getTime();
     const updateCountdown = () => {
       const now = new Date().getTime();
       const diff = Math.max(0, targetDate - now);
@@ -316,10 +317,10 @@ export default function InvitationExperience({
                 {data.revealStyle === 'scratch-date' && (
                   <ScratchDate 
                     onReveal={handleReveal}
-                    date={data.hosts?.date || '14th February 2027'}
-                    day={data.hosts?.day || 'Sunday'}
-                    city={data.hosts?.city || 'Udaipur, Rajasthan'}
-                    names={`${data.hosts?.bride} & ${data.hosts?.groom}`}
+                    date={formatDisplayDate(data.hosts?.date) || '9th December 2026'}
+                    day={data.hosts?.day || 'Wednesday'}
+                    city={data.hosts?.city || 'Meerut'}
+                    names={`${data.hosts?.bride || 'Preeti'} & ${data.hosts?.groom || 'Ashish'}`}
                   />
                 )}
                 {data.revealStyle === 'scratch' && (
@@ -599,7 +600,7 @@ export default function InvitationExperience({
                 </div>
 
                 <p className="font-royal text-sm sm:text-base tracking-[0.2em] uppercase font-medium text-[#2B1E17]/80">
-                  {data.hosts?.city || 'Udaipur, Rajasthan'} · {data.hosts?.date || '14th February 2027'}
+                  {data.hosts?.city || 'Meerut'} · {formatDisplayDate(data.hosts?.date) || '9th December 2026'}
                 </p>
 
                 <p className="text-stone-600 text-sm sm:text-base font-light italic max-w-lg mx-auto leading-relaxed">

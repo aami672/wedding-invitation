@@ -689,16 +689,16 @@ export function ScrollReveal({
  */
 export function PastelCaricatureHero({ 
   couplePhoto, 
-  bride = 'Bride', 
-  groom = 'Groom',
-  date = '2027-02-14',
+  bride = 'Preeti', 
+  groom = 'Ashish',
+  date = '2026-12-09',
   monogram,
   palette
 }) {
-  const d = new Date(date || '2027-02-14');
+  const d = new Date(date || '2026-12-09');
   const formattedDate = !isNaN(d.getTime()) 
     ? `${d.getDate()} ${d.toLocaleString('en-US', { month: 'short' })} ${d.getFullYear()}`
-    : '14 Feb 2027';
+    : '9 Dec 2026';
 
   return (
     <div className="relative my-2 flex flex-col items-center select-none w-full max-w-[390px] mx-auto px-2">
@@ -958,15 +958,15 @@ export function PastelPolaroidCouple({
  * 12. HANGING WALL CALENDAR & COUNTDOWN (from Wishlys video frame 025 - 027)
  * Ring-bound calendar card with hand-drawn heart circled around wedding date.
  */
-export function PastelHangingCalendar({ date = '2027-02-14', timeLeft }) {
-  const d = new Date(date || '2027-02-14');
+export function PastelHangingCalendar({ date = '2026-12-09', timeLeft }) {
+  const d = new Date(date || '2026-12-09');
   const valid = !isNaN(d.getTime());
-  const monthName = valid ? d.toLocaleString('en-US', { month: 'long' }) : 'February';
-  const year = valid ? d.getFullYear() : 2027;
-  const dayNum = valid ? d.getDate() : 14;
+  const monthName = valid ? d.toLocaleString('en-US', { month: 'long' }) : 'December';
+  const year = valid ? d.getFullYear() : 2026;
+  const dayNum = valid ? d.getDate() : 9;
 
-  const daysInMonth = valid ? new Date(year, d.getMonth() + 1, 0).getDate() : 28;
-  const firstDayIndex = valid ? new Date(year, d.getMonth(), 1).getDay() : 0;
+  const daysInMonth = valid ? new Date(year, d.getMonth() + 1, 0).getDate() : 31;
+  const firstDayIndex = valid ? new Date(year, d.getMonth(), 1).getDay() : 3;
 
   const calendarCardRef = useRef(null);
   const [isMarked, setIsMarked] = useState(false);

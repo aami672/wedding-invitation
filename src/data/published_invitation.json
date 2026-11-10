@@ -1,0 +1,102 @@
+{
+  "template": "caricature",
+  "revealStyle": "scratch-date",
+  "typography": {
+    "preset": "heritage",
+    "headingFont": "Cinzel",
+    "bodyFont": "Cormorant Garamond",
+    "scriptFont": "Great Vibes"
+  },
+  "atmosphere": {
+    "style": "petals",
+    "intensity": "medium"
+  },
+  "monogram": {
+    "initials": "P & A",
+    "style": "classic-crest"
+  },
+  "hosts": {
+    "bride": "Preeti",
+    "groom": "Ashish",
+    "date": "2026-12-09",
+    "day": "Wednesday",
+    "city": "Meerut",
+    "hashtag": "#PreetiWedsAshish",
+    "welcomeQuote": "We are stepping into our next great chapter, and our celebration wouldn't be complete without you by our side.",
+    "brideParents": "D/o Mr. Vijay & Mrs. Rekha Malhotra",
+    "groomParents": "S/o Mr. Ramesh & Mrs. Sunita Sharma"
+  },
+  "photos": {
+    "cover": "./images/templates/caricature.webp",
+    "bride": "./images/bride.webp",
+    "groom": "./images/groom.webp",
+    "brideBio": "Loves classic poetry, morning chai, and spontaneous mountain hikes.",
+    "groomBio": "Foodie, photography enthusiast, and the architect of their happiest memories."
+  },
+  "events": [
+    {
+      "id": "evt-haldi",
+      "name": "Haldi Ceremony",
+      "date": "Monday, 7th December 2026",
+      "time": "10:30 AM onwards",
+      "venue": "The Courtyard, Bravura Gold Resort",
+      "address": "NH-58, Delhi-Roorkee Bypass, Meerut, Uttar Pradesh 250005",
+      "mapsUrl": "https://maps.google.com/?q=Bravura+Gold+Resort+Meerut",
+      "dressCode": "Haldi Yellow & Warm Mustard"
+    },
+    {
+      "id": "evt-mehndi",
+      "name": "Mehndi Ceremony",
+      "date": "Monday, 7th December 2026",
+      "time": "04:00 PM onwards",
+      "venue": "The Poolside Lawns, Bravura Gold Resort",
+      "address": "NH-58, Delhi-Roorkee Bypass, Meerut, Uttar Pradesh 250005",
+      "mapsUrl": "https://maps.google.com/?q=Bravura+Gold+Resort+Meerut",
+      "dressCode": "Mint Green & Floral Pastels"
+    },
+    {
+      "id": "evt-sangeet",
+      "name": "Sangeet & Cocktail Night",
+      "date": "Tuesday, 8th December 2026",
+      "time": "07:00 PM onwards",
+      "venue": "The Grand Ballroom, Bravura Gold Resort",
+      "address": "NH-58, Delhi-Roorkee Bypass, Meerut, Uttar Pradesh 250005",
+      "mapsUrl": "https://maps.google.com/?q=Bravura+Gold+Resort+Meerut",
+      "dressCode": "Glamorous Indian Cocktails"
+    },
+    {
+      "id": "evt-pheras",
+      "name": "Main Pheras (The Wedding)",
+      "date": "Wednesday, 9th December 2026",
+      "time": "04:30 PM (Sunset Barat)",
+      "venue": "The Royal Mandap, Bravura Gold Resort",
+      "address": "NH-58, Delhi-Roorkee Bypass, Meerut, Uttar Pradesh 250005",
+      "mapsUrl": "https://maps.google.com/?q=Bravura+Gold+Resort+Meerut",
+      "dressCode": "Royal Indian Pastels & Silk Sarees"
+    },
+    {
+      "id": "evt-reception",
+      "name": "Imperial Gala Reception",
+      "date": "Wednesday, 9th December 2026",
+      "time": "08:30 PM onwards",
+      "venue": "The Palace Gardens, Bravura Gold Resort",
+      "address": "NH-58, Delhi-Roorkee Bypass, Meerut, Uttar Pradesh 250005",
+      "mapsUrl": "https://maps.google.com/?q=Bravura+Gold+Resort+Meerut",
+      "dressCode": "Black Tie or Regal Traditional"
+    }
+  ],
+  "gallery": [
+    { "url": "./images/couple-potrait.webp", "caption": "In each other's eyes" },
+    { "url": "./images/couple-landscape-1.webp", "caption": "Moments under the golden sun" },
+    { "url": "./images/couple-landscape-2.webp", "caption": "Serenity & laughter" },
+    { "url": "./images/couple-potrait-1.webp", "caption": "Laughs & forever promises" },
+    { "url": "./images/couple-landscape-3.webp", "caption": "Golden hour walk" },
+    { "url": "./images/couple-landscape-4.webp", "caption": "Under the starlit sky" },
+    { "url": "./images/couple-udaipur-boat.webp", "caption": "Sailing together" },
+    { "url": "./images/couple-udaipur-rooftop.webp", "caption": "Rooftop whispers" },
+    { "url": "./images/couple-udaipur-bazaar.webp", "caption": "Old city charm" },
+    { "url": "./images/couple-udaipur-hilltop.webp", "caption": "Monsoon palace views" },
+    { "url": "./images/couple-udaipur-haveli.webp", "caption": "Courtyard royalty" },
+    { "url": "./images/couple-udaipur-ghat.webp", "caption": "At the water's edge" }
+  ]
+}

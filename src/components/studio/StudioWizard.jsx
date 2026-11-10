@@ -67,6 +67,28 @@ async function toBase64(url) {
   }
 }
 
+export function formatDisplayDate(dateStr) {
+  if (!dateStr) return '9th December 2026';
+  if (/[a-zA-Z]/.test(dateStr)) return dateStr;
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  const day = d.getDate();
+  const month = d.toLocaleString('en-US', { month: 'long' });
+  const year = d.getFullYear();
+  const s = ['th', 'st', 'nd', 'rd'], v = day % 100;
+  const ord = day + (s[(v - 20) % 10] || s[v] || s[0]);
+  return `${ord} ${month} ${year}`;
+}
+
+export function getMonogramInitials(hosts, monogram) {
+  if (monogram?.initials && monogram.initials !== 'B & G' && monogram.initials !== 'A & S') {
+    return monogram.initials;
+  }
+  const bI = (hosts?.bride || 'Preeti').trim()[0]?.toUpperCase() || 'P';
+  const gI = (hosts?.groom || 'Ashish').trim()[0]?.toUpperCase() || 'A';
+  return `${bI} & ${gI}`;
+}
+
 export default function StudioWizard({ initialData, onSave, onExitToHome, onOpenDashboard, onOpenLivePreview }) {
   const [data, setData] = useState(initialData);
   const [activeTab, setActiveTab] = useState('design');
@@ -85,8 +107,8 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
   const [clientForm, setClientForm] = useState({
     bride: initialData?.hosts?.bride || '',
     groom: initialData?.hosts?.groom || '',
-    date: initialData?.hosts?.date || '2027-02-14',
-    city: initialData?.hosts?.city || 'Udaipur, Rajasthan',
+    date: initialData?.hosts?.date || '2026-12-09',
+    city: initialData?.hosts?.city || 'Meerut',
   });
 
   // Accordion expanded row state
@@ -154,8 +176,8 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           bride: '',
           groom: '',
           hashtag: '',
-          date: '2027-02-14',
-          city: 'Udaipur, Rajasthan',
+          date: '2026-12-09',
+          city: 'Meerut',
           welcomeQuote: "Two hearts, one lifelong promise under the stars.",
         },
         monogram: { initials: '' },
@@ -635,23 +657,26 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     const eventsJson = JSON.stringify(data.events || []);
 
     // Calendar math
-    const d = new Date(data.hosts?.date || '2027-02-14');
+    const d = new Date(data.hosts?.date || '2026-12-09');
     const validDate = !isNaN(d.getTime());
-    const calMonthName = validDate ? d.toLocaleString('en-US', { month: 'long' }) : 'February';
-    const calYear = validDate ? d.getFullYear() : 2027;
-    const calDayNum = validDate ? d.getDate() : 14;
-    const daysInMonth = validDate ? new Date(calYear, d.getMonth() + 1, 0).getDate() : 28;
-    const firstDayIndex = validDate ? new Date(calYear, d.getMonth(), 1).getDay() : 0;
+    const calMonthName = validDate ? d.toLocaleString('en-US', { month: 'long' }) : 'December';
+    const calYear = validDate ? d.getFullYear() : 2026;
+    const calDayNum = validDate ? d.getDate() : 9;
+    const daysInMonth = validDate ? new Date(calYear, d.getMonth() + 1, 0).getDate() : 31;
+    const firstDayIndex = validDate ? new Date(calYear, d.getMonth(), 1).getDay() : 3;
+
+    const displayWeddingDate = formatDisplayDate(data.hosts?.date || '2026-12-09');
+    const monogramInitials = getMonogramInitials(data.hosts, data.monogram);
 
     const standaloneHtml = `<!DOCTYPE html>
 <html lang="en" data-publish-time="${Date.now()}" data-slug="${slug}">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>${data.hosts?.bride} & ${data.hosts?.groom} — Wedding Invitation</title>
+  <title id="invitation-doc-title">${data.hosts?.bride || 'Preeti'} & ${data.hosts?.groom || 'Ashish'} — Wedding Invitation</title>
   <script>
     // Wishlys Instant Client-Side Hydration
-    // When opened on the browser where the invitation was published, immediately renders the latest version
+    // 1. Full HTML cache hot-swap (if present in browser localStorage)
     (function() {
       try {
         var currentSlug = "${slug}";
@@ -668,12 +693,113 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
             document.open();
             document.write(savedHtml);
             document.close();
+            return;
           }
         }
       } catch (e) {
         console.warn('Hydration skipped:', e);
       }
     })();
+
+    // 2. High-speed Quota-Safe DOM Hydration from JSON (always succeeds even if HTML cache is absent)
+    function hydrateSavedData() {
+      try {
+        var currentSlug = "${slug}";
+        var pathSlug = window.location.pathname.split('/').pop().replace('.html', '') || currentSlug;
+        var raw = localStorage.getItem('wishlys_published_data_' + pathSlug)
+               || localStorage.getItem('wishlys_published_data_' + currentSlug)
+               || localStorage.getItem('wishlys_published_data')
+               || localStorage.getItem('wishlys_free_saved_data');
+        if (!raw) return;
+        var d = JSON.parse(raw);
+        if (!d || !d.hosts) return;
+
+        var bride = d.hosts.bride || 'Preeti';
+        var groom = d.hosts.groom || 'Ashish';
+        var dateStr = d.hosts.date || '2026-12-09';
+        var city = d.hosts.city || 'Meerut';
+
+        var bInit = (bride[0] || 'P').toUpperCase();
+        var gInit = (groom[0] || 'A').toUpperCase();
+        var initials = (d.monogram && d.monogram.initials && d.monogram.initials !== 'B & G' && d.monogram.initials !== 'A & S')
+          ? d.monogram.initials
+          : (bInit + ' & ' + gInit);
+
+        var displayDate = dateStr;
+        var parsedD = new Date(dateStr);
+        if (!isNaN(parsedD.getTime())) {
+          var day = parsedD.getDate();
+          var month = parsedD.toLocaleString('en-US', { month: 'long' });
+          var year = parsedD.getFullYear();
+          var s = ['th', 'st', 'nd', 'rd'], v = day % 100;
+          var ord = day + (s[(v - 20) % 10] || s[v] || s[0]);
+          displayDate = ord + ' ' + month + ' ' + year;
+        }
+
+        // Title
+        document.title = bride + ' & ' + groom + ' — Wedding Invitation';
+
+        // Scratch screen elements
+        var elScDate = document.getElementById('scratch-card-date');
+        if (elScDate) elScDate.textContent = displayDate;
+        var elScCity = document.getElementById('scratch-card-city');
+        if (elScCity) elScCity.textContent = city;
+        var elScNames = document.getElementById('scratch-card-names');
+        if (elScNames) elScNames.textContent = bride + ' & ' + groom;
+        var elScMono = document.getElementById('scratch-card-monogram');
+        if (elScMono) elScMono.textContent = initials;
+        var elScTitle = document.getElementById('scratch-title-names');
+        if (elScTitle) elScTitle.textContent = bride + ' & ' + groom;
+
+        // Hero elements
+        var elHeroGroom = document.getElementById('hero-groom-name');
+        if (elHeroGroom) elHeroGroom.textContent = groom;
+        var elHeroBride = document.getElementById('hero-bride-name');
+        if (elHeroBride) elHeroBride.textContent = bride;
+        var elHeroCity = document.getElementById('hero-city');
+        if (elHeroCity) elHeroCity.textContent = city;
+        var elHeroDate = document.getElementById('hero-date');
+        if (elHeroDate) elHeroDate.textContent = displayDate;
+        var elHeroDateCity = document.getElementById('hero-date-city');
+        if (elHeroDateCity) elHeroDateCity.textContent = city + ' · ' + displayDate;
+        var elHeroMono = document.getElementById('hero-monogram-initials');
+        if (elHeroMono) elHeroMono.textContent = initials;
+
+        // Meet couple elements
+        var elMeetHeading = document.getElementById('meet-couple-heading');
+        if (elMeetHeading) elMeetHeading.textContent = groom + ' & ' + bride;
+        var elMeetGroom = document.getElementById('meet-groom-name');
+        if (elMeetGroom) elMeetGroom.textContent = groom;
+        var elMeetBride = document.getElementById('meet-bride-name');
+        if (elMeetBride) elMeetBride.textContent = bride;
+        if (d.photos && d.photos.groomBio) {
+          var elMeetGroomBio = document.getElementById('meet-groom-bio');
+          if (elMeetGroomBio) elMeetGroomBio.textContent = '"' + d.photos.groomBio + '"';
+        }
+        if (d.photos && d.photos.brideBio) {
+          var elMeetBrideBio = document.getElementById('meet-bride-bio');
+          if (elMeetBrideBio) elMeetBrideBio.textContent = '"' + d.photos.brideBio + '"';
+        }
+
+        // Live Countdown Target
+        if (!isNaN(parsedD.getTime()) && window.__updateCountdownTarget) {
+          window.__updateCountdownTarget(parsedD.getTime());
+        }
+
+        // Calendar Rebuild
+        if (!isNaN(parsedD.getTime()) && window.__rebuildCalendar) {
+          window.__rebuildCalendar(parsedD);
+        }
+      } catch(e) {
+        console.warn('Hydration notice:', e);
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', hydrateSavedData);
+    } else {
+      hydrateSavedData();
+    }
 
     // GitHub Pages subpath asset error auto-resolver
     window.addEventListener('error', function(e) {
@@ -954,8 +1080,8 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       <span class="text-[10px] tracking-[0.3em] uppercase font-bold text-[#8B6F47] border border-[#C5A880]/50 bg-[#FAF5ED] px-3.5 py-1 rounded-full shadow-xs">
         Exclusive Invitation
       </span>
-      <h2 class="font-serif text-3xl sm:text-4xl font-light text-[#2B1E17]">
-        ${data.hosts?.bride} & ${data.hosts?.groom}
+      <h2 id="scratch-title-names" class="font-serif text-3xl sm:text-4xl font-light text-[#2B1E17]">
+        ${data.hosts?.bride || 'Preeti'} & ${data.hosts?.groom || 'Ashish'}
       </h2>
       <p class="text-xs text-stone-500">Scratch the gold card below to reveal our celebration date 💫</p>
     </div>
@@ -964,13 +1090,13 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     <div class="relative w-80 h-56 rounded-2xl overflow-hidden shadow-2xl border-4 border-[#C5A880] bg-white select-none">
       <!-- Underlying Date Card -->
       <div class="absolute inset-0 flex flex-col items-center justify-center p-4 text-center bg-gradient-to-br from-[#FAF5ED] to-white">
-        <div class="w-10 h-10 rounded-full border border-[#C5A880] flex items-center justify-center font-royal text-sm font-bold text-[#8B6F47] mb-1">
-          ${data.monogram?.initials || 'A & S'}
+        <div id="scratch-card-monogram" class="w-10 h-10 rounded-full border border-[#C5A880] flex items-center justify-center font-royal text-sm font-bold text-[#8B6F47] mb-1">
+          ${monogramInitials}
         </div>
         <span class="text-[9px] uppercase tracking-widest font-bold text-[#8B6F47]">Wedding Date</span>
-        <h3 class="font-serif text-2xl font-bold text-[#2B1E17] leading-tight my-1">${data.hosts?.date || '14th February 2027'}</h3>
-        <p class="text-xs text-stone-600">${data.hosts?.city || 'Udaipur, Rajasthan'}</p>
-        <p class="font-script text-xl text-[#8B6F47] mt-1">${data.hosts?.bride} & ${data.hosts?.groom}</p>
+        <h3 id="scratch-card-date" class="font-serif text-2xl font-bold text-[#2B1E17] leading-tight my-1">${displayWeddingDate}</h3>
+        <p id="scratch-card-city" class="text-xs text-stone-600">${data.hosts?.city || 'Meerut'}</p>
+        <p id="scratch-card-names" class="font-script text-xl text-[#8B6F47] mt-1">${data.hosts?.bride || 'Preeti'} & ${data.hosts?.groom || 'Ashish'}</p>
       </div>
 
       <!-- Scratch Overlay Canvas -->
@@ -1126,10 +1252,10 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           </div>
 
           <!-- Main Couple Names -->
-          <h1 class="font-serif text-3xl sm:text-4xl text-[#2B1E17] font-light flex items-center justify-center gap-1.5 mt-0.5 mb-1">
-            <span>${data.hosts?.groom}</span>
+          <h1 id="hero-couple-names" class="font-serif text-3xl sm:text-4xl text-[#2B1E17] font-light flex items-center justify-center gap-1.5 mt-0.5 mb-1">
+            <span id="hero-groom-name">${data.hosts?.groom || 'Ashish'}</span>
             <span class="text-rose-400 font-sans text-lg animate-pulse">♡</span>
-            <span>${data.hosts?.bride}</span>
+            <span id="hero-bride-name">${data.hosts?.bride || 'Preeti'}</span>
           </h1>
           <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mb-2"></div>
 
@@ -1180,8 +1306,8 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       </div>` : ''}
 
       <div class="relative z-10 max-w-3xl mx-auto space-y-5">
-        <div class="w-16 h-16 mx-auto rounded-full border-2 border-[#C5A880] flex items-center justify-center font-royal text-lg font-bold text-[#8B6F47] bg-white/90 shadow-md">
-          ${data.monogram?.initials || 'P & A'}
+        <div id="hero-monogram-initials" class="w-16 h-16 mx-auto rounded-full border-2 border-[#C5A880] flex items-center justify-center font-royal text-lg font-bold text-[#8B6F47] bg-white/90 shadow-md">
+          ${monogramInitials}
         </div>
 
         <p class="text-[11px] tracking-[0.3em] uppercase font-semibold text-[#8B6F47]">
@@ -1189,9 +1315,9 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         </p>
 
         <h1 class="font-serif text-5xl sm:text-6xl md:text-7xl font-light tracking-tight leading-none text-[#2B1E17]">
-          ${data.hosts?.bride} <br />
+          ${data.hosts?.bride || 'Preeti'} <br />
           <span class="font-script text-4xl sm:text-5xl md:text-6xl text-[#8B6F47] lowercase">and</span> <br />
-          ${data.hosts?.groom}
+          ${data.hosts?.groom || 'Ashish'}
         </h1>
 
         <div class="flex items-center justify-center gap-3 text-[#C5A880]">
@@ -1200,8 +1326,8 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           <span class="h-px w-16 bg-gradient-to-l from-transparent to-[#C5A880]"></span>
         </div>
 
-        <p class="font-royal text-sm sm:text-base tracking-[0.2em] uppercase font-medium text-[#2B1E17]/80">
-          ${data.hosts?.city || 'Udaipur, Rajasthan'} · ${data.hosts?.date || '14th February 2027'}
+        <p id="hero-date-city" class="font-royal text-sm sm:text-base tracking-[0.2em] uppercase font-medium text-[#2B1E17]/80">
+          <span id="hero-city">${data.hosts?.city || 'Meerut'}</span> · <span id="hero-date">${displayWeddingDate}</span>
         </p>
 
         <p class="text-stone-600 text-sm sm:text-base font-light italic max-w-lg mx-auto leading-relaxed">
@@ -1242,7 +1368,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       <section class="py-6 px-2 w-full max-w-[390px] mx-auto select-none">
         <div class="text-center space-y-1 mb-5 scroll-reveal">
           <span class="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">Meet the two of us</span>
-          <h3 class="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">${data.hosts?.groom || 'Groom'} & ${data.hosts?.bride || 'Bride'}</h3>
+          <h3 id="meet-couple-heading" class="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">${data.hosts?.groom || 'Ashish'} & ${data.hosts?.bride || 'Preeti'}</h3>
           <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1"></div>
         </div>
 
@@ -1251,11 +1377,11 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           <div onclick="openPersonModal('groom')" class="relative bg-white p-2.5 pb-4 rounded-2xl shadow-md border border-stone-200 transform -rotate-2 hover:rotate-0 hover:shadow-xl hover:border-amber-300 transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-left cursor-pointer group">
             <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#A7F3D0]/85 rounded shadow-xs rotate-1 border border-[#6EE7B7]"></div>
             <div class="w-20 h-20 rounded-full overflow-hidden bg-stone-100 mt-1 mb-2 border-2 border-stone-200 ring-4 ring-[#E6F4EA] shadow-inner shrink-0 group-hover:ring-emerald-300 transition-all">
-              <img src="${b64Groom || './images/groom.webp'}" alt="${data.hosts?.groom || 'Groom'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+              <img src="${b64Groom || './images/groom.webp'}" alt="${data.hosts?.groom || 'Ashish'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
             </div>
             <span class="inline-block px-2 py-0.5 rounded-full text-[8.5px] uppercase tracking-wider font-bold bg-[#E6F4EA] text-[#137333] mb-1">The Groom</span>
-            <h4 class="font-serif text-sm sm:text-base font-bold text-[#2B1E17] leading-tight group-hover:text-amber-800 transition-colors">${data.hosts?.groom || 'Groom'}</h4>
-            <p class="text-[10px] text-stone-600 italic mt-1 leading-snug px-0.5 flex-1">"${data.photos?.groomBio || 'Foodie, photography enthusiast, and the architect of their happiest memories.'}"</p>
+            <h4 id="meet-groom-name" class="font-serif text-sm sm:text-base font-bold text-[#2B1E17] leading-tight group-hover:text-amber-800 transition-colors">${data.hosts?.groom || 'Ashish'}</h4>
+            <p id="meet-groom-bio" class="text-[10px] text-stone-600 italic mt-1 leading-snug px-0.5 flex-1">"${data.photos?.groomBio || 'Foodie, photography enthusiast, and the architect of their happiest memories.'}"</p>
             <p class="text-[8.5px] text-stone-400 mt-1.5 font-sans border-t border-stone-100 pt-1 w-full">${data.hosts?.groomParents || 'S/o Mr. Ramesh & Mrs. Sunita Sharma'}</p>
             <span class="text-[8.5px] text-amber-700 font-semibold mt-1 flex items-center gap-0.5 opacity-80 group-hover:opacity-100">🔍 Tap to view</span>
           </div>
@@ -1267,11 +1393,11 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           <div onclick="openPersonModal('bride')" class="relative bg-white p-2.5 pb-4 rounded-2xl shadow-md border border-stone-200 transform rotate-2 hover:rotate-0 hover:shadow-xl hover:border-rose-300 transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-right cursor-pointer group" style="transition-delay: 150ms;">
             <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FDE68A]/85 rounded shadow-xs -rotate-1 border border-[#FCD34D]"></div>
             <div class="w-20 h-20 rounded-full overflow-hidden bg-stone-100 mt-1 mb-2 border-2 border-stone-200 ring-4 ring-[#FCE8E6] shadow-inner shrink-0 group-hover:ring-rose-300 transition-all">
-              <img src="${b64Bride || './images/bride.webp'}" alt="${data.hosts?.bride || 'Bride'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+              <img src="${b64Bride || './images/bride.webp'}" alt="${data.hosts?.bride || 'Preeti'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
             </div>
             <span class="inline-block px-2 py-0.5 rounded-full text-[8.5px] uppercase tracking-wider font-bold bg-[#FCE8E6] text-[#C5221F] mb-1">The Bride</span>
-            <h4 class="font-serif text-sm sm:text-base font-bold text-[#2B1E17] leading-tight group-hover:text-rose-800 transition-colors">${data.hosts?.bride || 'Bride'}</h4>
-            <p class="text-[10px] text-stone-600 italic mt-1 leading-snug px-0.5 flex-1">"${data.photos?.brideBio || 'Loves classic poetry, morning chai, and spontaneous mountain hikes.'}"</p>
+            <h4 id="meet-bride-name" class="font-serif text-sm sm:text-base font-bold text-[#2B1E17] leading-tight group-hover:text-rose-800 transition-colors">${data.hosts?.bride || 'Preeti'}</h4>
+            <p id="meet-bride-bio" class="text-[10px] text-stone-600 italic mt-1 leading-snug px-0.5 flex-1">"${data.photos?.brideBio || 'Loves classic poetry, morning chai, and spontaneous mountain hikes.'}"</p>
             <p class="text-[8.5px] text-stone-400 mt-1.5 font-sans border-t border-stone-100 pt-1 w-full">${data.hosts?.brideParents || 'D/o Mr. Vijay & Mrs. Rekha Malhotra'}</p>
             <span class="text-[8.5px] text-rose-700 font-semibold mt-1 flex items-center gap-0.5 opacity-80 group-hover:opacity-100">🔍 Tap to view</span>
           </div>
@@ -1282,7 +1408,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       <section class="py-6 px-2 w-full max-w-[390px] mx-auto select-none">
         <div class="text-center space-y-1 mb-5 scroll-reveal">
           <span class="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">Mark your calendar</span>
-          <h3 class="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">${calMonthName} ${calYear}</h3>
+          <h3 id="calendar-month-year" class="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">${calMonthName} ${calYear}</h3>
           <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1"></div>
         </div>
 
@@ -1294,7 +1420,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
             <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
           </div>
 
-          <div class="grid grid-cols-7 gap-1 text-center text-xs text-stone-700">
+          <div id="calendar-grid-days" class="grid grid-cols-7 gap-1 text-center text-xs text-stone-700">
             ${Array.from({ length: firstDayIndex }).map(() => '<span></span>').join('')}
             ${Array.from({ length: daysInMonth }).map((_, i) => {
               const day = i + 1;
@@ -2010,7 +2136,10 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     }
 
     // Countdown Timer Script
-    const targetDate = new Date('${data.hosts?.date || '2027-02-14'}').getTime();
+    let targetDate = new Date('${data.hosts?.date || '2026-12-09'}').getTime();
+    window.__updateCountdownTarget = function(newTimestamp) {
+      if (newTimestamp) targetDate = Number(newTimestamp);
+    };
     setInterval(() => {
       const now = new Date().getTime();
       const diff = Math.max(0, targetDate - now);
@@ -2034,6 +2163,42 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         const elPS = document.getElementById('pastel-secs'); if (elPS) elPS.innerText = s;
       }
     }, 1000);
+
+    window.__rebuildCalendar = function(d) {
+      try {
+        if (!d || isNaN(d.getTime())) return;
+        var monthName = d.toLocaleString('en-US', { month: 'long' });
+        var year = d.getFullYear();
+        var dayNum = d.getDate();
+        var daysInM = new Date(year, d.getMonth() + 1, 0).getDate();
+        var firstDay = new Date(year, d.getMonth(), 1).getDay();
+
+        var titleEl = document.getElementById('calendar-month-year');
+        if (titleEl) titleEl.textContent = monthName + ' ' + year;
+
+        var grid = document.getElementById('calendar-grid-days');
+        if (!grid) return;
+        var html = '';
+        for (var k = 0; k < firstDay; k++) {
+          html += '<span></span>';
+        }
+        for (var day = 1; day <= daysInM; day++) {
+          if (day === dayNum) {
+            html += '<div class="relative w-8 h-8 sm:w-9 sm:h-9 mx-auto flex items-center justify-center font-bold text-rose-600 select-none">'
+                 + '<svg viewBox="0 0 36 36" class="absolute -inset-1 w-9 h-9 sm:w-10 sm:h-10 pointer-events-none overflow-visible">'
+                 + '<path d="M18,31 C10,23 3.5,17 3.5,10.5 C3.5,5.5 7.5,2 12.5,2 C15.5,2 17.5,3.5 18,5 C18.5,3.5 20.5,2 23.5,2 C28.5,2 32.5,5.5 32.5,10.5 C32.5,17 26,23 18,31 Z" fill="rgba(244, 63, 94, 0.16)" stroke="#E11D48" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="calendar-heart-path" />'
+                 + '</svg>'
+                 + '<span class="relative z-10 text-rose-700 font-extrabold text-sm">' + day + '</span>'
+                 + '</div>';
+          } else {
+            html += '<div class="h-7 sm:h-8 flex items-center justify-center"><span>' + day + '</span></div>';
+          }
+        }
+        grid.innerHTML = html;
+      } catch(e) {
+        console.warn('Calendar rebuild notice:', e);
+      }
+    };
 
     function triggerCelebrationEffect() {
       if (!window.confetti) return;

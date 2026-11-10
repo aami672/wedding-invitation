@@ -85,7 +85,13 @@ export default function App() {
 
   // Save changes to localStorage
   useEffect(() => {
-    localStorage.setItem('wishlys_free_saved_data', JSON.stringify(invitationData));
+    try {
+      localStorage.setItem('wishlys_free_saved_data', JSON.stringify(invitationData));
+      localStorage.setItem('wishlys_published_data', JSON.stringify(invitationData));
+      localStorage.setItem('wishlys_published_data_preeti-and-ashish', JSON.stringify(invitationData));
+    } catch (e) {
+      console.warn('localStorage save notice:', e);
+    }
   }, [invitationData]);
 
   // Sync hash with view

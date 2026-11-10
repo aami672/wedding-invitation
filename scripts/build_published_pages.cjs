@@ -32,13 +32,19 @@ const defaultData = {
     style: 'petals',
     intensity: 'medium',
   },
+  monogram: {
+    initials: 'P & A',
+    style: 'classic-crest',
+  },
   hosts: {
     bride: 'Preeti',
     groom: 'Ashish',
-    date: '2027-02-14',
-    city: 'Udaipur, Rajasthan',
+    date: '2026-12-09',
+    city: 'Meerut',
     hashtag: '#PreetiWedsAshish',
-    welcomeQuote: 'Two hearts, one lifelong promise under the palace stars.',
+    welcomeQuote: "We are stepping into our next great chapter, and our celebration wouldn't be complete without you by our side.",
+    brideParents: 'D/o Mr. Vijay & Mrs. Rekha Malhotra',
+    groomParents: 'S/o Mr. Ramesh & Mrs. Sunita Sharma',
   },
   photos: {
     cover: './images/templates/caricature.webp',
@@ -51,51 +57,51 @@ const defaultData = {
     {
       id: 'evt-haldi',
       name: 'Haldi Ceremony',
-      date: 'Friday, 12th February 2027',
+      date: 'Monday, 7th December 2026',
       time: '10:30 AM onwards',
-      venue: 'The Courtyard, The Oberoi Udaivilas',
-      address: 'Haridas Ji Ki Magri, Udaipur, Rajasthan 313001',
-      mapsUrl: 'https://maps.google.com/?q=The+Oberoi+Udaivilas+Udaipur',
+      venue: 'The Courtyard, Bravura Gold Resort',
+      address: 'NH-58, Delhi-Roorkee Bypass, Meerut, Uttar Pradesh 250005',
+      mapsUrl: 'https://maps.google.com/?q=Bravura+Gold+Resort+Meerut',
       dressCode: 'Haldi Yellow & Warm Mustard'
     },
     {
       id: 'evt-mehndi',
       name: 'Mehndi Ceremony',
-      date: 'Friday, 12th February 2027',
+      date: 'Monday, 7th December 2026',
       time: '04:00 PM onwards',
-      venue: 'The Poolside Lawns, The Oberoi Udaivilas',
-      address: 'Haridas Ji Ki Magri, Udaipur, Rajasthan 313001',
-      mapsUrl: 'https://maps.google.com/?q=The+Oberoi+Udaivilas+Udaipur',
+      venue: 'The Poolside Lawns, Bravura Gold Resort',
+      address: 'NH-58, Delhi-Roorkee Bypass, Meerut, Uttar Pradesh 250005',
+      mapsUrl: 'https://maps.google.com/?q=Bravura+Gold+Resort+Meerut',
       dressCode: 'Mint Green & Floral Pastels'
     },
     {
       id: 'evt-sangeet',
       name: 'Sangeet & Cocktail Night',
-      date: 'Saturday, 13th February 2027',
+      date: 'Tuesday, 8th December 2026',
       time: '07:00 PM onwards',
-      venue: 'The Royal Grand Ballroom',
-      address: 'The Oberoi Udaivilas, Udaipur',
-      mapsUrl: 'https://maps.google.com/?q=The+Oberoi+Udaivilas+Udaipur',
+      venue: 'The Grand Ballroom, Bravura Gold Resort',
+      address: 'NH-58, Delhi-Roorkee Bypass, Meerut, Uttar Pradesh 250005',
+      mapsUrl: 'https://maps.google.com/?q=Bravura+Gold+Resort+Meerut',
       dressCode: 'Glamorous Indian Cocktails'
     },
     {
       id: 'evt-pheras',
       name: 'Main Pheras (The Wedding)',
-      date: 'Sunday, 14th February 2027',
+      date: 'Wednesday, 9th December 2026',
       time: '04:30 PM (Sunset Barat)',
-      venue: 'Lakeside Mandap on Lake Pichola',
-      address: 'The Oberoi Udaivilas, Udaipur',
-      mapsUrl: 'https://maps.google.com/?q=Lake+Pichola+Udaipur',
+      venue: 'The Royal Mandap, Bravura Gold Resort',
+      address: 'NH-58, Delhi-Roorkee Bypass, Meerut, Uttar Pradesh 250005',
+      mapsUrl: 'https://maps.google.com/?q=Bravura+Gold+Resort+Meerut',
       dressCode: 'Royal Indian Pastels & Silk Sarees'
     },
     {
       id: 'evt-reception',
       name: 'Imperial Gala Reception',
-      date: 'Sunday, 14th February 2027',
+      date: 'Wednesday, 9th December 2026',
       time: '08:30 PM onwards',
-      venue: 'The Palace Gardens',
-      address: 'The Oberoi Udaivilas, Udaipur',
-      mapsUrl: 'https://maps.google.com/?q=The+Oberoi+Udaivilas+Udaipur',
+      venue: 'The Palace Gardens, Bravura Gold Resort',
+      address: 'NH-58, Delhi-Roorkee Bypass, Meerut, Uttar Pradesh 250005',
+      mapsUrl: 'https://maps.google.com/?q=Bravura+Gold+Resort+Meerut',
       dressCode: 'Black Tie or Regal Traditional'
     }
   ],
@@ -169,69 +175,56 @@ const b64Gallery = (data.gallery || []).map(item => ({
 
 const eventsJson = JSON.stringify(data.events || []);
 
+// Helper functions
+const formatDisplayDate = (dateStr) => {
+  if (!dateStr) return '9th December 2026';
+  if (/[a-zA-Z]/.test(dateStr)) return dateStr;
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  const day = d.getDate();
+  const month = d.toLocaleString('en-US', { month: 'long' });
+  const year = d.getFullYear();
+  const s = ['th', 'st', 'nd', 'rd'], v = day % 100;
+  const ord = day + (s[(v - 20) % 10] || s[v] || s[0]);
+  return `${ord} ${month} ${year}`;
+};
+
+const getMonogramInitials = (hosts, monogram) => {
+  if (monogram?.initials && monogram.initials !== 'B & G' && monogram.initials !== 'A & S') {
+    return monogram.initials;
+  }
+  const bI = (hosts?.bride || 'Preeti').trim()[0]?.toUpperCase() || 'P';
+  const gI = (hosts?.groom || 'Ashish').trim()[0]?.toUpperCase() || 'A';
+  return `${bI} & ${gI}`;
+};
+
 // Calendar math
-const d = new Date(data.hosts.date || '2027-02-14');
+const d = new Date(data.hosts.date || '2026-12-09');
 const validDate = !isNaN(d.getTime());
-const calMonthName = validDate ? d.toLocaleString('en-US', { month: 'long' }) : 'February';
-const calYear = validDate ? d.getFullYear() : 2027;
-const calDayNum = validDate ? d.getDate() : 14;
-const daysInMonth = validDate ? new Date(calYear, d.getMonth() + 1, 0).getDate() : 28;
-const firstDayIndex = validDate ? new Date(calYear, d.getMonth(), 1).getDay() : 0;
+const calMonthName = validDate ? d.toLocaleString('en-US', { month: 'long' }) : 'December';
+const calYear = validDate ? d.getFullYear() : 2026;
+const calDayNum = validDate ? d.getDate() : 9;
+const daysInMonth = validDate ? new Date(calYear, d.getMonth() + 1, 0).getDate() : 31;
+const firstDayIndex = validDate ? new Date(calYear, d.getMonth(), 1).getDay() : 3;
+
+const displayWeddingDate = formatDisplayDate(data.hosts.date || '2026-12-09');
+const monogramInitials = getMonogramInitials(data.hosts, data.monogram);
 
 // Build HTML using Function constructor to evaluate templateStr in context
 const buildFn = new Function(
   'data', 'slug', 'isCaricature', 'isPichwai', 'isZardozi', 'isMela', 'isNewspaper', 'isBougain',
   'b64Cover', 'b64Bride', 'b64Groom', 'b64Tmpl', 'b64Scooter', 'b64Haldi', 'b64Mehndi', 'b64Sangeet', 'b64Pheras', 'b64Reception',
   'b64Gallery', 'eventsJson', 'd', 'calMonthName', 'calYear', 'calDayNum', 'daysInMonth', 'firstDayIndex',
+  'displayWeddingDate', 'monogramInitials',
   'return `' + templateStr + '`;'
 );
 
 let html = buildFn(
   data, slug, isCaricature, isPichwai, isZardozi, isMela, isNewspaper, isBougain,
   b64Cover, b64Bride, b64Groom, b64Tmpl, b64Scooter, b64Haldi, b64Mehndi, b64Sangeet, b64Pheras, b64Reception,
-  b64Gallery, eventsJson, d, calMonthName, calYear, calDayNum, daysInMonth, firstDayIndex
+  b64Gallery, eventsJson, d, calMonthName, calYear, calDayNum, daysInMonth, firstDayIndex,
+  displayWeddingDate, monogramInitials
 );
-
-// Add automatic asset resolver and instant localStorage auto-hydration
-const hydrationScript = `  <script>
-    // Wishlys Instant Client-Side Hydration
-    // Syncs immediately if a newer version was saved/published in this browser
-    (function() {
-      try {
-        var currentSlug = "${slug}";
-        var pathSlug = window.location.pathname.split('/').pop().replace('.html', '') || currentSlug;
-        var savedHtml = localStorage.getItem('wishlys_published_html_' + pathSlug)
-                     || localStorage.getItem('wishlys_published_html_' + currentSlug)
-                     || localStorage.getItem('wishlys_published_html_latest')
-                     || localStorage.getItem('wishlys_published_html');
-        var savedTime = localStorage.getItem('wishlys_published_time');
-        var myTime = document.documentElement.getAttribute('data-publish-time');
-        if (savedHtml && (!myTime || !savedTime || Number(savedTime) > Number(myTime))) {
-          if (!window.__wishlys_hydrating) {
-            window.__wishlys_hydrating = true;
-            document.open();
-            document.write(savedHtml);
-            document.close();
-          }
-        }
-      } catch (e) {
-        console.warn('Hydration skipped:', e);
-      }
-    })();
-
-    // GitHub Pages subpath image error auto-resolver
-    window.addEventListener('error', function(e) {
-      if (e.target && (e.target.tagName === 'IMG' || e.target.tagName === 'AUDIO')) {
-        var src = e.target.src;
-        if (src && src.includes('github.io/images/')) {
-          e.target.src = src.replace('github.io/images/', 'github.io/wedding-invitation/images/');
-        }
-      }
-    }, true);
-  </script>
-</head>`;
-
-html = html.replace('</head>', hydrationScript);
 
 // Write to public/published/
 const pubDir = path.join(__dirname, '../public/published');

@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Calendar, Sparkles } from 'lucide-react';
 import { soundManager } from '../../utils/audio';
 
-export default function ScratchDate({ onReveal, date = '14th February 2027', day = 'Sunday', city = 'Udaipur, Rajasthan', names = 'Shanaya & Aarav', title = 'Wedding Celebration' }) {
+export default function ScratchDate({ onReveal, date = '9th December 2026', day = 'Wednesday', city = 'Meerut', names = 'Preeti & Ashish', title = 'Wedding Celebration' }) {
   const canvasRef = useRef(null);
   const [isRevealed, setIsRevealed] = useState(false);
   const [percent, setPercent] = useState(0);

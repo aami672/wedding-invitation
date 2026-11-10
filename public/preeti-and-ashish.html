@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" data-publish-time="1794287630539" data-slug="preeti-and-ashish">
+<html lang="en" data-publish-time="1794291057686" data-slug="preeti-and-ashish">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>Preeti & Ashish — Wedding Invitation</title>
+  <title id="invitation-doc-title">Preeti & Ashish — Wedding Invitation</title>
   <script>
     // Wishlys Instant Client-Side Hydration
-    // When opened on the browser where the invitation was published, immediately renders the latest version
+    // 1. Full HTML cache hot-swap (if present in browser localStorage)
     (function() {
       try {
         var currentSlug = "preeti-and-ashish";
@@ -23,12 +23,113 @@
             document.open();
             document.write(savedHtml);
             document.close();
+            return;
           }
         }
       } catch (e) {
         console.warn('Hydration skipped:', e);
       }
     })();
+
+    // 2. High-speed Quota-Safe DOM Hydration from JSON (always succeeds even if HTML cache is absent)
+    function hydrateSavedData() {
+      try {
+        var currentSlug = "preeti-and-ashish";
+        var pathSlug = window.location.pathname.split('/').pop().replace('.html', '') || currentSlug;
+        var raw = localStorage.getItem('wishlys_published_data_' + pathSlug)
+               || localStorage.getItem('wishlys_published_data_' + currentSlug)
+               || localStorage.getItem('wishlys_published_data')
+               || localStorage.getItem('wishlys_free_saved_data');
+        if (!raw) return;
+        var d = JSON.parse(raw);
+        if (!d || !d.hosts) return;
+
+        var bride = d.hosts.bride || 'Preeti';
+        var groom = d.hosts.groom || 'Ashish';
+        var dateStr = d.hosts.date || '2026-12-09';
+        var city = d.hosts.city || 'Meerut';
+
+        var bInit = (bride[0] || 'P').toUpperCase();
+        var gInit = (groom[0] || 'A').toUpperCase();
+        var initials = (d.monogram && d.monogram.initials && d.monogram.initials !== 'B & G' && d.monogram.initials !== 'A & S')
+          ? d.monogram.initials
+          : (bInit + ' & ' + gInit);
+
+        var displayDate = dateStr;
+        var parsedD = new Date(dateStr);
+        if (!isNaN(parsedD.getTime())) {
+          var day = parsedD.getDate();
+          var month = parsedD.toLocaleString('en-US', { month: 'long' });
+          var year = parsedD.getFullYear();
+          var s = ['th', 'st', 'nd', 'rd'], v = day % 100;
+          var ord = day + (s[(v - 20) % 10] || s[v] || s[0]);
+          displayDate = ord + ' ' + month + ' ' + year;
+        }
+
+        // Title
+        document.title = bride + ' & ' + groom + ' — Wedding Invitation';
+
+        // Scratch screen elements
+        var elScDate = document.getElementById('scratch-card-date');
+        if (elScDate) elScDate.textContent = displayDate;
+        var elScCity = document.getElementById('scratch-card-city');
+        if (elScCity) elScCity.textContent = city;
+        var elScNames = document.getElementById('scratch-card-names');
+        if (elScNames) elScNames.textContent = bride + ' & ' + groom;
+        var elScMono = document.getElementById('scratch-card-monogram');
+        if (elScMono) elScMono.textContent = initials;
+        var elScTitle = document.getElementById('scratch-title-names');
+        if (elScTitle) elScTitle.textContent = bride + ' & ' + groom;
+
+        // Hero elements
+        var elHeroGroom = document.getElementById('hero-groom-name');
+        if (elHeroGroom) elHeroGroom.textContent = groom;
+        var elHeroBride = document.getElementById('hero-bride-name');
+        if (elHeroBride) elHeroBride.textContent = bride;
+        var elHeroCity = document.getElementById('hero-city');
+        if (elHeroCity) elHeroCity.textContent = city;
+        var elHeroDate = document.getElementById('hero-date');
+        if (elHeroDate) elHeroDate.textContent = displayDate;
+        var elHeroDateCity = document.getElementById('hero-date-city');
+        if (elHeroDateCity) elHeroDateCity.textContent = city + ' · ' + displayDate;
+        var elHeroMono = document.getElementById('hero-monogram-initials');
+        if (elHeroMono) elHeroMono.textContent = initials;
+
+        // Meet couple elements
+        var elMeetHeading = document.getElementById('meet-couple-heading');
+        if (elMeetHeading) elMeetHeading.textContent = groom + ' & ' + bride;
+        var elMeetGroom = document.getElementById('meet-groom-name');
+        if (elMeetGroom) elMeetGroom.textContent = groom;
+        var elMeetBride = document.getElementById('meet-bride-name');
+        if (elMeetBride) elMeetBride.textContent = bride;
+        if (d.photos && d.photos.groomBio) {
+          var elMeetGroomBio = document.getElementById('meet-groom-bio');
+          if (elMeetGroomBio) elMeetGroomBio.textContent = '"' + d.photos.groomBio + '"';
+        }
+        if (d.photos && d.photos.brideBio) {
+          var elMeetBrideBio = document.getElementById('meet-bride-bio');
+          if (elMeetBrideBio) elMeetBrideBio.textContent = '"' + d.photos.brideBio + '"';
+        }
+
+        // Live Countdown Target
+        if (!isNaN(parsedD.getTime()) && window.__updateCountdownTarget) {
+          window.__updateCountdownTarget(parsedD.getTime());
+        }
+
+        // Calendar Rebuild
+        if (!isNaN(parsedD.getTime()) && window.__rebuildCalendar) {
+          window.__rebuildCalendar(parsedD);
+        }
+      } catch(e) {
+        console.warn('Hydration notice:', e);
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', hydrateSavedData);
+    } else {
+      hydrateSavedData();
+    }
 
     // GitHub Pages subpath asset error auto-resolver
     window.addEventListener('error', function(e) {
@@ -162,42 +263,6 @@
     .animate-fadeIn { animation: fadeInModal 0.25s ease-out forwards; }
     .animate-scaleUp { animation: scaleUpModal 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   </style>
-  <script>
-    // Wishlys Instant Client-Side Hydration
-    // Syncs immediately if a newer version was saved/published in this browser
-    (function() {
-      try {
-        var currentSlug = "preeti-and-ashish";
-        var pathSlug = window.location.pathname.split('/').pop().replace('.html', '') || currentSlug;
-        var savedHtml = localStorage.getItem('wishlys_published_html_' + pathSlug)
-                     || localStorage.getItem('wishlys_published_html_' + currentSlug)
-                     || localStorage.getItem('wishlys_published_html_latest')
-                     || localStorage.getItem('wishlys_published_html');
-        var savedTime = localStorage.getItem('wishlys_published_time');
-        var myTime = document.documentElement.getAttribute('data-publish-time');
-        if (savedHtml && (!myTime || !savedTime || Number(savedTime) > Number(myTime))) {
-          if (!window.__wishlys_hydrating) {
-            window.__wishlys_hydrating = true;
-            document.open();
-            document.write(savedHtml);
-            document.close();
-          }
-        }
-      } catch (e) {
-        console.warn('Hydration skipped:', e);
-      }
-    })();
-
-    // GitHub Pages subpath image error auto-resolver
-    window.addEventListener('error', function(e) {
-      if (e.target && (e.target.tagName === 'IMG' || e.target.tagName === 'AUDIO')) {
-        var src = e.target.src;
-        if (src && src.includes('github.io/images/')) {
-          e.target.src = src.replace('github.io/images/', 'github.io/wedding-invitation/images/');
-        }
-      }
-    }, true);
-  </script>
 </head>
 <body class="selection:bg-[#C5A880]/30 min-h-screen relative overflow-x-hidden">
 
@@ -231,7 +296,7 @@
       <span class="text-[10px] tracking-[0.3em] uppercase font-bold text-[#8B6F47] border border-[#C5A880]/50 bg-[#FAF5ED] px-3.5 py-1 rounded-full shadow-xs">
         Exclusive Invitation
       </span>
-      <h2 class="font-serif text-3xl sm:text-4xl font-light text-[#2B1E17]">
+      <h2 id="scratch-title-names" class="font-serif text-3xl sm:text-4xl font-light text-[#2B1E17]">
         Preeti & Ashish
       </h2>
       <p class="text-xs text-stone-500">Scratch the gold card below to reveal our celebration date 💫</p>
@@ -241,13 +306,13 @@
     <div class="relative w-80 h-56 rounded-2xl overflow-hidden shadow-2xl border-4 border-[#C5A880] bg-white select-none">
       <!-- Underlying Date Card -->
       <div class="absolute inset-0 flex flex-col items-center justify-center p-4 text-center bg-gradient-to-br from-[#FAF5ED] to-white">
-        <div class="w-10 h-10 rounded-full border border-[#C5A880] flex items-center justify-center font-royal text-sm font-bold text-[#8B6F47] mb-1">
-          A & S
+        <div id="scratch-card-monogram" class="w-10 h-10 rounded-full border border-[#C5A880] flex items-center justify-center font-royal text-sm font-bold text-[#8B6F47] mb-1">
+          P & A
         </div>
         <span class="text-[9px] uppercase tracking-widest font-bold text-[#8B6F47]">Wedding Date</span>
-        <h3 class="font-serif text-2xl font-bold text-[#2B1E17] leading-tight my-1">2027-02-14</h3>
-        <p class="text-xs text-stone-600">Udaipur, Rajasthan</p>
-        <p class="font-script text-xl text-[#8B6F47] mt-1">Preeti & Ashish</p>
+        <h3 id="scratch-card-date" class="font-serif text-2xl font-bold text-[#2B1E17] leading-tight my-1">9th December 2026</h3>
+        <p id="scratch-card-city" class="text-xs text-stone-600">Meerut</p>
+        <p id="scratch-card-names" class="font-script text-xl text-[#8B6F47] mt-1">Preeti & Ashish</p>
       </div>
 
       <!-- Scratch Overlay Canvas -->
@@ -391,10 +456,10 @@
           </div>
 
           <!-- Main Couple Names -->
-          <h1 class="font-serif text-3xl sm:text-4xl text-[#2B1E17] font-light flex items-center justify-center gap-1.5 mt-0.5 mb-1">
-            <span>Ashish</span>
+          <h1 id="hero-couple-names" class="font-serif text-3xl sm:text-4xl text-[#2B1E17] font-light flex items-center justify-center gap-1.5 mt-0.5 mb-1">
+            <span id="hero-groom-name">Ashish</span>
             <span class="text-rose-400 font-sans text-lg animate-pulse">♡</span>
-            <span>Preeti</span>
+            <span id="hero-bride-name">Preeti</span>
           </h1>
           <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mb-2"></div>
 
@@ -422,7 +487,7 @@
       <section class="py-6 px-2 w-full max-w-[390px] mx-auto select-none">
         <div class="text-center space-y-1 mb-5 scroll-reveal">
           <span class="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">Meet the two of us</span>
-          <h3 class="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">Ashish & Preeti</h3>
+          <h3 id="meet-couple-heading" class="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">Ashish & Preeti</h3>
           <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1"></div>
         </div>
 
@@ -434,8 +499,8 @@
               <img src="./images/groom.webp" alt="Ashish" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
             </div>
             <span class="inline-block px-2 py-0.5 rounded-full text-[8.5px] uppercase tracking-wider font-bold bg-[#E6F4EA] text-[#137333] mb-1">The Groom</span>
-            <h4 class="font-serif text-sm sm:text-base font-bold text-[#2B1E17] leading-tight group-hover:text-amber-800 transition-colors">Ashish</h4>
-            <p class="text-[10px] text-stone-600 italic mt-1 leading-snug px-0.5 flex-1">"Foodie, photography enthusiast, and the architect of their happiest memories."</p>
+            <h4 id="meet-groom-name" class="font-serif text-sm sm:text-base font-bold text-[#2B1E17] leading-tight group-hover:text-amber-800 transition-colors">Ashish</h4>
+            <p id="meet-groom-bio" class="text-[10px] text-stone-600 italic mt-1 leading-snug px-0.5 flex-1">"Foodie, photography enthusiast, and the architect of their happiest memories."</p>
             <p class="text-[8.5px] text-stone-400 mt-1.5 font-sans border-t border-stone-100 pt-1 w-full">S/o Mr. Ramesh & Mrs. Sunita Sharma</p>
             <span class="text-[8.5px] text-amber-700 font-semibold mt-1 flex items-center gap-0.5 opacity-80 group-hover:opacity-100">🔍 Tap to view</span>
           </div>
@@ -450,8 +515,8 @@
               <img src="./images/bride.webp" alt="Preeti" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
             </div>
             <span class="inline-block px-2 py-0.5 rounded-full text-[8.5px] uppercase tracking-wider font-bold bg-[#FCE8E6] text-[#C5221F] mb-1">The Bride</span>
-            <h4 class="font-serif text-sm sm:text-base font-bold text-[#2B1E17] leading-tight group-hover:text-rose-800 transition-colors">Preeti</h4>
-            <p class="text-[10px] text-stone-600 italic mt-1 leading-snug px-0.5 flex-1">"Loves classic poetry, morning chai, and spontaneous mountain hikes."</p>
+            <h4 id="meet-bride-name" class="font-serif text-sm sm:text-base font-bold text-[#2B1E17] leading-tight group-hover:text-rose-800 transition-colors">Preeti</h4>
+            <p id="meet-bride-bio" class="text-[10px] text-stone-600 italic mt-1 leading-snug px-0.5 flex-1">"Loves classic poetry, morning chai, and spontaneous mountain hikes."</p>
             <p class="text-[8.5px] text-stone-400 mt-1.5 font-sans border-t border-stone-100 pt-1 w-full">D/o Mr. Vijay & Mrs. Rekha Malhotra</p>
             <span class="text-[8.5px] text-rose-700 font-semibold mt-1 flex items-center gap-0.5 opacity-80 group-hover:opacity-100">🔍 Tap to view</span>
           </div>
@@ -462,7 +527,7 @@
       <section class="py-6 px-2 w-full max-w-[390px] mx-auto select-none">
         <div class="text-center space-y-1 mb-5 scroll-reveal">
           <span class="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">Mark your calendar</span>
-          <h3 class="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">February 2027</h3>
+          <h3 id="calendar-month-year" class="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">December 2026</h3>
           <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1"></div>
         </div>
 
@@ -474,9 +539,9 @@
             <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
           </div>
 
-          <div class="grid grid-cols-7 gap-1 text-center text-xs text-stone-700">
-            <span></span>
-            <div class="h-7 sm:h-8 flex items-center justify-center"><span>1</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>2</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>3</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>4</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>5</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>6</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>7</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>8</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>9</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>10</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>11</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>12</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>13</span></div><div class="relative w-8 h-8 sm:w-9 sm:h-9 mx-auto flex items-center justify-center font-bold text-rose-600 select-none">
+          <div id="calendar-grid-days" class="grid grid-cols-7 gap-1 text-center text-xs text-stone-700">
+            <span></span><span></span>
+            <div class="h-7 sm:h-8 flex items-center justify-center"><span>1</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>2</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>3</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>4</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>5</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>6</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>7</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>8</span></div><div class="relative w-8 h-8 sm:w-9 sm:h-9 mx-auto flex items-center justify-center font-bold text-rose-600 select-none">
                     <svg viewBox="0 0 36 36" class="absolute -inset-1 w-9 h-9 sm:w-10 sm:h-10 pointer-events-none overflow-visible">
                       <path
                         d="M18,31 C10,23 3.5,17 3.5,10.5 C3.5,5.5 7.5,2 12.5,2 C15.5,2 17.5,3.5 18,5 C18.5,3.5 20.5,2 23.5,2 C28.5,2 32.5,5.5 32.5,10.5 C32.5,17 26,23 18,31 Z"
@@ -488,8 +553,8 @@
                         class="calendar-heart-path"
                       />
                     </svg>
-                    <span class="relative z-10 text-rose-700 font-extrabold text-sm">14</span>
-                  </div><div class="h-7 sm:h-8 flex items-center justify-center"><span>15</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>16</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>17</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>18</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>19</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>20</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>21</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>22</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>23</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>24</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>25</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>26</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>27</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>28</span></div>
+                    <span class="relative z-10 text-rose-700 font-extrabold text-sm">9</span>
+                  </div><div class="h-7 sm:h-8 flex items-center justify-center"><span>10</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>11</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>12</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>13</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>14</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>15</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>16</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>17</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>18</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>19</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>20</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>21</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>22</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>23</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>24</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>25</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>26</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>27</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>28</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>29</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>30</span></div><div class="h-7 sm:h-8 flex items-center justify-center"><span>31</span></div>
           </div>
         </div>
 
@@ -538,12 +603,12 @@
 
             <div class="relative bg-[#FFFDF9] rounded-2xl p-4 sm:p-5 border-2 border-stone-200 shadow-md space-y-2.5 scroll-reveal" style="transition-delay: 160ms;">
               <div class="space-y-1.5 text-xs text-stone-700">
-                <p class="flex items-center gap-2"><span>📅</span><strong class="text-stone-900">Friday, 12th February 2027</strong> · ⏰ 10:30 AM onwards</p>
-                <p class="flex items-center gap-2"><span>📍</span><span><strong class="text-stone-900">The Courtyard, The Oberoi Udaivilas</strong> — Haridas Ji Ki Magri, Udaipur, Rajasthan 313001</span></p>
+                <p class="flex items-center gap-2"><span>📅</span><strong class="text-stone-900">Monday, 7th December 2026</strong> · ⏰ 10:30 AM onwards</p>
+                <p class="flex items-center gap-2"><span>📍</span><span><strong class="text-stone-900">The Courtyard, Bravura Gold Resort</strong> — NH-58, Delhi-Roorkee Bypass, Meerut, Uttar Pradesh 250005</span></p>
                 <p class="flex items-center gap-2"><span>👔</span><span class="text-[#8B6F47] font-semibold">Haldi Yellow & Warm Mustard</span></p>
               </div>
               <div class="pt-1.5">
-                <a href="https://maps.google.com/?q=The%20Courtyard%2C%20The%20Oberoi%20Udaivilas%20Haridas%20Ji%20Ki%20Magri%2C%20Udaipur%2C%20Rajasthan%20313001" target="_blank" class="w-full py-2.5 rounded-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#FCE7F3] text-[#BE185D] hover:bg-[#FBCFE8] transition-all shadow-2xs cursor-pointer">
+                <a href="https://maps.google.com/?q=The%20Courtyard%2C%20Bravura%20Gold%20Resort%20NH-58%2C%20Delhi-Roorkee%20Bypass%2C%20Meerut%2C%20Uttar%20Pradesh%20250005" target="_blank" class="w-full py-2.5 rounded-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#FCE7F3] text-[#BE185D] hover:bg-[#FBCFE8] transition-all shadow-2xs cursor-pointer">
                   <span>🧭 Get directions</span>
                 </a>
               </div>
@@ -584,12 +649,12 @@
 
             <div class="relative bg-[#FFFDF9] rounded-2xl p-4 sm:p-5 border-2 border-stone-200 shadow-md space-y-2.5 scroll-reveal" style="transition-delay: 160ms;">
               <div class="space-y-1.5 text-xs text-stone-700">
-                <p class="flex items-center gap-2"><span>📅</span><strong class="text-stone-900">Friday, 12th February 2027</strong> · ⏰ 04:00 PM onwards</p>
-                <p class="flex items-center gap-2"><span>📍</span><span><strong class="text-stone-900">The Poolside Lawns, The Oberoi Udaivilas</strong> — Haridas Ji Ki Magri, Udaipur, Rajasthan 313001</span></p>
+                <p class="flex items-center gap-2"><span>📅</span><strong class="text-stone-900">Monday, 7th December 2026</strong> · ⏰ 04:00 PM onwards</p>
+                <p class="flex items-center gap-2"><span>📍</span><span><strong class="text-stone-900">The Poolside Lawns, Bravura Gold Resort</strong> — NH-58, Delhi-Roorkee Bypass, Meerut, Uttar Pradesh 250005</span></p>
                 <p class="flex items-center gap-2"><span>👔</span><span class="text-[#8B6F47] font-semibold">Mint Green & Floral Pastels</span></p>
               </div>
               <div class="pt-1.5">
-                <a href="https://maps.google.com/?q=The%20Poolside%20Lawns%2C%20The%20Oberoi%20Udaivilas%20Haridas%20Ji%20Ki%20Magri%2C%20Udaipur%2C%20Rajasthan%20313001" target="_blank" class="w-full py-2.5 rounded-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#FCE7F3] text-[#BE185D] hover:bg-[#FBCFE8] transition-all shadow-2xs cursor-pointer">
+                <a href="https://maps.google.com/?q=The%20Poolside%20Lawns%2C%20Bravura%20Gold%20Resort%20NH-58%2C%20Delhi-Roorkee%20Bypass%2C%20Meerut%2C%20Uttar%20Pradesh%20250005" target="_blank" class="w-full py-2.5 rounded-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#FCE7F3] text-[#BE185D] hover:bg-[#FBCFE8] transition-all shadow-2xs cursor-pointer">
                   <span>🧭 Get directions</span>
                 </a>
               </div>
@@ -630,12 +695,12 @@
 
             <div class="relative bg-[#FFFDF9] rounded-2xl p-4 sm:p-5 border-2 border-stone-200 shadow-md space-y-2.5 scroll-reveal" style="transition-delay: 160ms;">
               <div class="space-y-1.5 text-xs text-stone-700">
-                <p class="flex items-center gap-2"><span>📅</span><strong class="text-stone-900">Saturday, 13th February 2027</strong> · ⏰ 07:00 PM onwards</p>
-                <p class="flex items-center gap-2"><span>📍</span><span><strong class="text-stone-900">The Royal Grand Ballroom</strong> — The Oberoi Udaivilas, Udaipur</span></p>
+                <p class="flex items-center gap-2"><span>📅</span><strong class="text-stone-900">Tuesday, 8th December 2026</strong> · ⏰ 07:00 PM onwards</p>
+                <p class="flex items-center gap-2"><span>📍</span><span><strong class="text-stone-900">The Grand Ballroom, Bravura Gold Resort</strong> — NH-58, Delhi-Roorkee Bypass, Meerut, Uttar Pradesh 250005</span></p>
                 <p class="flex items-center gap-2"><span>👔</span><span class="text-[#8B6F47] font-semibold">Glamorous Indian Cocktails</span></p>
               </div>
               <div class="pt-1.5">
-                <a href="https://maps.google.com/?q=The%20Royal%20Grand%20Ballroom%20The%20Oberoi%20Udaivilas%2C%20Udaipur" target="_blank" class="w-full py-2.5 rounded-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#FCE7F3] text-[#BE185D] hover:bg-[#FBCFE8] transition-all shadow-2xs cursor-pointer">
+                <a href="https://maps.google.com/?q=The%20Grand%20Ballroom%2C%20Bravura%20Gold%20Resort%20NH-58%2C%20Delhi-Roorkee%20Bypass%2C%20Meerut%2C%20Uttar%20Pradesh%20250005" target="_blank" class="w-full py-2.5 rounded-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#FCE7F3] text-[#BE185D] hover:bg-[#FBCFE8] transition-all shadow-2xs cursor-pointer">
                   <span>🧭 Get directions</span>
                 </a>
               </div>
@@ -676,12 +741,12 @@
 
             <div class="relative bg-[#FFFDF9] rounded-2xl p-4 sm:p-5 border-2 border-stone-200 shadow-md space-y-2.5 scroll-reveal" style="transition-delay: 160ms;">
               <div class="space-y-1.5 text-xs text-stone-700">
-                <p class="flex items-center gap-2"><span>📅</span><strong class="text-stone-900">Sunday, 14th February 2027</strong> · ⏰ 04:30 PM (Sunset Barat)</p>
-                <p class="flex items-center gap-2"><span>📍</span><span><strong class="text-stone-900">Lakeside Mandap on Lake Pichola</strong> — The Oberoi Udaivilas, Udaipur</span></p>
+                <p class="flex items-center gap-2"><span>📅</span><strong class="text-stone-900">Wednesday, 9th December 2026</strong> · ⏰ 04:30 PM (Sunset Barat)</p>
+                <p class="flex items-center gap-2"><span>📍</span><span><strong class="text-stone-900">The Royal Mandap, Bravura Gold Resort</strong> — NH-58, Delhi-Roorkee Bypass, Meerut, Uttar Pradesh 250005</span></p>
                 <p class="flex items-center gap-2"><span>👔</span><span class="text-[#8B6F47] font-semibold">Royal Indian Pastels & Silk Sarees</span></p>
               </div>
               <div class="pt-1.5">
-                <a href="https://maps.google.com/?q=Lakeside%20Mandap%20on%20Lake%20Pichola%20The%20Oberoi%20Udaivilas%2C%20Udaipur" target="_blank" class="w-full py-2.5 rounded-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#FCE7F3] text-[#BE185D] hover:bg-[#FBCFE8] transition-all shadow-2xs cursor-pointer">
+                <a href="https://maps.google.com/?q=The%20Royal%20Mandap%2C%20Bravura%20Gold%20Resort%20NH-58%2C%20Delhi-Roorkee%20Bypass%2C%20Meerut%2C%20Uttar%20Pradesh%20250005" target="_blank" class="w-full py-2.5 rounded-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#FCE7F3] text-[#BE185D] hover:bg-[#FBCFE8] transition-all shadow-2xs cursor-pointer">
                   <span>🧭 Get directions</span>
                 </a>
               </div>
@@ -722,12 +787,12 @@
 
             <div class="relative bg-[#FFFDF9] rounded-2xl p-4 sm:p-5 border-2 border-stone-200 shadow-md space-y-2.5 scroll-reveal" style="transition-delay: 160ms;">
               <div class="space-y-1.5 text-xs text-stone-700">
-                <p class="flex items-center gap-2"><span>📅</span><strong class="text-stone-900">Sunday, 14th February 2027</strong> · ⏰ 08:30 PM onwards</p>
-                <p class="flex items-center gap-2"><span>📍</span><span><strong class="text-stone-900">The Palace Gardens</strong> — The Oberoi Udaivilas, Udaipur</span></p>
+                <p class="flex items-center gap-2"><span>📅</span><strong class="text-stone-900">Wednesday, 9th December 2026</strong> · ⏰ 08:30 PM onwards</p>
+                <p class="flex items-center gap-2"><span>📍</span><span><strong class="text-stone-900">The Palace Gardens, Bravura Gold Resort</strong> — NH-58, Delhi-Roorkee Bypass, Meerut, Uttar Pradesh 250005</span></p>
                 <p class="flex items-center gap-2"><span>👔</span><span class="text-[#8B6F47] font-semibold">Black Tie or Regal Traditional</span></p>
               </div>
               <div class="pt-1.5">
-                <a href="https://maps.google.com/?q=The%20Palace%20Gardens%20The%20Oberoi%20Udaivilas%2C%20Udaipur" target="_blank" class="w-full py-2.5 rounded-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#FCE7F3] text-[#BE185D] hover:bg-[#FBCFE8] transition-all shadow-2xs cursor-pointer">
+                <a href="https://maps.google.com/?q=The%20Palace%20Gardens%2C%20Bravura%20Gold%20Resort%20NH-58%2C%20Delhi-Roorkee%20Bypass%2C%20Meerut%2C%20Uttar%20Pradesh%20250005" target="_blank" class="w-full py-2.5 rounded-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#FCE7F3] text-[#BE185D] hover:bg-[#FBCFE8] transition-all shadow-2xs cursor-pointer">
                   <span>🧭 Get directions</span>
                 </a>
               </div>
@@ -777,19 +842,19 @@
               </div>
               <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ In each other's eyes ✦</span></div>
             </div>
-            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-right rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 120ms;" onclick="openMomentLightbox('./images/couple-landscape-1.webp', 'Moments under the palace sun')">
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-right rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 120ms;" onclick="openMomentLightbox('./images/couple-landscape-1.webp', 'Moments under the golden sun')">
               <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#EDE9FE]/80 border-[#DDD6FE] rounded shadow-2xs border rotate-1"></div>
               <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
                 <img src="./images/couple-landscape-1.webp" class="w-full h-full object-cover" />
               </div>
-              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Moments under the palace sun ✦</span></div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Moments under the golden sun ✦</span></div>
             </div>
-            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-left -rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 240ms;" onclick="openMomentLightbox('./images/couple-landscape-2.webp', 'Lakeside serenity in Udaipur')">
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-left -rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 240ms;" onclick="openMomentLightbox('./images/couple-landscape-2.webp', 'Serenity & laughter')">
               <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FEF08A]/80 border-[#FDE047] rounded shadow-2xs border rotate-1"></div>
               <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
                 <img src="./images/couple-landscape-2.webp" class="w-full h-full object-cover" />
               </div>
-              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Lakeside serenity in Udaipur ✦</span></div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Serenity & laughter ✦</span></div>
             </div>
             <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-right rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 360ms;" onclick="openMomentLightbox('./images/couple-potrait-1.webp', 'Laughs & forever promises')">
               <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#EDE9FE]/80 border-[#DDD6FE] rounded shadow-2xs border rotate-1"></div>
@@ -798,12 +863,12 @@
               </div>
               <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Laughs & forever promises ✦</span></div>
             </div>
-            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-left -rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 0ms;" onclick="openMomentLightbox('./images/couple-landscape-3.webp', 'Golden hour at Lake Pichola')">
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-left -rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 0ms;" onclick="openMomentLightbox('./images/couple-landscape-3.webp', 'Golden hour walk')">
               <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FEF08A]/80 border-[#FDE047] rounded shadow-2xs border rotate-1"></div>
               <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
                 <img src="./images/couple-landscape-3.webp" class="w-full h-full object-cover" />
               </div>
-              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Golden hour at Lake Pichola ✦</span></div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Golden hour walk ✦</span></div>
             </div>
             <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-right rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 120ms;" onclick="openMomentLightbox('./images/couple-landscape-4.webp', 'Under the starlit sky')">
               <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#EDE9FE]/80 border-[#DDD6FE] rounded shadow-2xs border rotate-1"></div>
@@ -877,12 +942,12 @@
               <div class="absolute right-4 top-1/2 -translate-y-1/2 text-rose-600 text-2xl animate-pin-drop">📍</div>
             </div>
             <div class="bg-white/90 backdrop-blur-xs rounded-lg p-2 text-center border border-stone-200 shadow-2xs">
-              <h4 class="font-serif text-sm font-bold text-[#2B1E17]">The Courtyard, The Oberoi Udaivilas</h4>
-              <p class="text-[10px] text-stone-500">Udaipur, Rajasthan · Haridas Ji Ki Magri, Udaipur, Rajasthan 313001</p>
+              <h4 class="font-serif text-sm font-bold text-[#2B1E17]">The Courtyard, Bravura Gold Resort</h4>
+              <p class="text-[10px] text-stone-500">Meerut · NH-58, Delhi-Roorkee Bypass, Meerut, Uttar Pradesh 250005</p>
             </div>
           </div>
 
-          <a href="https://maps.google.com/?q=The%20Courtyard%2C%20The%20Oberoi%20Udaivilas%20Udaipur%2C%20Rajasthan" target="_blank" class="w-full py-2.5 rounded-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#881337] text-white hover:bg-[#9F1239] transition-all shadow-sm cursor-pointer">
+          <a href="https://maps.google.com/?q=The%20Courtyard%2C%20Bravura%20Gold%20Resort%20Meerut" target="_blank" class="w-full py-2.5 rounded-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#881337] text-white hover:bg-[#9F1239] transition-all shadow-sm cursor-pointer">
             <span>🧭 Open in Google Maps</span>
           </a>
         </div>
@@ -1227,7 +1292,10 @@
     }
 
     // Countdown Timer Script
-    const targetDate = new Date('2027-02-14').getTime();
+    let targetDate = new Date('2026-12-09').getTime();
+    window.__updateCountdownTarget = function(newTimestamp) {
+      if (newTimestamp) targetDate = Number(newTimestamp);
+    };
     setInterval(() => {
       const now = new Date().getTime();
       const diff = Math.max(0, targetDate - now);
@@ -1251,6 +1319,42 @@
         const elPS = document.getElementById('pastel-secs'); if (elPS) elPS.innerText = s;
       }
     }, 1000);
+
+    window.__rebuildCalendar = function(d) {
+      try {
+        if (!d || isNaN(d.getTime())) return;
+        var monthName = d.toLocaleString('en-US', { month: 'long' });
+        var year = d.getFullYear();
+        var dayNum = d.getDate();
+        var daysInM = new Date(year, d.getMonth() + 1, 0).getDate();
+        var firstDay = new Date(year, d.getMonth(), 1).getDay();
+
+        var titleEl = document.getElementById('calendar-month-year');
+        if (titleEl) titleEl.textContent = monthName + ' ' + year;
+
+        var grid = document.getElementById('calendar-grid-days');
+        if (!grid) return;
+        var html = '';
+        for (var k = 0; k < firstDay; k++) {
+          html += '<span></span>';
+        }
+        for (var day = 1; day <= daysInM; day++) {
+          if (day === dayNum) {
+            html += '<div class="relative w-8 h-8 sm:w-9 sm:h-9 mx-auto flex items-center justify-center font-bold text-rose-600 select-none">'
+                 + '<svg viewBox="0 0 36 36" class="absolute -inset-1 w-9 h-9 sm:w-10 sm:h-10 pointer-events-none overflow-visible">'
+                 + '<path d="M18,31 C10,23 3.5,17 3.5,10.5 C3.5,5.5 7.5,2 12.5,2 C15.5,2 17.5,3.5 18,5 C18.5,3.5 20.5,2 23.5,2 C28.5,2 32.5,5.5 32.5,10.5 C32.5,17 26,23 18,31 Z" fill="rgba(244, 63, 94, 0.16)" stroke="#E11D48" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="calendar-heart-path" />'
+                 + '</svg>'
+                 + '<span class="relative z-10 text-rose-700 font-extrabold text-sm">' + day + '</span>'
+                 + '</div>';
+          } else {
+            html += '<div class="h-7 sm:h-8 flex items-center justify-center"><span>' + day + '</span></div>';
+          }
+        }
+        grid.innerHTML = html;
+      } catch(e) {
+        console.warn('Calendar rebuild notice:', e);
+      }
+    };
 
     function triggerCelebrationEffect() {
       if (!window.confetti) return;
