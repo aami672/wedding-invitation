@@ -5,7 +5,7 @@
  * crisp Retina display quality.
  */
 
-export async function toBase64Optimized(url, maxDimension = 1000, quality = 0.75, preserveAlpha = false) {
+export async function toBase64Optimized(url, maxDimension = 1600, quality = 0.90, preserveAlpha = false) {
   if (!url) return '';
   if (typeof window === 'undefined') return url;
 

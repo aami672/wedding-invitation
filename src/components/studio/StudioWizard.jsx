@@ -611,21 +611,21 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     const slug = getCoupleSlug();
     const selectedTmpl = TEMPLATES.find(t => t.id === data.template) || TEMPLATES[0];
 
-    // Convert local images to base64 DataURIs (compact & optimized so standalone HTML stays < 4MB for iPhone & Android)
+    // Convert local images to base64 DataURIs (high-fidelity Retina resolution)
     const [
       b64Cover, b64Bride, b64Groom, b64Tmpl,
       b64Scooter, b64Haldi, b64Mehndi, b64Sangeet, b64Pheras, b64Reception,
     ] = await Promise.all([
-      toBase64Optimized(data.photos?.cover, 1000, 0.75, false),
-      toBase64Optimized(data.photos?.bride || './images/bride.webp', 600, 0.76, false),
-      toBase64Optimized(data.photos?.groom || './images/groom.webp', 600, 0.76, false),
-      toBase64Optimized(selectedTmpl?.image, 1000, 0.75, false),
-      toBase64Optimized('./images/caricature/scooter_couple.webp', 800, 0.78, true),
-      toBase64Optimized('./images/caricature/haldi_arch.webp', 600, 0.75, true),
-      toBase64Optimized('./images/caricature/mehndi_arch.webp', 600, 0.75, true),
-      toBase64Optimized('./images/caricature/sangeet_arch.webp', 600, 0.75, true),
-      toBase64Optimized('./images/caricature/pheras_arch.webp', 600, 0.75, true),
-      toBase64Optimized('./images/caricature/reception_arch.webp', 600, 0.75, true),
+      toBase64Optimized(data.photos?.cover, 1600, 0.90, false),
+      toBase64Optimized(data.photos?.bride || './images/preeti_bride.jpg', 1200, 0.92, false),
+      toBase64Optimized(data.photos?.groom || './images/ashish_groom.jpg', 1200, 0.92, false),
+      toBase64Optimized(selectedTmpl?.image, 1600, 0.90, false),
+      toBase64Optimized('./images/caricature/scooter_couple.webp', 1000, 0.88, true),
+      toBase64Optimized('./images/caricature/haldi_arch.webp', 800, 0.85, true),
+      toBase64Optimized('./images/caricature/mehndi_arch.webp', 800, 0.85, true),
+      toBase64Optimized('./images/caricature/sangeet_arch.webp', 800, 0.85, true),
+      toBase64Optimized('./images/caricature/pheras_arch.webp', 800, 0.85, true),
+      toBase64Optimized('./images/caricature/reception_arch.webp', 800, 0.85, true),
     ]);
 
     const galleryItems = (data.gallery && data.gallery.length > 0) ? data.gallery : [
@@ -645,7 +645,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       { url: './images/gallery/moment_14.jpg', caption: 'Where the celebrations and unforgettable memories come to life at Hotel Meenar' },
     ];
     const b64Gallery = await Promise.all(galleryItems.map(async (item) => ({
-      b64: await toBase64Optimized(item.url || item.img, 720, 0.72, false),
+      b64: await toBase64Optimized(item.url || item.img, 1600, 0.92, false),
       caption: item.caption || item.title || 'Wedding Memory',
     })));
 
