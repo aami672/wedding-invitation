@@ -86,17 +86,61 @@
     }
   ],
   "gallery": [
-    { "url": "./images/couple-potrait.webp", "caption": "In each other's eyes" },
-    { "url": "./images/couple-landscape-1.webp", "caption": "Moments under the golden sun" },
-    { "url": "./images/couple-landscape-2.webp", "caption": "Serenity & laughter" },
-    { "url": "./images/couple-potrait-1.webp", "caption": "Laughs & forever promises" },
-    { "url": "./images/couple-landscape-3.webp", "caption": "Golden hour walk" },
-    { "url": "./images/couple-landscape-4.webp", "caption": "Under the starlit sky" },
-    { "url": "./images/couple-udaipur-boat.webp", "caption": "Sailing together" },
-    { "url": "./images/couple-udaipur-rooftop.webp", "caption": "Rooftop whispers" },
-    { "url": "./images/couple-udaipur-bazaar.webp", "caption": "Old city charm" },
-    { "url": "./images/couple-udaipur-hilltop.webp", "caption": "Monsoon palace views" },
-    { "url": "./images/couple-udaipur-haveli.webp", "caption": "Courtyard royalty" },
-    { "url": "./images/couple-udaipur-ghat.webp", "caption": "At the water's edge" }
+    {
+      "url": "./images/gallery/moment_1.jpg",
+      "caption": "Flaunting those new rings and that forever kind of vibe"
+    },
+    {
+      "url": "./images/gallery/moment_2.jpg",
+      "caption": "Glowing against that striking backdrop"
+    },
+    {
+      "url": "./images/gallery/moment_3.jpg",
+      "caption": "Candid moments"
+    },
+    {
+      "url": "./images/gallery/moment_4.jpg",
+      "caption": "Sweet smiles that say it all"
+    },
+    {
+      "url": "./images/gallery/moment_5.jpg",
+      "caption": "Lost in a quiet, beautiful moment"
+    },
+    {
+      "url": "./images/gallery/moment_6.jpg",
+      "caption": "Just engaged and ready for the sweetest journey ahead"
+    },
+    {
+      "url": "./images/gallery/moment_7.jpg",
+      "caption": "Keeping it stylish together with pose"
+    },
+    {
+      "url": "./images/gallery/moment_8.jpg",
+      "caption": "Cutting into celebration mode "
+    },
+    {
+      "url": "./images/gallery/moment_9.jpg",
+      "caption": "Striking a pose with effortless grace and timeless elegance"
+    },
+    {
+      "url": "./images/gallery/moment_10.jpg",
+      "caption": "Showcasing those special symbols of a brand new journey together"
+    },
+    {
+      "url": "./images/gallery/moment_11.jpg",
+      "caption": "Caught in a dreamy spotlight with a look of pure grace"
+    },
+    {
+      "url": "./images/gallery/moment_12.jpg",
+      "caption": "Sharing a close, quiet moment wrapped in love and warmth"
+    },
+    {
+      "url": "./images/gallery/moment_13.jpg",
+      "caption": "Crowning the celebration with a beautiful ring ceremony cake"
+    },
+    {
+      "url": "./images/gallery/moment_14.jpg",
+      "caption": "Where the celebrations and unforgettable memories come to life at Hotel Meenar"
+    }
   ]
 }

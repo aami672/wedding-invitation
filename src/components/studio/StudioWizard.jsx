@@ -629,18 +629,20 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     ]);
 
     const galleryItems = (data.gallery && data.gallery.length > 0) ? data.gallery : [
-      { url: './images/couple-potrait.webp', caption: 'Engagement' },
-      { url: './images/couple-landscape-1.webp', caption: 'Haldi Joy' },
-      { url: './images/couple-landscape-2.webp', caption: 'Udaipur Sunset' },
-      { url: './images/couple-potrait-1.webp', caption: 'Forever Begins' },
-      { url: './images/couple-landscape-3.webp', caption: 'Palace Stroll' },
-      { url: './images/couple-landscape-4.webp', caption: 'Starlit Promises' },
-      { url: './images/couple-udaipur-boat.webp', caption: 'Lake Boat Ride' },
-      { url: './images/couple-udaipur-rooftop.webp', caption: 'Palace Rooftop' },
-      { url: './images/couple-udaipur-bazaar.webp', caption: 'Old City Charm' },
-      { url: './images/couple-udaipur-hilltop.webp', caption: 'Monsoon Palace' },
-      { url: './images/couple-udaipur-haveli.webp', caption: 'Haveli Courtyard' },
-      { url: './images/couple-udaipur-ghat.webp', caption: 'Waterfront Sunset' },
+      { url: './images/gallery/moment_1.jpg', caption: 'Flaunting those new rings and that forever kind of vibe' },
+      { url: './images/gallery/moment_2.jpg', caption: 'Glowing against that striking backdrop' },
+      { url: './images/gallery/moment_3.jpg', caption: 'Candid moments' },
+      { url: './images/gallery/moment_4.jpg', caption: 'Sweet smiles that say it all' },
+      { url: './images/gallery/moment_5.jpg', caption: 'Lost in a quiet, beautiful moment' },
+      { url: './images/gallery/moment_6.jpg', caption: 'Just engaged and ready for the sweetest journey ahead' },
+      { url: './images/gallery/moment_7.jpg', caption: 'Keeping it stylish together with pose' },
+      { url: './images/gallery/moment_8.jpg', caption: 'Cutting into celebration mode ' },
+      { url: './images/gallery/moment_9.jpg', caption: 'Striking a pose with effortless grace and timeless elegance' },
+      { url: './images/gallery/moment_10.jpg', caption: 'Showcasing those special symbols of a brand new journey together' },
+      { url: './images/gallery/moment_11.jpg', caption: 'Caught in a dreamy spotlight with a look of pure grace' },
+      { url: './images/gallery/moment_12.jpg', caption: 'Sharing a close, quiet moment wrapped in love and warmth' },
+      { url: './images/gallery/moment_13.jpg', caption: 'Crowning the celebration with a beautiful ring ceremony cake' },
+      { url: './images/gallery/moment_14.jpg', caption: 'Where the celebrations and unforgettable memories come to life at Hotel Meenar' },
     ];
     const b64Gallery = await Promise.all(galleryItems.map(async (item) => ({
       b64: await toBase64Optimized(item.url || item.img, 720, 0.72, false),
@@ -765,6 +767,14 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         var d = JSON.parse(raw);
         if (!d || !d.hosts) return;
 
+        var resolveAssetUrl = function(url) {
+          if (!url) return '';
+          if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://')) return url;
+          var inPublished = window.location.pathname.indexOf('/published/') !== -1;
+          var clean = url.replace(/^\.?\//, '');
+          return inPublished ? ('../' + clean) : ('./' + clean);
+        };
+
         var bride = d.hosts.bride || 'Preeti';
         var groom = d.hosts.groom || 'Ashish';
         var dateStr = d.hosts.date || '2026-12-09';
@@ -844,23 +854,26 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         if (elMeetBride) elMeetBride.textContent = bride;
         if (d.photos) {
           if (d.photos.groom) {
+            var gUrl = resolveAssetUrl(d.photos.groom);
             var elMeetGroomImg = document.getElementById('meet-groom-img');
-            if (elMeetGroomImg) elMeetGroomImg.src = d.photos.groom;
+            if (elMeetGroomImg) elMeetGroomImg.src = gUrl;
             var elNcGroomImg = document.getElementById('noncaricature-groom-img');
-            if (elNcGroomImg) elNcGroomImg.src = d.photos.groom;
-            window.__hydratedGroomPhoto = d.photos.groom;
+            if (elNcGroomImg) elNcGroomImg.src = gUrl;
+            window.__hydratedGroomPhoto = gUrl;
           }
           if (d.photos.bride) {
+            var bUrl = resolveAssetUrl(d.photos.bride);
             var elMeetBrideImg = document.getElementById('meet-bride-img');
-            if (elMeetBrideImg) elMeetBrideImg.src = d.photos.bride;
+            if (elMeetBrideImg) elMeetBrideImg.src = bUrl;
             var elNcBrideImg = document.getElementById('noncaricature-bride-img');
-            if (elNcBrideImg) elNcBrideImg.src = d.photos.bride;
-            window.__hydratedBridePhoto = d.photos.bride;
+            if (elNcBrideImg) elNcBrideImg.src = bUrl;
+            window.__hydratedBridePhoto = bUrl;
           }
           if (d.photos.cover) {
+            var cUrl = resolveAssetUrl(d.photos.cover);
             var elDoorsCover = document.getElementById('doors-cover-img');
-            if (elDoorsCover) elDoorsCover.src = d.photos.cover;
-            window.__hydratedCoverPhoto = d.photos.cover;
+            if (elDoorsCover) elDoorsCover.src = cUrl;
+            window.__hydratedCoverPhoto = cUrl;
           }
           if (d.photos.groomBio) {
             var elMeetGroomBio = document.getElementById('meet-groom-bio');
@@ -878,6 +891,31 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         if (d.hosts && d.hosts.brideParents) {
           var elBrideParents = document.getElementById('meet-bride-parents');
           if (elBrideParents) elBrideParents.textContent = d.hosts.brideParents;
+        }
+
+        // Moments & Memories Gallery Hydration
+        if (d.gallery && Array.isArray(d.gallery) && d.gallery.length > 0) {
+          var momentsGrid = document.getElementById('moments-grid');
+          if (momentsGrid) {
+            var gHtml = '';
+            d.gallery.forEach(function(item, idx) {
+              var isLeft = idx % 2 === 0;
+              var tapeClass = isLeft ? 'bg-[#FEF08A]/80 border-[#FDE047]' : 'bg-[#EDE9FE]/80 border-[#DDD6FE]';
+              var tiltClass = isLeft ? 'reveal-tilt-left -rotate-1' : 'reveal-tilt-right rotate-1';
+              var delay = Math.min(360, (idx % 4) * 120);
+              var rawUrl = item.url || item.img || item.b64 || './images/couple-potrait.webp';
+              var imgUrl = resolveAssetUrl(rawUrl);
+              var cap = (item.caption || item.title || 'Wedding Memory').replace(/'/g, "\\'");
+              gHtml += '<div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform ' + tiltClass + ' hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: ' + delay + 'ms;" onclick="openMomentLightbox(\'' + imgUrl + '\', \'' + cap + '\')">'
+                + '<div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 ' + tapeClass + ' rounded shadow-2xs border rotate-1"></div>'
+                + '<div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">'
+                + '<img src="' + imgUrl + '" class="w-full h-full object-cover" />'
+                + '</div>'
+                + '<div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ ' + cap + ' ✦</span></div>'
+                + '</div>';
+            });
+            momentsGrid.innerHTML = gHtml;
+          }
         }
 
         // Live Countdown Target

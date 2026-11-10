@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-publish-time="1794294457195" data-slug="preeti-and-ashish">
+<html lang="en" data-publish-time="1794296810419" data-slug="preeti-and-ashish">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
@@ -95,6 +95,14 @@
         var d = JSON.parse(raw);
         if (!d || !d.hosts) return;
 
+        var resolveAssetUrl = function(url) {
+          if (!url) return '';
+          if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://')) return url;
+          var inPublished = window.location.pathname.indexOf('/published/') !== -1;
+          var clean = url.replace(/^.?//, '');
+          return inPublished ? ('../' + clean) : ('./' + clean);
+        };
+
         var bride = d.hosts.bride || 'Preeti';
         var groom = d.hosts.groom || 'Ashish';
         var dateStr = d.hosts.date || '2026-12-09';
@@ -174,23 +182,26 @@
         if (elMeetBride) elMeetBride.textContent = bride;
         if (d.photos) {
           if (d.photos.groom) {
+            var gUrl = resolveAssetUrl(d.photos.groom);
             var elMeetGroomImg = document.getElementById('meet-groom-img');
-            if (elMeetGroomImg) elMeetGroomImg.src = d.photos.groom;
+            if (elMeetGroomImg) elMeetGroomImg.src = gUrl;
             var elNcGroomImg = document.getElementById('noncaricature-groom-img');
-            if (elNcGroomImg) elNcGroomImg.src = d.photos.groom;
-            window.__hydratedGroomPhoto = d.photos.groom;
+            if (elNcGroomImg) elNcGroomImg.src = gUrl;
+            window.__hydratedGroomPhoto = gUrl;
           }
           if (d.photos.bride) {
+            var bUrl = resolveAssetUrl(d.photos.bride);
             var elMeetBrideImg = document.getElementById('meet-bride-img');
-            if (elMeetBrideImg) elMeetBrideImg.src = d.photos.bride;
+            if (elMeetBrideImg) elMeetBrideImg.src = bUrl;
             var elNcBrideImg = document.getElementById('noncaricature-bride-img');
-            if (elNcBrideImg) elNcBrideImg.src = d.photos.bride;
-            window.__hydratedBridePhoto = d.photos.bride;
+            if (elNcBrideImg) elNcBrideImg.src = bUrl;
+            window.__hydratedBridePhoto = bUrl;
           }
           if (d.photos.cover) {
+            var cUrl = resolveAssetUrl(d.photos.cover);
             var elDoorsCover = document.getElementById('doors-cover-img');
-            if (elDoorsCover) elDoorsCover.src = d.photos.cover;
-            window.__hydratedCoverPhoto = d.photos.cover;
+            if (elDoorsCover) elDoorsCover.src = cUrl;
+            window.__hydratedCoverPhoto = cUrl;
           }
           if (d.photos.groomBio) {
             var elMeetGroomBio = document.getElementById('meet-groom-bio');
@@ -208,6 +219,31 @@
         if (d.hosts && d.hosts.brideParents) {
           var elBrideParents = document.getElementById('meet-bride-parents');
           if (elBrideParents) elBrideParents.textContent = d.hosts.brideParents;
+        }
+
+        // Moments & Memories Gallery Hydration
+        if (d.gallery && Array.isArray(d.gallery) && d.gallery.length > 0) {
+          var momentsGrid = document.getElementById('moments-grid');
+          if (momentsGrid) {
+            var gHtml = '';
+            d.gallery.forEach(function(item, idx) {
+              var isLeft = idx % 2 === 0;
+              var tapeClass = isLeft ? 'bg-[#FEF08A]/80 border-[#FDE047]' : 'bg-[#EDE9FE]/80 border-[#DDD6FE]';
+              var tiltClass = isLeft ? 'reveal-tilt-left -rotate-1' : 'reveal-tilt-right rotate-1';
+              var delay = Math.min(360, (idx % 4) * 120);
+              var rawUrl = item.url || item.img || item.b64 || './images/couple-potrait.webp';
+              var imgUrl = resolveAssetUrl(rawUrl);
+              var cap = (item.caption || item.title || 'Wedding Memory').replace(/'/g, "\'");
+              gHtml += '<div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform ' + tiltClass + ' hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: ' + delay + 'ms;" onclick="openMomentLightbox('' + imgUrl + '', '' + cap + '')">'
+                + '<div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 ' + tapeClass + ' rounded shadow-2xs border rotate-1"></div>'
+                + '<div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">'
+                + '<img src="' + imgUrl + '" class="w-full h-full object-cover" />'
+                + '</div>'
+                + '<div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ ' + cap + ' ✦</span></div>'
+                + '</div>';
+            });
+            momentsGrid.innerHTML = gHtml;
+          }
         }
 
         // Live Countdown Target
@@ -1015,89 +1051,103 @@
 
         <div class="grid grid-cols-2 gap-2.5" id="moments-grid">
           
-            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-left -rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 0ms;" onclick="openMomentLightbox('../images/couple-potrait.webp', 'In each other's eyes')">
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-left -rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 0ms;" onclick="openMomentLightbox('../images/gallery/moment_1.jpg', 'Flaunting those new rings and that forever kind of vibe')">
               <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FEF08A]/80 border-[#FDE047] rounded shadow-2xs border rotate-1"></div>
               <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
-                <img src="../images/couple-potrait.webp" class="w-full h-full object-cover" />
+                <img src="../images/gallery/moment_1.jpg" class="w-full h-full object-cover" />
               </div>
-              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ In each other's eyes ✦</span></div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Flaunting those new rings and that forever kind of vibe ✦</span></div>
             </div>
-            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-right rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 120ms;" onclick="openMomentLightbox('../images/couple-landscape-1.webp', 'Moments under the golden sun')">
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-right rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 120ms;" onclick="openMomentLightbox('../images/gallery/moment_2.jpg', 'Glowing against that striking backdrop')">
               <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#EDE9FE]/80 border-[#DDD6FE] rounded shadow-2xs border rotate-1"></div>
               <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
-                <img src="../images/couple-landscape-1.webp" class="w-full h-full object-cover" />
+                <img src="../images/gallery/moment_2.jpg" class="w-full h-full object-cover" />
               </div>
-              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Moments under the golden sun ✦</span></div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Glowing against that striking backdrop ✦</span></div>
             </div>
-            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-left -rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 240ms;" onclick="openMomentLightbox('../images/couple-landscape-2.webp', 'Serenity & laughter')">
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-left -rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 240ms;" onclick="openMomentLightbox('../images/gallery/moment_3.jpg', 'Candid moments')">
               <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FEF08A]/80 border-[#FDE047] rounded shadow-2xs border rotate-1"></div>
               <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
-                <img src="../images/couple-landscape-2.webp" class="w-full h-full object-cover" />
+                <img src="../images/gallery/moment_3.jpg" class="w-full h-full object-cover" />
               </div>
-              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Serenity & laughter ✦</span></div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Candid moments ✦</span></div>
             </div>
-            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-right rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 360ms;" onclick="openMomentLightbox('../images/couple-potrait-1.webp', 'Laughs & forever promises')">
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-right rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 360ms;" onclick="openMomentLightbox('../images/gallery/moment_4.jpg', 'Sweet smiles that say it all')">
               <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#EDE9FE]/80 border-[#DDD6FE] rounded shadow-2xs border rotate-1"></div>
               <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
-                <img src="../images/couple-potrait-1.webp" class="w-full h-full object-cover" />
+                <img src="../images/gallery/moment_4.jpg" class="w-full h-full object-cover" />
               </div>
-              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Laughs & forever promises ✦</span></div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Sweet smiles that say it all ✦</span></div>
             </div>
-            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-left -rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 0ms;" onclick="openMomentLightbox('../images/couple-landscape-3.webp', 'Golden hour walk')">
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-left -rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 0ms;" onclick="openMomentLightbox('../images/gallery/moment_5.jpg', 'Lost in a quiet, beautiful moment')">
               <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FEF08A]/80 border-[#FDE047] rounded shadow-2xs border rotate-1"></div>
               <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
-                <img src="../images/couple-landscape-3.webp" class="w-full h-full object-cover" />
+                <img src="../images/gallery/moment_5.jpg" class="w-full h-full object-cover" />
               </div>
-              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Golden hour walk ✦</span></div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Lost in a quiet, beautiful moment ✦</span></div>
             </div>
-            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-right rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 120ms;" onclick="openMomentLightbox('../images/couple-landscape-4.webp', 'Under the starlit sky')">
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-right rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 120ms;" onclick="openMomentLightbox('../images/gallery/moment_6.jpg', 'Just engaged and ready for the sweetest journey ahead')">
               <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#EDE9FE]/80 border-[#DDD6FE] rounded shadow-2xs border rotate-1"></div>
               <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
-                <img src="../images/couple-landscape-4.webp" class="w-full h-full object-cover" />
+                <img src="../images/gallery/moment_6.jpg" class="w-full h-full object-cover" />
               </div>
-              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Under the starlit sky ✦</span></div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Just engaged and ready for the sweetest journey ahead ✦</span></div>
             </div>
-            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-left -rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 240ms;" onclick="openMomentLightbox('../images/couple-udaipur-boat.webp', 'Sailing together')">
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-left -rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 240ms;" onclick="openMomentLightbox('../images/gallery/moment_7.jpg', 'Keeping it stylish together with pose')">
               <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FEF08A]/80 border-[#FDE047] rounded shadow-2xs border rotate-1"></div>
               <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
-                <img src="../images/couple-udaipur-boat.webp" class="w-full h-full object-cover" />
+                <img src="../images/gallery/moment_7.jpg" class="w-full h-full object-cover" />
               </div>
-              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Sailing together ✦</span></div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Keeping it stylish together with pose ✦</span></div>
             </div>
-            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-right rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 360ms;" onclick="openMomentLightbox('../images/couple-udaipur-rooftop.webp', 'Rooftop whispers')">
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-right rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 360ms;" onclick="openMomentLightbox('../images/gallery/moment_8.jpg', 'Cutting into celebration mode ')">
               <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#EDE9FE]/80 border-[#DDD6FE] rounded shadow-2xs border rotate-1"></div>
               <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
-                <img src="../images/couple-udaipur-rooftop.webp" class="w-full h-full object-cover" />
+                <img src="../images/gallery/moment_8.jpg" class="w-full h-full object-cover" />
               </div>
-              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Rooftop whispers ✦</span></div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Cutting into celebration mode  ✦</span></div>
             </div>
-            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-left -rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 0ms;" onclick="openMomentLightbox('../images/couple-udaipur-bazaar.webp', 'Old city charm')">
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-left -rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 0ms;" onclick="openMomentLightbox('../images/gallery/moment_9.jpg', 'Striking a pose with effortless grace and timeless elegance')">
               <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FEF08A]/80 border-[#FDE047] rounded shadow-2xs border rotate-1"></div>
               <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
-                <img src="../images/couple-udaipur-bazaar.webp" class="w-full h-full object-cover" />
+                <img src="../images/gallery/moment_9.jpg" class="w-full h-full object-cover" />
               </div>
-              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Old city charm ✦</span></div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Striking a pose with effortless grace and timeless elegance ✦</span></div>
             </div>
-            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-right rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 120ms;" onclick="openMomentLightbox('../images/couple-udaipur-hilltop.webp', 'Monsoon palace views')">
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-right rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 120ms;" onclick="openMomentLightbox('../images/gallery/moment_10.jpg', 'Showcasing those special symbols of a brand new journey together')">
               <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#EDE9FE]/80 border-[#DDD6FE] rounded shadow-2xs border rotate-1"></div>
               <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
-                <img src="../images/couple-udaipur-hilltop.webp" class="w-full h-full object-cover" />
+                <img src="../images/gallery/moment_10.jpg" class="w-full h-full object-cover" />
               </div>
-              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Monsoon palace views ✦</span></div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Showcasing those special symbols of a brand new journey together ✦</span></div>
             </div>
-            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-left -rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 240ms;" onclick="openMomentLightbox('../images/couple-udaipur-haveli.webp', 'Courtyard royalty')">
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-left -rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 240ms;" onclick="openMomentLightbox('../images/gallery/moment_11.jpg', 'Caught in a dreamy spotlight with a look of pure grace')">
               <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FEF08A]/80 border-[#FDE047] rounded shadow-2xs border rotate-1"></div>
               <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
-                <img src="../images/couple-udaipur-haveli.webp" class="w-full h-full object-cover" />
+                <img src="../images/gallery/moment_11.jpg" class="w-full h-full object-cover" />
               </div>
-              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Courtyard royalty ✦</span></div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Caught in a dreamy spotlight with a look of pure grace ✦</span></div>
             </div>
-            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-right rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 360ms;" onclick="openMomentLightbox('../images/couple-udaipur-ghat.webp', 'At the water's edge')">
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-right rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 360ms;" onclick="openMomentLightbox('../images/gallery/moment_12.jpg', 'Sharing a close, quiet moment wrapped in love and warmth')">
               <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#EDE9FE]/80 border-[#DDD6FE] rounded shadow-2xs border rotate-1"></div>
               <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
-                <img src="../images/couple-udaipur-ghat.webp" class="w-full h-full object-cover" />
+                <img src="../images/gallery/moment_12.jpg" class="w-full h-full object-cover" />
               </div>
-              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ At the water's edge ✦</span></div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Sharing a close, quiet moment wrapped in love and warmth ✦</span></div>
+            </div>
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-left -rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 0ms;" onclick="openMomentLightbox('../images/gallery/moment_13.jpg', 'Crowning the celebration with a beautiful ring ceremony cake')">
+              <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FEF08A]/80 border-[#FDE047] rounded shadow-2xs border rotate-1"></div>
+              <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
+                <img src="../images/gallery/moment_13.jpg" class="w-full h-full object-cover" />
+              </div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Crowning the celebration with a beautiful ring ceremony cake ✦</span></div>
+            </div>
+            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform reveal-tilt-right rotate-1 hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: 120ms;" onclick="openMomentLightbox('../images/gallery/moment_14.jpg', 'Where the celebrations and unforgettable memories come to life at Hotel Meenar')">
+              <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#EDE9FE]/80 border-[#DDD6FE] rounded shadow-2xs border rotate-1"></div>
+              <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
+                <img src="../images/gallery/moment_14.jpg" class="w-full h-full object-cover" />
+              </div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ Where the celebrations and unforgettable memories come to life at Hotel Meenar ✦</span></div>
             </div>
         </div>
       </section>
