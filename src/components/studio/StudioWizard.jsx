@@ -977,10 +977,11 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       <canvas id="scratch-canvas" width="320" height="224" class="absolute inset-0 cursor-pointer touch-none"></canvas>
     </div>
 
-    <div class="mt-4 text-center">
+    <div class="mt-5 text-center space-y-2">
       <p id="scratch-hint" class="text-xs text-stone-500 font-medium">Scrub across the foil to reveal (0% cleared)</p>
-      <button id="skip-reveal-btn" class="mt-4 text-[11px] tracking-widest uppercase font-semibold text-[#8B6F47] hover:underline cursor-pointer">
-        Skip reveal & view invitation →
+      <button id="skip-reveal-btn" class="mt-2 px-6 py-2.5 rounded-full bg-[#8B6F47] hover:bg-[#725a38] text-white text-[11px] tracking-widest uppercase font-bold shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer inline-flex items-center gap-1.5">
+        <span>Open Full Invitation</span>
+        <span>↓</span>
       </button>
     </div>
   </div>`}
@@ -2483,18 +2484,31 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
 </body>
 </html>`;
 
-    // Cache published standalone HTML in localStorage for instant same-origin client hydration
+    // 1. Always save lightweight JSON state first (guaranteed never to exceed browser quota)
     const nowTime = String(Date.now());
     try {
-      localStorage.setItem('wishlys_published_html_' + slug, standaloneHtml);
-      localStorage.setItem('wishlys_published_html_preeti-and-ashish', standaloneHtml);
-      localStorage.setItem('wishlys_published_html', standaloneHtml);
-      localStorage.setItem('wishlys_published_html_latest', standaloneHtml);
+      localStorage.setItem('wishlys_free_saved_data', JSON.stringify(data));
+      localStorage.setItem('wishlys_published_data', JSON.stringify(data));
+      localStorage.setItem('wishlys_published_data_' + slug, JSON.stringify(data));
       localStorage.setItem('wishlys_published_slug', slug);
       localStorage.setItem('wishlys_published_time', nowTime);
-      localStorage.setItem('wishlys_free_saved_data', JSON.stringify(data));
+    } catch (jsonErr) {
+      console.warn('Could not save data JSON to localStorage:', jsonErr);
+    }
+
+    // 2. Cache standalone HTML (cleanup previous HTML caches first to stay under 5MB browser quota)
+    try {
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const k = localStorage.key(i);
+        if (k && (k.startsWith('wishlys_published_html') || k === 'wishlys_published_html')) {
+          localStorage.removeItem(k);
+        }
+      }
+      localStorage.setItem('wishlys_published_html', standaloneHtml);
+      localStorage.setItem('wishlys_published_html_' + slug, standaloneHtml);
+      localStorage.setItem('wishlys_published_html_preeti-and-ashish', standaloneHtml);
     } catch (storageErr) {
-      console.warn('Could not cache standaloneHtml in localStorage:', storageErr);
+      console.warn('HTML cache quota exceeded, JSON state preserved:', storageErr);
     }
 
     // Auto-save to public/published folder if running locally
