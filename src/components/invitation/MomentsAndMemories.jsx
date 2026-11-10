@@ -262,7 +262,7 @@ export default function MomentsAndMemories({
               <div
                 key={item.id}
                 onClick={() => setSelectedPhoto(item)}
-                className={`relative bg-white p-2 pb-3 rounded-xl shadow-md border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer group flex flex-col justify-between ${
+                className={`relative bg-white/80 backdrop-blur-md p-2 pb-3 rounded-xl shadow-md border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer group flex flex-col justify-between ${
                   isGuest ? 'border-pink-200 ring-2 ring-pink-100/60' : 'border-stone-200'
                 } ${idx % 2 === 0 ? '-rotate-1 hover:rotate-0' : 'rotate-1 hover:rotate-0'}`}
               >

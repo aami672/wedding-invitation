@@ -945,7 +945,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
               var rawUrl = item.url || item.img || item.b64 || './images/couple-potrait.webp';
               var imgUrl = resolveAssetUrl(rawUrl);
               var cap = (item.caption || item.title || 'Wedding Memory').replace(/'/g, "\\'");
-              gHtml += '<div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform ' + tiltClass + ' hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: ' + delay + 'ms;" onclick="openMomentLightbox(\'' + imgUrl + '\', \'' + cap + '\')">'
+              gHtml += '<div class="relative bg-white/80 backdrop-blur-md p-2 pb-3.5 rounded-lg shadow-md border border-white/80 hover:border-amber-200 transform ' + tiltClass + ' hover:rotate-0 transition-all duration-300 scroll-reveal cursor-pointer" style="transition-delay: ' + delay + 'ms;" onclick="openMomentLightbox(\'' + imgUrl + '\', \'' + cap + '\')">'
                 + '<div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 ' + tapeClass + ' rounded shadow-2xs border rotate-1"></div>'
                 + '<div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">'
                 + '<img src="' + imgUrl + '" class="w-full h-full object-cover" />'
@@ -993,6 +993,15 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Alex+Brush&family=Allura&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Great+Vibes&family=Italianno&family=Lora:ital,wght@0,400..700;1,400..700&family=Marcellus&family=Montserrat:wght@300;400;500;600;700&family=Parisienne&family=Philosopher:ital,wght@0,400;0,700;1,400&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400..800;1,400..800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Prata&family=Rozha+One&family=Satisfy&family=Tangerine:wght@700&display=swap" rel="stylesheet" />
   <style>
+    /* Frosted glass blur for cards */
+    [class*="backdrop-blur"], .backdrop-blur-md {
+      -webkit-backdrop-filter: blur(12px) !important;
+      backdrop-filter: blur(12px) !important;
+    }
+    .backdrop-blur-lg {
+      -webkit-backdrop-filter: blur(16px) !important;
+      backdrop-filter: blur(16px) !important;
+    }
     body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: ${isPichwai ? '#071A1E' : isZardozi ? '#FAF7F0' : isNewspaper ? '#F6F1E5' : isCaricature ? '#FAF7F2' : '#FDFBF7'}; color: ${isPichwai ? '#F4ECDE' : '#2B1E17'}; }
     .font-serif { font-family: "${data.typography?.bodyFont || 'Cormorant Garamond'}", Georgia, serif; }
     .font-royal { font-family: "${data.typography?.headingFont || 'Cinzel'}", serif; }
@@ -1416,7 +1425,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         </div>
 
         <!-- Cusped Scalloped Arch Frame -->
-        <div class="relative w-full bg-[#FFFDF9] rounded-t-[60px] rounded-b-3xl p-3 border-[3px] border-[#FDE68A] shadow-xl overflow-hidden text-center">
+        <div class="relative w-full bg-[#FFFDF9]/90 backdrop-blur-md rounded-t-[60px] rounded-b-3xl p-3 border-[3px] border-[#FDE68A]/80 shadow-xl overflow-hidden text-center">
           <!-- Sacred Sanskrit Invocation -->
           <div class="pt-2 pb-0.5">
             <span class="text-[11px] font-serif text-[#B45309] font-medium tracking-wide">
@@ -1466,7 +1475,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         </div>
 
         <!-- Cusped Scalloped Arch Frame -->
-        <div class="relative w-full bg-[#FFFDF9] rounded-t-[60px] rounded-b-3xl p-3 border-[3px] border-[#FDE68A] shadow-xl overflow-hidden text-center">
+        <div class="relative w-full bg-[#FFFDF9]/90 backdrop-blur-md rounded-t-[60px] rounded-b-3xl p-3 border-[3px] border-[#FDE68A]/80 shadow-xl overflow-hidden text-center">
           <!-- Sacred Sanskrit Invocation -->
           <div class="pt-2 pb-0.5">
             <span class="text-[11px] font-serif text-[#B45309] font-medium tracking-wide">
@@ -1515,7 +1524,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
 
         <div class="grid grid-cols-2 gap-2 relative items-stretch">
           <!-- Left Card: Groom (Clickable Modal) -->
-          <div onclick="openPersonModal('groom')" class="relative bg-white p-2.5 pb-4 rounded-2xl shadow-md border border-stone-200 transform -rotate-2 hover:rotate-0 hover:shadow-xl hover:border-amber-300 transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-left cursor-pointer group">
+          <div onclick="openPersonModal('groom')" class="relative bg-white/80 backdrop-blur-md p-2.5 pb-4 rounded-2xl shadow-md border border-white/80 hover:border-amber-300 transform -rotate-2 hover:rotate-0 hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-left cursor-pointer group">
             <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#A7F3D0]/85 rounded shadow-xs rotate-1 border border-[#6EE7B7]"></div>
             <div class="w-20 h-20 rounded-full overflow-hidden bg-stone-100 mt-1 mb-2 border-2 border-stone-200 ring-4 ring-[#E6F4EA] shadow-inner shrink-0 group-hover:ring-emerald-300 transition-all">
               <img id="meet-groom-img" src="${b64Groom || './images/ashish_groom.jpg' || './images/groom.webp'}" alt="${data.hosts?.groom || 'Ashish'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
@@ -1531,7 +1540,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none text-rose-400 text-2xl animate-pulse drop-shadow scroll-reveal reveal-bounce" style="transition-delay: 250ms;">♡</div>
 
           <!-- Right Card: Bride (Clickable Modal) -->
-          <div onclick="openPersonModal('bride')" class="relative bg-white p-2.5 pb-4 rounded-2xl shadow-md border border-stone-200 transform rotate-2 hover:rotate-0 hover:shadow-xl hover:border-rose-300 transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-right cursor-pointer group" style="transition-delay: 150ms;">
+          <div onclick="openPersonModal('bride')" class="relative bg-white/80 backdrop-blur-md p-2.5 pb-4 rounded-2xl shadow-md border border-white/80 hover:border-rose-300 transform rotate-2 hover:rotate-0 hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-right cursor-pointer group" style="transition-delay: 150ms;">
             <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FDE68A]/85 rounded shadow-xs -rotate-1 border border-[#FCD34D]"></div>
             <div class="w-20 h-20 rounded-full overflow-hidden bg-stone-100 mt-1 mb-2 border-2 border-stone-200 ring-4 ring-[#FCE8E6] shadow-inner shrink-0 group-hover:ring-rose-300 transition-all">
               <img id="meet-bride-img" src="${b64Bride || './images/preeti_bride.jpg' || './images/bride.webp'}" alt="${data.hosts?.bride || 'Preeti'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
@@ -1553,7 +1562,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1"></div>
         </div>
 
-        <div class="relative bg-white rounded-2xl p-4 sm:p-5 border-2 border-stone-200 shadow-md scroll-reveal reveal-calendar">
+        <div class="relative bg-white/80 backdrop-blur-md rounded-2xl p-4 sm:p-5 border-2 border-stone-200/80 shadow-md scroll-reveal reveal-calendar">
           <div class="absolute -top-3 left-1/3 -translate-x-1/2 w-3.5 h-6 rounded-full border-2 border-stone-400 bg-stone-100 shadow-inner"></div>
           <div class="absolute -top-3 right-1/3 translate-x-1/2 w-3.5 h-6 rounded-full border-2 border-stone-400 bg-stone-100 shadow-inner"></div>
 
@@ -1637,7 +1646,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           return `
           <div class="relative w-full select-none space-y-3">
             <div class="w-full flex justify-center -mb-2 scroll-reveal reveal-pop-up">
-              <div class="w-full max-w-[350px] aspect-[9/16] rounded-t-[44px] rounded-b-2xl overflow-hidden flex items-center justify-center p-0 drop-shadow-md bg-[#FFFDF7] border-2 border-amber-100">
+              <div class="w-full max-w-[350px] aspect-[9/16] rounded-t-[44px] rounded-b-2xl overflow-hidden flex items-center justify-center p-0 drop-shadow-md bg-[#FFFDF7]/85 backdrop-blur-md border-2 border-amber-100/80">
                 <img id="event-img-${evt.id || idx}" src="${archB64}" alt="${evt.name}" class="w-full h-full object-contain object-center" />
               </div>
             </div>
@@ -1646,7 +1655,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
               <h3 class="font-serif text-2xl font-bold text-[#2B1E17]">${evt.name}</h3>
             </div>
 
-            <div class="relative bg-[#FFFDF9] rounded-2xl p-4 sm:p-5 border-2 border-stone-200 shadow-md space-y-2.5 scroll-reveal" style="transition-delay: 160ms;">
+            <div class="relative bg-[#FFFDF9]/85 backdrop-blur-md rounded-2xl p-4 sm:p-5 border-2 border-stone-200/80 shadow-md space-y-2.5 scroll-reveal" style="transition-delay: 160ms;">
               <div class="space-y-1.5 text-xs text-stone-700">
                 <p class="flex items-center gap-2"><span>📅</span><strong class="text-stone-900">${evt.date}</strong> · ⏰ ${evt.time}</p>
                 <p class="flex items-center gap-2"><span>📍</span><span><strong class="text-stone-900">${evt.venue}</strong> — ${evt.address}</span></p>
@@ -1704,7 +1713,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
             const tiltClass = isLeft ? 'reveal-tilt-left -rotate-1' : 'reveal-tilt-right rotate-1';
             const delay = Math.min(360, (idx % 4) * 120);
             return `
-            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform ${tiltClass} hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: ${delay}ms;" onclick="openMomentLightbox('${item.b64 || './images/couple-potrait.webp'}', '${item.caption}')">
+            <div class="relative bg-white/80 backdrop-blur-md p-2 pb-3.5 rounded-lg shadow-md border border-white/80 hover:border-amber-200 transform ${tiltClass} hover:rotate-0 transition-all duration-300 scroll-reveal cursor-pointer" style="transition-delay: ${delay}ms;" onclick="openMomentLightbox('${item.b64 || './images/couple-potrait.webp'}', '${item.caption}')">
               <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 ${tapeClass} rounded shadow-2xs border rotate-1"></div>
               <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
                 <img src="${item.b64 || './images/couple-potrait.webp'}" class="w-full h-full object-cover" />
@@ -1723,7 +1732,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1"></div>
         </div>
 
-        <div class="bg-[#FFFDF9] rounded-2xl p-4 border-2 border-stone-200 shadow-md space-y-3 scroll-reveal reveal-pop-up" style="transition-delay: 120ms;">
+        <div class="bg-[#FFFDF9]/85 backdrop-blur-md rounded-2xl p-4 border-2 border-stone-200/80 shadow-md space-y-3 scroll-reveal reveal-pop-up" style="transition-delay: 120ms;">
           <div class="w-full h-40 rounded-xl bg-gradient-to-b from-[#E6F4EA] to-[#FEF3C7] border border-[#A7F3D0] relative overflow-hidden flex flex-col justify-between p-3">
             <div class="flex justify-between items-start text-lg opacity-80">
               <span>🌳</span><span>🏰</span><span>🌳</span>
@@ -1787,7 +1796,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
 
         <div class="grid grid-cols-2 gap-2 relative items-stretch">
           <!-- Left Card: Groom (Clickable Modal) -->
-          <div onclick="openPersonModal('groom')" class="relative bg-white p-2.5 pb-4 rounded-2xl shadow-md border border-stone-200 transform -rotate-2 hover:rotate-0 hover:shadow-xl hover:border-amber-300 transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-left cursor-pointer group">
+          <div onclick="openPersonModal('groom')" class="relative bg-white/80 backdrop-blur-md p-2.5 pb-4 rounded-2xl shadow-md border border-white/80 hover:border-amber-300 transform -rotate-2 hover:rotate-0 hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-left cursor-pointer group">
             <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#A7F3D0]/85 rounded shadow-xs rotate-1 border border-[#6EE7B7]"></div>
             <div class="w-20 h-20 rounded-full overflow-hidden bg-stone-100 mt-1 mb-2 border-2 border-stone-200 ring-4 ring-[#E6F4EA] shadow-inner shrink-0 group-hover:ring-emerald-300 transition-all">
               <img id="meet-groom-img" src="${b64Groom || './images/ashish_groom.jpg' || './images/groom.webp'}" alt="${data.hosts?.groom || 'Ashish'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
@@ -1803,7 +1812,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none text-rose-400 text-2xl animate-pulse drop-shadow scroll-reveal reveal-bounce" style="transition-delay: 250ms;">♡</div>
 
           <!-- Right Card: Bride (Clickable Modal) -->
-          <div onclick="openPersonModal('bride')" class="relative bg-white p-2.5 pb-4 rounded-2xl shadow-md border border-stone-200 transform rotate-2 hover:rotate-0 hover:shadow-xl hover:border-rose-300 transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-right cursor-pointer group" style="transition-delay: 150ms;">
+          <div onclick="openPersonModal('bride')" class="relative bg-white/80 backdrop-blur-md p-2.5 pb-4 rounded-2xl shadow-md border border-white/80 hover:border-rose-300 transform rotate-2 hover:rotate-0 hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-right cursor-pointer group" style="transition-delay: 150ms;">
             <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FDE68A]/85 rounded shadow-xs -rotate-1 border border-[#FCD34D]"></div>
             <div class="w-20 h-20 rounded-full overflow-hidden bg-stone-100 mt-1 mb-2 border-2 border-stone-200 ring-4 ring-[#FCE8E6] shadow-inner shrink-0 group-hover:ring-rose-300 transition-all">
               <img id="meet-bride-img" src="${b64Bride || './images/preeti_bride.jpg' || './images/bride.webp'}" alt="${data.hosts?.bride || 'Preeti'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
@@ -1825,7 +1834,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1"></div>
         </div>
 
-        <div class="relative bg-white rounded-2xl p-4 sm:p-5 border-2 border-stone-200 shadow-md scroll-reveal reveal-calendar">
+        <div class="relative bg-white/80 backdrop-blur-md rounded-2xl p-4 sm:p-5 border-2 border-stone-200/80 shadow-md scroll-reveal reveal-calendar">
           <div class="absolute -top-3 left-1/3 -translate-x-1/2 w-3.5 h-6 rounded-full border-2 border-stone-400 bg-stone-100 shadow-inner"></div>
           <div class="absolute -top-3 right-1/3 translate-x-1/2 w-3.5 h-6 rounded-full border-2 border-stone-400 bg-stone-100 shadow-inner"></div>
 
@@ -1896,7 +1905,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           return `
           <div class="relative w-full select-none space-y-3">
             <div class="w-full flex justify-center -mb-2 scroll-reveal reveal-pop-up">
-              <div class="w-full max-w-[350px] aspect-[9/16] rounded-t-[44px] rounded-b-2xl overflow-hidden flex items-center justify-center p-0 drop-shadow-md bg-[#FFFDF7] border-2 border-amber-100">
+              <div class="w-full max-w-[350px] aspect-[9/16] rounded-t-[44px] rounded-b-2xl overflow-hidden flex items-center justify-center p-0 drop-shadow-md bg-[#FFFDF7]/85 backdrop-blur-md border-2 border-amber-100/80">
                 <img id="event-img-${evt.id || idx}" src="${archB64}" alt="${evt.name}" class="w-full h-full object-contain object-center" />
               </div>
             </div>
@@ -1905,7 +1914,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
               <h3 class="font-serif text-2xl font-bold text-[#2B1E17]">${evt.name}</h3>
             </div>
 
-            <div class="relative bg-[#FFFDF9] rounded-2xl p-4 sm:p-5 border-2 border-stone-200 shadow-md space-y-2.5 scroll-reveal" style="transition-delay: 160ms;">
+            <div class="relative bg-[#FFFDF9]/85 backdrop-blur-md rounded-2xl p-4 sm:p-5 border-2 border-stone-200/80 shadow-md space-y-2.5 scroll-reveal" style="transition-delay: 160ms;">
               <div class="space-y-1.5 text-xs text-stone-700">
                 <p class="flex items-center gap-2"><span>📅</span><strong class="text-stone-900">${evt.date}</strong> · ⏰ ${evt.time}</p>
                 <p class="flex items-center gap-2"><span>📍</span><span><strong class="text-stone-900">${evt.venue}</strong> — ${evt.address}</span></p>
@@ -1963,7 +1972,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
             const tiltClass = isLeft ? 'reveal-tilt-left -rotate-1' : 'reveal-tilt-right rotate-1';
             const delay = Math.min(360, (idx % 4) * 120);
             return `
-            <div class="relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform ${tiltClass} hover:rotate-0 transition-transform duration-300 scroll-reveal cursor-pointer" style="transition-delay: ${delay}ms;" onclick="openMomentLightbox('${item.b64 || './images/couple-potrait.webp'}', '${item.caption}')">
+            <div class="relative bg-white/80 backdrop-blur-md p-2 pb-3.5 rounded-lg shadow-md border border-white/80 hover:border-amber-200 transform ${tiltClass} hover:rotate-0 transition-all duration-300 scroll-reveal cursor-pointer" style="transition-delay: ${delay}ms;" onclick="openMomentLightbox('${item.b64 || './images/couple-potrait.webp'}', '${item.caption}')">
               <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 ${tapeClass} rounded shadow-2xs border rotate-1"></div>
               <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
                 <img src="${item.b64 || './images/couple-potrait.webp'}" class="w-full h-full object-cover" />
@@ -1982,7 +1991,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1"></div>
         </div>
 
-        <div class="bg-[#FFFDF9] rounded-2xl p-4 border-2 border-stone-200 shadow-md space-y-3 scroll-reveal reveal-pop-up" style="transition-delay: 120ms;">
+        <div class="bg-[#FFFDF9]/85 backdrop-blur-md rounded-2xl p-4 border-2 border-stone-200/80 shadow-md space-y-3 scroll-reveal reveal-pop-up" style="transition-delay: 120ms;">
           <div class="w-full h-40 rounded-xl bg-gradient-to-b from-[#E6F4EA] to-[#FEF3C7] border border-[#A7F3D0] relative overflow-hidden flex flex-col justify-between p-3">
             <div class="flex justify-between items-start text-lg opacity-80">
               <span>🌳</span><span>🏰</span><span>🌳</span>
@@ -2007,7 +2016,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
 
       <!-- 6. MULTI-STEP INTERACTIVE RSVP -->
       <section class="py-6 px-2 w-full max-w-[390px] mx-auto select-none scroll-reveal">
-        <div class="bg-[#FFFDF9] rounded-2xl p-5 border-2 border-stone-200 shadow-md space-y-4 text-center">
+        <div class="bg-[#FFFDF9]/88 backdrop-blur-md rounded-2xl p-5 border-2 border-stone-200/80 shadow-md space-y-4 text-center">
           <span class="text-[10px] uppercase tracking-[0.25em] font-bold text-stone-500 block">PLEASE RESPOND</span>
           <h3 class="font-serif text-2xl font-light text-[#2B1E17]">Are you attending?</h3>
           <p class="text-xs text-stone-500 font-light">Kindly confirm your presence so we can reserve your seat and celebrations.</p>
@@ -2093,7 +2102,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
 
   <!-- GROOM & BRIDE ENLARGED PORTRAIT CARD MODAL (BLURRED BACKDROP) -->
   <div id="person-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/65 backdrop-blur-md transition-all animate-fadeIn" onclick="closePersonModal()">
-    <div class="relative w-full max-w-[330px] bg-[#FFFDF9] rounded-3xl p-5 border-2 border-[#FDE68A] shadow-2xl text-center space-y-3 animate-scaleUp" onclick="event.stopPropagation()">
+    <div class="relative w-full max-w-[330px] bg-[#FFFDF9]/95 backdrop-blur-lg rounded-3xl p-5 border-2 border-[#FDE68A]/80 shadow-2xl text-center space-y-3 animate-scaleUp" onclick="event.stopPropagation()">
       <div id="modal-washi" class="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-5 rounded shadow-xs bg-[#A7F3D0] border border-[#6EE7B7] rotate-1"></div>
       <button onclick="closePersonModal()" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center text-sm font-bold shadow-xs cursor-pointer z-10 transition-colors" aria-label="Close">✕</button>
       <div class="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-stone-100 border-2 border-stone-200 shadow-inner mt-2">
