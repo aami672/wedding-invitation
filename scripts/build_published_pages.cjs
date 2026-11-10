@@ -172,11 +172,16 @@ const firstDayIndex = validDate ? new Date(calYear, d.getMonth(), 1).getDay() : 
 const displayWeddingDate = formatDisplayDate(data.hosts.date || '2026-12-09');
 const monogramInitials = getMonogramInitials(data.hosts, data.monogram);
 
+const b64Events = (data.events || []).map(evt => ({
+  ...evt,
+  customB64: evt.image ? (evt.image.startsWith('http') || evt.image.startsWith('data:') ? evt.image : `${assetPrefix}${evt.image.replace(/^\.?\//, '')}`) : ''
+}));
+
 // Build HTML using Function constructor to evaluate templateStr in context
 const buildFn = new Function(
   'data', 'slug', 'isCaricature', 'isPichwai', 'isZardozi', 'isMela', 'isNewspaper', 'isBougain',
   'b64Cover', 'b64Bride', 'b64Groom', 'b64Tmpl', 'b64Scooter', 'b64Haldi', 'b64Mehndi', 'b64Sangeet', 'b64Pheras', 'b64Reception',
-  'b64Gallery', 'eventsJson', 'd', 'calMonthName', 'calYear', 'calDayNum', 'daysInMonth', 'firstDayIndex',
+  'b64Gallery', 'b64Events', 'eventsJson', 'd', 'calMonthName', 'calYear', 'calDayNum', 'daysInMonth', 'firstDayIndex',
   'displayWeddingDate', 'monogramInitials',
   'return `' + templateStr + '`;'
 );
@@ -184,38 +189,12 @@ const buildFn = new Function(
 let html = buildFn(
   data, slug, isCaricature, isPichwai, isZardozi, isMela, isNewspaper, isBougain,
   b64Cover, b64Bride, b64Groom, b64Tmpl, b64Scooter, b64Haldi, b64Mehndi, b64Sangeet, b64Pheras, b64Reception,
-  b64Gallery, eventsJson, d, calMonthName, calYear, calDayNum, daysInMonth, firstDayIndex,
+  b64Gallery, b64Events, eventsJson, d, calMonthName, calYear, calDayNum, daysInMonth, firstDayIndex,
   displayWeddingDate, monogramInitials
 );
 
-// If user has a verified downloaded published master file, use it as the definitive HTML source
-const masterDownloadedPath = path.join(__dirname, '../src/data/downloaded_published.html');
-if (fs.existsSync(masterDownloadedPath)) {
-  html = fs.readFileSync(masterDownloadedPath, 'utf8');
-
-  // For high-performance web delivery, convert large embedded base64 images to relative asset paths
-  const regex = /data:image\/jpeg;base64,[A-Za-z0-9+/=]+/g;
-  const matches = [];
-  let m;
-  while ((m = regex.exec(html)) !== null) {
-    matches.push(m[0]);
-  }
-
-  if (matches.length >= 33) {
-    const oldCover = matches[0];
-    const oldGroom = matches[1];
-    const oldBride = matches[2];
-
-    html = html.replaceAll(oldCover, '../images/templates/caricature.webp');
-    html = html.replaceAll(oldGroom, '../images/ashish_groom.jpg');
-    html = html.replaceAll(oldBride, '../images/preeti_bride.jpg');
-
-    for (let i = 1; i <= 14; i++) {
-      const oldMoment = matches[3 + (i - 1) * 2];
-      html = html.replaceAll(oldMoment, `../images/gallery/moment_${i}.jpg`);
-    }
-  }
-}
+// The buildFn generates the up-to-date standalone HTML directly from StudioWizard.jsx
+// with all latest hydration IDs, lineages, event arches, and gallery items.
 
 // Write to public/published/
 const pubDir = path.join(__dirname, '../public/published');

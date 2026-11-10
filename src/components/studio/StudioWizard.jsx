@@ -285,12 +285,15 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     const reader = new FileReader();
     reader.onload = (event) => {
       const rawSrc = event.target.result;
-      const aspect = targetField === 'cover' ? 9 / 16 : 3 / 4;
+      const isEvent = typeof targetField === 'object' && targetField.type === 'event';
+      const aspect = targetField === 'cover' ? 9 / 16 : isEvent ? 9 / 16 : 3 / 4;
       const fieldTitle =
         targetField === 'cover'
           ? 'Hero Cover Photo'
           : targetField === 'bride'
           ? 'Bride Photo'
+          : isEvent
+          ? (targetField.eventName || 'Event Photo')
           : 'Groom Photo';
       setCropModalConfig({
         isOpen: true,
@@ -315,6 +318,8 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         }
         return { ...prev, gallery: g };
       });
+    } else if (typeof target === 'object' && target.type === 'event') {
+      updateEvent(target.eventId, 'image', croppedDataUrl);
     } else {
       updatePhotos(target, croppedDataUrl);
     }
@@ -423,14 +428,17 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     const isCover = currentTarget === 'cover';
     const isBride = currentTarget === 'bride';
     const isGroom = currentTarget === 'groom';
+    const isEvent = typeof currentTarget === 'object' && currentTarget.type === 'event';
     const fieldTitle = isCover
       ? 'Hero Cover Photo'
       : isBride
       ? 'Bride Photo'
       : isGroom
       ? 'Groom Photo'
+      : isEvent
+      ? (currentTarget.eventName || 'Event Photo')
       : 'Gallery Photo';
-    const aspect = isCover ? 9 / 16 : 3 / 4;
+    const aspect = (isCover || isEvent) ? 9 / 16 : 3 / 4;
 
     setCropModalConfig({
       isOpen: true,
@@ -627,6 +635,17 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       toBase64Optimized('./images/caricature/pheras_arch.webp', 800, 0.85, true),
       toBase64Optimized('./images/caricature/reception_arch.webp', 800, 0.85, true),
     ]);
+
+    const b64Events = await Promise.all((data.events || []).map(async (evt) => {
+      let customB64 = '';
+      if (evt.image || evt.img) {
+        customB64 = await toBase64Optimized(evt.image || evt.img, 1200, 0.90, false);
+      }
+      return {
+        ...evt,
+        customB64,
+      };
+    }));
 
     const galleryItems = (data.gallery && data.gallery.length > 0) ? data.gallery : [
       { url: './images/gallery/moment_1.jpg', caption: 'Flaunting those new rings and that forever kind of vibe' },
@@ -891,6 +910,15 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         if (d.hosts && d.hosts.brideParents) {
           var elBrideParents = document.getElementById('meet-bride-parents');
           if (elBrideParents) elBrideParents.textContent = d.hosts.brideParents;
+        }
+
+        if (d.events && Array.isArray(d.events)) {
+          d.events.forEach(function(evt) {
+            if (evt.id && (evt.image || evt.img)) {
+              var elEvtImg = document.getElementById('event-img-' + evt.id);
+              if (elEvtImg) elEvtImg.src = resolveAssetUrl(evt.image || evt.img);
+            }
+          });
         }
 
         // Moments & Memories Gallery Hydration
@@ -1621,18 +1649,20 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           const isWedding = evt.id === 'evt-pheras' || nameLower.includes('wedding') || nameLower.includes('phera') || nameLower.includes('shaadi');
           const isReception = nameLower.includes('reception') || nameLower.includes('party');
 
-          const archB64 = isHaldi ? (b64Haldi || b64Scooter)
+          const defaultArch = isHaldi ? (b64Haldi || b64Scooter)
             : isMehndi ? (b64Mehndi || b64Scooter)
             : isSangeet ? (b64Sangeet || b64Scooter)
             : isWedding ? (b64Pheras || b64Scooter)
             : isReception ? (b64Reception || b64Scooter)
             : (b64Scooter);
 
+          const archB64 = (typeof b64Events !== 'undefined' && b64Events && b64Events[idx] && b64Events[idx].customB64) || evt.image || evt.img || defaultArch;
+
           return `
           <div class="relative w-full select-none space-y-3">
             <div class="w-full flex justify-center -mb-2 scroll-reveal reveal-pop-up">
               <div class="w-full max-w-[350px] aspect-[9/16] rounded-t-[44px] rounded-b-2xl overflow-hidden flex items-center justify-center p-0 drop-shadow-md bg-[#FFFDF7] border-2 border-amber-100">
-                <img src="${archB64}" alt="${evt.name}" class="w-full h-full object-contain object-center" />
+                <img id="event-img-${evt.id || idx}" src="${archB64}" alt="${evt.name}" class="w-full h-full object-contain object-center" />
               </div>
             </div>
 
@@ -3860,6 +3890,127 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                           </div>
                         </div>
 
+                        {/* CELEBRATION EVENT PHOTOS SECTION */}
+                        <div className="pt-4 border-t border-[#F0E6D8] space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <span className="text-[11px] font-bold tracking-wider uppercase text-stone-700 block">
+                                EVENT PHOTOS & ARCHES
+                              </span>
+                              <p className="text-xs text-stone-400 font-light">
+                                Custom backdrop photo or illustrated arch for each celebration event.
+                              </p>
+                            </div>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FAF5ED] text-[#8B6F47] border border-[#E6D5BF]">
+                              {(data.events || []).length} {(data.events || []).length === 1 ? 'Event' : 'Events'}
+                            </span>
+                          </div>
+
+                          <div className="space-y-3">
+                            {(data.events || []).map((evt, idx) => {
+                              const nameLower = (evt.name || '').toLowerCase();
+                              const isHaldi = nameLower.includes('haldi');
+                              const isMehndi = nameLower.includes('mehndi') || nameLower.includes('mehendi');
+                              const isSangeet = nameLower.includes('sangeet');
+                              const isWedding = evt.id === 'evt-pheras' || nameLower.includes('wedding') || nameLower.includes('phera') || nameLower.includes('shaadi');
+                              const isReception = nameLower.includes('reception') || nameLower.includes('party');
+
+                              const defaultArch = isHaldi ? './images/caricature/haldi_arch.webp'
+                                : isMehndi ? './images/caricature/mehndi_arch.webp'
+                                : isSangeet ? './images/caricature/sangeet_arch.webp'
+                                : isWedding ? './images/caricature/pheras_arch.webp'
+                                : isReception ? './images/caricature/reception_arch.webp'
+                                : './images/caricature/scooter_couple.webp';
+
+                              const currentImg = evt.image || evt.img || defaultArch;
+                              const isCustom = Boolean(evt.image || evt.img);
+
+                              return (
+                                <div key={evt.id || idx} className="p-3 sm:p-4 rounded-xl border border-stone-200 bg-[#FFFDF9] space-y-3 shadow-2xs">
+                                  <div className="flex items-center justify-between">
+                                    <div className="min-w-0 pr-2">
+                                      <h5 className="font-serif text-sm font-bold text-[#2B1E17] truncate">
+                                        {evt.name || `Event #${idx + 1}`}
+                                      </h5>
+                                      <p className="text-[10px] text-stone-500">{evt.date} · {evt.time}</p>
+                                    </div>
+                                    <span className={`text-[9px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded shrink-0 ${
+                                      isCustom ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-stone-100 text-stone-600'
+                                    }`}>
+                                      {isCustom ? 'Custom Photo' : 'Theme Arch'}
+                                    </span>
+                                  </div>
+
+                                  <div className="flex items-start gap-3 sm:gap-4">
+                                    <div className="w-16 h-24 sm:w-20 sm:h-28 rounded-lg overflow-hidden border border-stone-200 bg-[#FFFDF7] shadow-xs shrink-0 flex items-center justify-center p-1">
+                                      <img src={currentImg} alt={evt.name} className="w-full h-full object-contain" />
+                                    </div>
+
+                                    <div className="flex-1 space-y-2">
+                                      <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                                        <label className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-[#D5C2AA] hover:border-[#8B6F47] hover:bg-[#FAF5ED] text-stone-700 font-semibold text-[10px] sm:text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs">
+                                          <Plus className="w-3.5 h-3.5 text-[#8B6F47]" />
+                                          <span>CHANGE PHOTO</span>
+                                          <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={e => handleFileUpload(e, { type: 'event', eventId: evt.id, eventName: evt.name })}
+                                          />
+                                        </label>
+
+                                        {isCustom && (
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              setCropModalConfig({
+                                                isOpen: true,
+                                                imageSrc: currentImg,
+                                                title: `Adjust & Crop - ${evt.name}`,
+                                                targetField: { type: 'event', eventId: evt.id },
+                                                defaultAspect: 9 / 16,
+                                              });
+                                            }}
+                                            className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-[#D5C2AA] hover:border-[#8B6F47] hover:bg-[#FAF5ED] text-stone-700 font-semibold text-[10px] sm:text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                                          >
+                                            <Crop className="w-3.5 h-3.5 text-[#8B6F47]" />
+                                            <span>ADJUST / CROP</span>
+                                          </button>
+                                        )}
+
+                                        <button
+                                          type="button"
+                                          onClick={() => setGalleryPickerField({ type: 'event', eventId: evt.id, eventName: evt.name })}
+                                          className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-stone-300 hover:border-[#8B6F47] hover:bg-[#FAF5ED] text-stone-700 font-semibold text-[10px] sm:text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                                        >
+                                          <Eye className="w-3.5 h-3.5 text-stone-500" />
+                                          <span>GALLERY</span>
+                                        </button>
+
+                                        {isCustom && (
+                                          <button
+                                            type="button"
+                                            onClick={() => updateEvent(evt.id, 'image', '')}
+                                            className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-stone-300 hover:border-red-400 hover:bg-red-50 hover:text-red-600 text-stone-700 font-semibold text-[10px] sm:text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                                            title="Revert to original theme arch"
+                                          >
+                                            <RotateCcw className="w-3.5 h-3.5 text-stone-400" />
+                                            <span>RESET TO THEME</span>
+                                          </button>
+                                        )}
+                                      </div>
+
+                                      <p className="text-[11px] text-stone-400 leading-snug">
+                                        Displayed in the scalloped pop-up arch for {evt.name}.
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
                         {/* Quick Shortcut to Moments & Memories Gallery */}
                         <div className="pt-3 border-t border-[#F0E6D8]">
                           <div className="p-3.5 rounded-xl bg-[#FAF5ED] border border-[#E6D5BF] flex items-center justify-between">
@@ -5036,14 +5187,62 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                         </div>
 
                         <div>
-                          <label className="block text-[9px] uppercase font-bold text-stone-500 mb-0.5">Event Image URL (Optional Caricature)</label>
-                          <input
-                            type="text"
-                            value={evt.image || evt.img || ''}
-                            onChange={e => updateEvent(evt.id, 'image', e.target.value)}
-                            placeholder="Default theme caricature artwork"
-                            className="w-full px-3 py-1.5 rounded-lg border border-stone-200 text-xs"
-                          />
+                          <label className="block text-[9px] uppercase font-bold text-stone-500 mb-1">Event Photo / Arch Artwork</label>
+                          <div className="flex flex-wrap items-center gap-2.5">
+                            <div className="w-12 h-16 rounded-lg overflow-hidden border border-stone-200 bg-[#FFFDF7] shrink-0 flex items-center justify-center p-0.5">
+                              <img src={evt.image || evt.img || './images/caricature/pheras_arch.webp'} alt={evt.name} className="w-full h-full object-contain" />
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <label className="px-3 py-1.5 rounded-lg border border-[#D5C2AA] hover:border-[#8B6F47] hover:bg-[#FAF5ED] text-stone-700 font-semibold text-[10px] uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs">
+                                <Plus className="w-3.5 h-3.5 text-[#8B6F47]" />
+                                <span>CHANGE PHOTO</span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={e => handleFileUpload(e, { type: 'event', eventId: evt.id, eventName: evt.name })}
+                                />
+                              </label>
+
+                              {(evt.image || evt.img) && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setCropModalConfig({
+                                      isOpen: true,
+                                      imageSrc: evt.image || evt.img,
+                                      title: `Adjust & Crop - ${evt.name}`,
+                                      targetField: { type: 'event', eventId: evt.id },
+                                      defaultAspect: 9 / 16,
+                                    });
+                                  }}
+                                  className="px-3 py-1.5 rounded-lg border border-[#D5C2AA] hover:border-[#8B6F47] hover:bg-[#FAF5ED] text-stone-700 font-semibold text-[10px] uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                                >
+                                  <Crop className="w-3.5 h-3.5 text-[#8B6F47]" />
+                                  <span>CROP</span>
+                                </button>
+                              )}
+
+                              <button
+                                type="button"
+                                onClick={() => setGalleryPickerField({ type: 'event', eventId: evt.id, eventName: evt.name })}
+                                className="px-3 py-1.5 rounded-lg border border-stone-300 hover:border-[#8B6F47] hover:bg-[#FAF5ED] text-stone-700 font-semibold text-[10px] uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                              >
+                                <Eye className="w-3.5 h-3.5 text-stone-500" />
+                                <span>GALLERY</span>
+                              </button>
+
+                              {(evt.image || evt.img) && (
+                                <button
+                                  type="button"
+                                  onClick={() => updateEvent(evt.id, 'image', '')}
+                                  className="px-2.5 py-1.5 rounded-lg border border-stone-200 hover:bg-stone-100 text-stone-600 text-[10px] font-semibold transition-colors"
+                                >
+                                  Reset to Theme
+                                </button>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       </div>
 
@@ -5567,7 +5766,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
             <div className="flex justify-between items-center border-b border-stone-100 pb-3">
               <div>
                 <span className="text-[10px] uppercase font-bold tracking-wider text-[#8B6F47] block">
-                  Select Photo for {galleryPickerField.toUpperCase()}
+                  Select Photo for {typeof galleryPickerField === 'object' ? (galleryPickerField.eventName || 'Event') : String(galleryPickerField).toUpperCase()}
                 </span>
                 <h3 className="font-serif text-2xl font-normal text-[#2B1E17]">
                   Wedding Photo Gallery
