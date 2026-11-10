@@ -675,33 +675,84 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title id="invitation-doc-title">${data.hosts?.bride || 'Preeti'} & ${data.hosts?.groom || 'Ashish'} — Wedding Invitation</title>
   <script>
-    // Wishlys Instant Client-Side Hydration
-    // 1. Full HTML cache hot-swap (if present in browser localStorage)
+    // 1. Storage cleanup - remove stale HTML caches that could block scripts
     (function() {
       try {
-        var currentSlug = "${slug}";
-        var pathSlug = window.location.pathname.split('/').pop().replace('.html', '') || currentSlug;
-        var savedHtml = localStorage.getItem('wishlys_published_html_' + pathSlug)
-                     || localStorage.getItem('wishlys_published_html_' + currentSlug)
-                     || localStorage.getItem('wishlys_published_html_latest')
-                     || localStorage.getItem('wishlys_published_html');
-        var savedTime = localStorage.getItem('wishlys_published_time');
-        var myTime = document.documentElement.getAttribute('data-publish-time');
-        if (savedHtml && (!myTime || !savedTime || Number(savedTime) > Number(myTime))) {
-          if (!window.__wishlys_hydrating) {
-            window.__wishlys_hydrating = true;
-            document.open();
-            document.write(savedHtml);
-            document.close();
-            return;
+        for (var i = localStorage.length - 1; i >= 0; i--) {
+          var k = localStorage.key(i);
+          if (k && (k.indexOf('wishlys_published_html') === 0 || k === 'wishlys_published_html')) {
+            localStorage.removeItem(k);
           }
         }
-      } catch (e) {
-        console.warn('Hydration skipped:', e);
-      }
+      } catch (e) {}
     })();
 
-    // 2. High-speed Quota-Safe DOM Hydration from JSON (always succeeds even if HTML cache is absent)
+    // 2. Early-defined 3D Folding Doors & Invitation Unlock Handlers (Guaranteed ready before first paint)
+    window._doorsOpened = false;
+    window.unlockCaricatureDoors = function(e) {
+      if (e && e.stopPropagation) e.stopPropagation();
+      if (window._doorsOpened) return;
+      window._doorsOpened = true;
+
+      var leftDoor = document.getElementById('door-left');
+      var rightDoor = document.getElementById('door-right');
+      var heartSeal = document.getElementById('door-heart-seal');
+
+      if (leftDoor) {
+        leftDoor.style.transform = 'perspective(1000px) rotateY(-125deg)';
+      }
+      if (rightDoor) {
+        rightDoor.style.transform = 'perspective(1000px) rotateY(125deg)';
+      }
+      if (heartSeal) {
+        heartSeal.style.transform = 'translate(-50%, -50%) scale(1.6)';
+        heartSeal.style.opacity = '0';
+      }
+
+      try {
+        if (window.sound && typeof window.sound.playChime === 'function') {
+          window.sound.playChime(880);
+        }
+      } catch (audioErr) {}
+
+      setTimeout(function() {
+        if (typeof window.unlockInvitation === 'function') {
+          window.unlockInvitation();
+        }
+      }, 700);
+    };
+
+    window.unlockInvitation = function() {
+      var revs = document.querySelectorAll('#reveal-screen, #reveal-screen-folding, #reveal-screen-scratch');
+      revs.forEach(function(rev) {
+        rev.classList.add('opacity-0', 'pointer-events-none');
+        setTimeout(function() {
+          rev.style.display = 'none';
+        }, 500);
+      });
+      setTimeout(function() {
+        var main = document.getElementById('main-invitation');
+        if (main) {
+          main.classList.remove('opacity-0');
+          main.style.opacity = '1';
+        }
+        try {
+          if (typeof triggerCelebrationEffect === 'function') triggerCelebrationEffect();
+        } catch(e) {}
+        try {
+          if (!window.musicActive && window.sound) {
+            window.sound.play();
+            window.musicActive = true;
+            var audioEq = document.getElementById('audio-eq');
+            if (audioEq) audioEq.classList.remove('hidden');
+            var audioText = document.getElementById('audio-btn-text');
+            if (audioText) audioText.innerText = 'Playing';
+          }
+        } catch(e) {}
+      }, 400);
+    };
+
+    // 3. High-speed Quota-Safe DOM Hydration from JSON (always succeeds)
     function hydrateSavedData() {
       try {
         var currentSlug = "${slug}";
@@ -1035,15 +1086,15 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     </div>
 
     <!-- 3D Folding Card Container - Full 9:16 Aspect Ratio -->
-    <div id="door-card-container" onclick="unlockCaricatureDoors()" class="relative w-[85vw] max-w-[310px] aspect-[9/16] max-h-[72vh] cursor-pointer group" style="perspective: 1000px;">
+    <div id="door-card-container" onclick="unlockCaricatureDoors(event)" class="relative w-[85vw] max-w-[300px] aspect-[9/16] max-h-[58vh] sm:max-h-[66vh] cursor-pointer group select-none" style="perspective: 1200px;">
       <!-- Inside Couple Artwork -->
       <div class="absolute inset-0 rounded-2xl bg-[#FFFDF7] border-2 border-[#FDE68A] shadow-inner overflow-hidden flex flex-col items-center justify-center p-0">
         <img src="${b64Cover || b64Scooter || selectedTmpl?.image}" alt="${data.hosts?.groom || 'Ashish'} & ${data.hosts?.bride || 'Preeti'}" class="w-full h-full object-contain object-center" />
       </div>
 
       <!-- Left Folding Door -->
-      <div id="door-left" class="absolute inset-y-0 left-0 w-1/2 bg-[#FCE7F3] border-y-2 border-l-2 border-[#F472B6] rounded-l-2xl shadow-md transition-all duration-700 origin-left overflow-hidden group-hover:-rotate-y-6" style="transform-style: preserve-3d;">
-        <div class="w-full h-full p-2 relative flex flex-col justify-between">
+      <div id="door-left" class="absolute inset-y-0 left-0 w-1/2 bg-[#FCE7F3] border-y-2 border-l-2 border-[#F472B6] rounded-l-2xl shadow-md overflow-hidden group-hover:-rotate-y-6" style="transform-origin: left center; transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1); will-change: transform;">
+        <div class="w-full h-full p-2 relative flex flex-col justify-between pointer-events-none">
           <div class="flex gap-1.5 pt-1">
             <span class="w-2 h-2 rounded-full bg-[#F59E0B]/80 inline-block"></span>
             <span class="w-2 h-2 rounded-full bg-[#F59E0B]/80 inline-block"></span>
@@ -1058,8 +1109,8 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       </div>
 
       <!-- Right Folding Door -->
-      <div id="door-right" class="absolute inset-y-0 right-0 w-1/2 bg-[#FCE7F3] border-y-2 border-r-2 border-[#F472B6] rounded-r-2xl shadow-md transition-all duration-700 origin-right overflow-hidden group-hover:rotate-y-6" style="transform-style: preserve-3d;">
-        <div class="w-full h-full p-2 relative flex flex-col justify-between items-end">
+      <div id="door-right" class="absolute inset-y-0 right-0 w-1/2 bg-[#FCE7F3] border-y-2 border-r-2 border-[#F472B6] rounded-r-2xl shadow-md overflow-hidden group-hover:rotate-y-6" style="transform-origin: right center; transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1); will-change: transform;">
+        <div class="w-full h-full p-2 relative flex flex-col justify-between items-end pointer-events-none">
           <div class="flex gap-1.5 pt-1">
             <span class="w-2 h-2 rounded-full bg-[#F59E0B]/80 inline-block"></span>
             <span class="w-2 h-2 rounded-full bg-[#F59E0B]/80 inline-block"></span>
@@ -1074,8 +1125,8 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       </div>
 
       <!-- Center Heart Seal Button -->
-      <div id="door-heart-seal" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-[#FEF08A] border-2 border-[#F59E0B] shadow-lg flex items-center justify-center transition-all duration-500 group-hover:scale-110 animate-pulse">
-        <span class="text-rose-600 text-lg">❤️</span>
+      <div id="door-heart-seal" onclick="unlockCaricatureDoors(event)" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-[#FEF08A] border-2 border-[#F59E0B] shadow-lg flex items-center justify-center cursor-pointer group-hover:scale-110 animate-pulse" style="transition: transform 0.5s ease, opacity 0.5s ease; will-change: transform, opacity;">
+        <span class="text-rose-600 text-lg pointer-events-none">❤️</span>
       </div>
 
       <!-- Parked Yellow Scooter at Bottom -->
@@ -1085,9 +1136,9 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     </div>
 
     <!-- Tap to Open Footer -->
-    <div class="mt-8 text-center">
-      <div class="w-32 border-b-2 border-dashed border-[#F5D0C5] mx-auto mb-2"></div>
-      <button onclick="unlockCaricatureDoors()" class="text-xs font-semibold text-[#8B6F47] tracking-widest uppercase animate-bounce inline-block hover:underline cursor-pointer">
+    <div class="mt-4 sm:mt-5 text-center">
+      <div class="w-28 border-b-2 border-dashed border-[#F5D0C5] mx-auto mb-2"></div>
+      <button id="tap-to-open-btn" type="button" onclick="unlockCaricatureDoors(event)" class="text-xs font-bold text-[#8B6F47] tracking-widest uppercase animate-bounce inline-block hover:underline cursor-pointer py-1 px-3 rounded-full hover:bg-amber-100/50 transition-colors">
         👆 Tap to Open
       </button>
     </div>
@@ -2133,7 +2184,9 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     }
 
     const sound = new StandaloneAudioEngine();
+    window.sound = sound;
     let musicActive = false;
+    window.musicActive = false;
     const audioBtn = document.getElementById('audio-toggle-btn');
     const audioEq = document.getElementById('audio-eq');
     const audioText = document.getElementById('audio-btn-text');
@@ -2143,11 +2196,13 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         if (musicActive) {
           sound.stop();
           musicActive = false;
+          window.musicActive = false;
           if (audioEq) audioEq.classList.add('hidden');
           if (audioText) audioText.innerText = '🎵 Play Music';
         } else {
           sound.play();
           musicActive = true;
+          window.musicActive = true;
           if (audioEq) audioEq.classList.remove('hidden');
           if (audioText) audioText.innerText = 'Playing';
         }
@@ -2247,7 +2302,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       }
     }
 
-    function unlockInvitation() {
+    window.unlockInvitation = function() {
       const revs = document.querySelectorAll('#reveal-screen, #reveal-screen-folding, #reveal-screen-scratch');
       revs.forEach(function(rev) {
         rev.classList.add('opacity-0', 'pointer-events-none');
@@ -2257,35 +2312,74 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       });
       setTimeout(function() {
         const main = document.getElementById('main-invitation');
-        if (main) main.classList.remove('opacity-0');
-        triggerCelebrationEffect();
-        if (!musicActive) {
-          sound.play();
-          musicActive = true;
-          if (audioEq) audioEq.classList.remove('hidden');
-          if (audioText) audioText.innerText = 'Playing';
+        if (main) {
+          main.classList.remove('opacity-0');
+          main.style.opacity = '1';
         }
-      }, 500);
-    }
+        try {
+          if (typeof triggerCelebrationEffect === 'function') triggerCelebrationEffect();
+        } catch(e) {}
+        try {
+          if (!window.musicActive && window.sound) {
+            window.sound.play();
+            window.musicActive = true;
+            const audioEq = document.getElementById('audio-eq');
+            if (audioEq) audioEq.classList.remove('hidden');
+            const audioText = document.getElementById('audio-btn-text');
+            if (audioText) audioText.innerText = 'Playing';
+          }
+        } catch(e) {}
+      }, 400);
+    };
 
     // 3D Folding Card Doors for Caricature
-    window.unlockCaricatureDoors = function() {
+    window.unlockCaricatureDoors = function(e) {
+      if (e && e.stopPropagation) e.stopPropagation();
       if (window._doorsOpened) return;
       window._doorsOpened = true;
       const leftDoor = document.getElementById('door-left');
       const rightDoor = document.getElementById('door-right');
       const heartSeal = document.getElementById('door-heart-seal');
-      if (leftDoor) leftDoor.style.transform = 'rotateY(-110deg)';
-      if (rightDoor) rightDoor.style.transform = 'rotateY(110deg)';
+      if (leftDoor) leftDoor.style.transform = 'perspective(1000px) rotateY(-125deg)';
+      if (rightDoor) rightDoor.style.transform = 'perspective(1000px) rotateY(125deg)';
       if (heartSeal) {
-        heartSeal.style.transform = 'translate(-50%, -50%) scale(1.5)';
+        heartSeal.style.transform = 'translate(-50%, -50%) scale(1.6)';
         heartSeal.style.opacity = '0';
       }
-      sound.playChime(880);
+      try {
+        if (window.sound && typeof window.sound.playChime === 'function') {
+          window.sound.playChime(880);
+        }
+      } catch(e) {}
       setTimeout(() => {
-        unlockInvitation();
+        window.unlockInvitation();
       }, 700);
     };
+
+    // Auto-bind click & touch events to all door trigger elements
+    function bindFoldingDoorTriggers() {
+      const triggers = [
+        document.getElementById('reveal-screen-folding'),
+        document.getElementById('door-card-container'),
+        document.getElementById('door-left'),
+        document.getElementById('door-right'),
+        document.getElementById('door-heart-seal'),
+        document.getElementById('tap-to-open-btn'),
+      ];
+      triggers.forEach(function(el) {
+        if (!el) return;
+        el.onclick = function(ev) { window.unlockCaricatureDoors(ev); };
+        el.addEventListener('click', function(ev) { window.unlockCaricatureDoors(ev); });
+        el.addEventListener('touchend', function(ev) {
+          if (ev.cancelable) ev.preventDefault();
+          window.unlockCaricatureDoors(ev);
+        });
+      });
+    }
+    bindFoldingDoorTriggers();
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bindFoldingDoorTriggers);
+    }
 
     // Person Modal Open / Close (Groom & Bride Photo Popup)
     window.openPersonModal = function(role) {
@@ -2682,7 +2776,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       console.warn('Could not save data JSON to localStorage:', jsonErr);
     }
 
-    // 2. Cache standalone HTML (cleanup previous HTML caches first to stay under 5MB browser quota)
+    // 2. Clean up previous HTML caches to free up localStorage quota
     try {
       for (let i = localStorage.length - 1; i >= 0; i--) {
         const k = localStorage.key(i);
@@ -2690,12 +2784,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           localStorage.removeItem(k);
         }
       }
-      localStorage.setItem('wishlys_published_html', standaloneHtml);
-      localStorage.setItem('wishlys_published_html_' + slug, standaloneHtml);
-      localStorage.setItem('wishlys_published_html_preeti-and-ashish', standaloneHtml);
-    } catch (storageErr) {
-      console.warn('HTML cache quota exceeded, JSON state preserved:', storageErr);
-    }
+    } catch (storageErr) {}
 
     // Auto-save to public/published folder if running locally
     try {
