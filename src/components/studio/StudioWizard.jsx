@@ -210,7 +210,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           ...prev.photos,
           bride: './images/bride.webp',
           groom: './images/groom.webp',
-          cover: './images/caricature/scooter_couple.webp',
+          cover: './images/themes/Luxe-Pastel-Caricature/04-pheras.webp',
         },
         gallery: [
           { url: './images/couple-potrait.webp', caption: 'In each other\'s eyes' },
@@ -234,7 +234,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     } else if (presetType === 'caricature') {
       updatePhotos('bride', './images/bride.webp');
       updatePhotos('groom', './images/groom.webp');
-      updatePhotos('cover', './images/caricature/scooter_couple.webp');
+      updatePhotos('cover', './images/themes/Luxe-Pastel-Caricature/04-pheras.webp');
     } else if (presetType === 'bougain') {
       updatePhotos('bride', './images/bride.webp');
       updatePhotos('groom', './images/groom.webp');
@@ -626,9 +626,9 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       b64Scooter, b64Haldi, b64Mehndi, b64Sangeet, b64Pheras, b64Reception,
     ] = await Promise.all([
       toBase64Optimized(
-        (!isCaricature && (!data.photos?.cover || data.photos?.cover.includes('caricature.webp')))
+        (!data.photos?.cover || data.photos?.cover.includes('caricature.webp') || data.photos?.cover.includes('scooter_couple.webp'))
           ? getThemeHeroImage(selectedTmpl.id)
-          : (data.photos?.cover || selectedTmpl?.image || getThemeHeroImage(selectedTmpl.id)),
+          : (data.photos?.cover || getThemeHeroImage(selectedTmpl.id)),
         1600, 0.90, false
       ),
       toBase64Optimized(data.photos?.bride || './images/preeti_bride.jpg', 1200, 0.92, false),
@@ -945,7 +945,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
               var rawUrl = item.url || item.img || item.b64 || './images/couple-potrait.webp';
               var imgUrl = resolveAssetUrl(rawUrl);
               var cap = (item.caption || item.title || 'Wedding Memory').replace(/'/g, "\\'");
-              gHtml += '<div class="relative bg-white/80 backdrop-blur-md p-2 pb-3.5 rounded-lg shadow-md border border-white/80 hover:border-amber-200 transform ' + tiltClass + ' hover:rotate-0 transition-all duration-300 scroll-reveal cursor-pointer" style="transition-delay: ' + delay + 'ms;" onclick="openMomentLightbox(\'' + imgUrl + '\', \'' + cap + '\')">'
+              gHtml += '<div class="relative bg-white/95 backdrop-blur-xs p-2 pb-3.5 rounded-lg shadow-md border border-white/80 hover:border-amber-200 transform ' + tiltClass + ' hover:rotate-0 transition-all duration-300 scroll-reveal cursor-pointer" style="transition-delay: ' + delay + 'ms;" onclick="openMomentLightbox(\'' + imgUrl + '\', \'' + cap + '\')">'
                 + '<div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 ' + tapeClass + ' rounded shadow-2xs border rotate-1"></div>'
                 + '<div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">'
                 + '<img src="' + imgUrl + '" class="w-full h-full object-cover" />'
@@ -995,12 +995,12 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
   <style>
     /* Frosted glass blur for cards */
     [class*="backdrop-blur"], .backdrop-blur-md {
-      -webkit-backdrop-filter: blur(12px) !important;
-      backdrop-filter: blur(12px) !important;
+      -webkit-backdrop-filter: blur(2.5px) !important;
+      backdrop-filter: blur(2.5px) !important;
     }
     .backdrop-blur-lg {
-      -webkit-backdrop-filter: blur(16px) !important;
-      backdrop-filter: blur(16px) !important;
+      -webkit-backdrop-filter: blur(3.5px) !important;
+      backdrop-filter: blur(3.5px) !important;
     }
     body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: ${isPichwai ? '#071A1E' : isZardozi ? '#FAF7F0' : isNewspaper ? '#F6F1E5' : isCaricature ? '#FAF7F2' : '#FDFBF7'}; color: ${isPichwai ? '#F4ECDE' : '#2B1E17'}; }
     .font-serif { font-family: "${data.typography?.bodyFont || 'Cormorant Garamond'}", Georgia, serif; }
@@ -1425,7 +1425,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         </div>
 
         <!-- Cusped Scalloped Arch Frame -->
-        <div class="relative w-full bg-[#FFFDF9]/90 backdrop-blur-md rounded-t-[60px] rounded-b-3xl p-3 border-[3px] border-[#FDE68A]/80 shadow-xl overflow-hidden text-center">
+        <div class="relative w-full bg-[#FFFDF9]/95 backdrop-blur-xs rounded-t-[60px] rounded-b-3xl p-3 border-[3px] border-[#FDE68A]/80 shadow-xl overflow-hidden text-center">
           <!-- Sacred Sanskrit Invocation -->
           <div class="pt-2 pb-0.5">
             <span class="text-[11px] font-serif text-[#B45309] font-medium tracking-wide">
@@ -1446,7 +1446,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
 
           <!-- Scooter Couple Illustration Artwork Filled in Card - Full 9:16 Aspect Ratio -->
           <div class="w-full aspect-[9/16] rounded-2xl overflow-hidden relative flex items-center justify-center group bg-[#FFFDF7] shadow-inner">
-            <img src="${b64Scooter || b64Cover || selectedTmpl?.image}" alt="${data.hosts?.groom} & ${data.hosts?.bride}" class="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-700" />
+            <img src="${b64Cover || b64Tmpl || (typeof selectedTmpl !== 'undefined' ? selectedTmpl?.image : '')}" alt="${data.hosts?.groom} & ${data.hosts?.bride}" class="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-700" />
           </div>
 
           <!-- Request Honour Flanked by Marigolds -->
@@ -1475,7 +1475,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         </div>
 
         <!-- Cusped Scalloped Arch Frame -->
-        <div class="relative w-full bg-[#FFFDF9]/90 backdrop-blur-md rounded-t-[60px] rounded-b-3xl p-3 border-[3px] border-[#FDE68A]/80 shadow-xl overflow-hidden text-center">
+        <div class="relative w-full bg-[#FFFDF9]/95 backdrop-blur-xs rounded-t-[60px] rounded-b-3xl p-3 border-[3px] border-[#FDE68A]/80 shadow-xl overflow-hidden text-center">
           <!-- Sacred Sanskrit Invocation -->
           <div class="pt-2 pb-0.5">
             <span class="text-[11px] font-serif text-[#B45309] font-medium tracking-wide">
@@ -1524,7 +1524,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
 
         <div class="grid grid-cols-2 gap-2 relative items-stretch">
           <!-- Left Card: Groom (Clickable Modal) -->
-          <div onclick="openPersonModal('groom')" class="relative bg-white/80 backdrop-blur-md p-2.5 pb-4 rounded-2xl shadow-md border border-white/80 hover:border-amber-300 transform -rotate-2 hover:rotate-0 hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-left cursor-pointer group">
+          <div onclick="openPersonModal('groom')" class="relative bg-white/95 backdrop-blur-xs p-2.5 pb-4 rounded-2xl shadow-md border border-white/80 hover:border-amber-300 transform -rotate-2 hover:rotate-0 hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-left cursor-pointer group">
             <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#A7F3D0]/85 rounded shadow-xs rotate-1 border border-[#6EE7B7]"></div>
             <div class="w-20 h-20 rounded-full overflow-hidden bg-stone-100 mt-1 mb-2 border-2 border-stone-200 ring-4 ring-[#E6F4EA] shadow-inner shrink-0 group-hover:ring-emerald-300 transition-all">
               <img id="meet-groom-img" src="${b64Groom || './images/ashish_groom.jpg' || './images/groom.webp'}" alt="${data.hosts?.groom || 'Ashish'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
@@ -1540,7 +1540,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none text-rose-400 text-2xl animate-pulse drop-shadow scroll-reveal reveal-bounce" style="transition-delay: 250ms;">♡</div>
 
           <!-- Right Card: Bride (Clickable Modal) -->
-          <div onclick="openPersonModal('bride')" class="relative bg-white/80 backdrop-blur-md p-2.5 pb-4 rounded-2xl shadow-md border border-white/80 hover:border-rose-300 transform rotate-2 hover:rotate-0 hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-right cursor-pointer group" style="transition-delay: 150ms;">
+          <div onclick="openPersonModal('bride')" class="relative bg-white/95 backdrop-blur-xs p-2.5 pb-4 rounded-2xl shadow-md border border-white/80 hover:border-rose-300 transform rotate-2 hover:rotate-0 hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-right cursor-pointer group" style="transition-delay: 150ms;">
             <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FDE68A]/85 rounded shadow-xs -rotate-1 border border-[#FCD34D]"></div>
             <div class="w-20 h-20 rounded-full overflow-hidden bg-stone-100 mt-1 mb-2 border-2 border-stone-200 ring-4 ring-[#FCE8E6] shadow-inner shrink-0 group-hover:ring-rose-300 transition-all">
               <img id="meet-bride-img" src="${b64Bride || './images/preeti_bride.jpg' || './images/bride.webp'}" alt="${data.hosts?.bride || 'Preeti'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
@@ -1562,7 +1562,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1"></div>
         </div>
 
-        <div class="relative bg-white/80 backdrop-blur-md rounded-2xl p-4 sm:p-5 border-2 border-stone-200/80 shadow-md scroll-reveal reveal-calendar">
+        <div class="relative bg-white/95 backdrop-blur-xs rounded-2xl p-4 sm:p-5 border-2 border-stone-200/80 shadow-md scroll-reveal reveal-calendar">
           <div class="absolute -top-3 left-1/3 -translate-x-1/2 w-3.5 h-6 rounded-full border-2 border-stone-400 bg-stone-100 shadow-inner"></div>
           <div class="absolute -top-3 right-1/3 translate-x-1/2 w-3.5 h-6 rounded-full border-2 border-stone-400 bg-stone-100 shadow-inner"></div>
 
@@ -1646,7 +1646,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           return `
           <div class="relative w-full select-none space-y-3">
             <div class="w-full flex justify-center -mb-2 scroll-reveal reveal-pop-up">
-              <div class="w-full max-w-[350px] aspect-[9/16] rounded-t-[44px] rounded-b-2xl overflow-hidden flex items-center justify-center p-0 drop-shadow-md bg-[#FFFDF7]/85 backdrop-blur-md border-2 border-amber-100/80">
+              <div class="w-full max-w-[350px] aspect-[9/16] rounded-t-[44px] rounded-b-2xl overflow-hidden flex items-center justify-center p-0 drop-shadow-md bg-[#FFFDF7]/95 backdrop-blur-xs border-2 border-amber-100/80">
                 <img id="event-img-${evt.id || idx}" src="${archB64}" alt="${evt.name}" class="w-full h-full object-contain object-center" />
               </div>
             </div>
@@ -1655,7 +1655,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
               <h3 class="font-serif text-2xl font-bold text-[#2B1E17]">${evt.name}</h3>
             </div>
 
-            <div class="relative bg-[#FFFDF9]/85 backdrop-blur-md rounded-2xl p-4 sm:p-5 border-2 border-stone-200/80 shadow-md space-y-2.5 scroll-reveal" style="transition-delay: 160ms;">
+            <div class="relative bg-[#FFFDF9]/95 backdrop-blur-xs rounded-2xl p-4 sm:p-5 border-2 border-stone-200/80 shadow-md space-y-2.5 scroll-reveal" style="transition-delay: 160ms;">
               <div class="space-y-1.5 text-xs text-stone-700">
                 <p class="flex items-center gap-2"><span>📅</span><strong class="text-stone-900">${evt.date}</strong> · ⏰ ${evt.time}</p>
                 <p class="flex items-center gap-2"><span>📍</span><span><strong class="text-stone-900">${evt.venue}</strong> — ${evt.address}</span></p>
@@ -1713,7 +1713,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
             const tiltClass = isLeft ? 'reveal-tilt-left -rotate-1' : 'reveal-tilt-right rotate-1';
             const delay = Math.min(360, (idx % 4) * 120);
             return `
-            <div class="relative bg-white/80 backdrop-blur-md p-2 pb-3.5 rounded-lg shadow-md border border-white/80 hover:border-amber-200 transform ${tiltClass} hover:rotate-0 transition-all duration-300 scroll-reveal cursor-pointer" style="transition-delay: ${delay}ms;" onclick="openMomentLightbox('${item.b64 || './images/couple-potrait.webp'}', '${item.caption}')">
+            <div class="relative bg-white/95 backdrop-blur-xs p-2 pb-3.5 rounded-lg shadow-md border border-white/80 hover:border-amber-200 transform ${tiltClass} hover:rotate-0 transition-all duration-300 scroll-reveal cursor-pointer" style="transition-delay: ${delay}ms;" onclick="openMomentLightbox('${item.b64 || './images/couple-potrait.webp'}', '${item.caption}')">
               <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 ${tapeClass} rounded shadow-2xs border rotate-1"></div>
               <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
                 <img src="${item.b64 || './images/couple-potrait.webp'}" class="w-full h-full object-cover" />
@@ -1732,7 +1732,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1"></div>
         </div>
 
-        <div class="bg-[#FFFDF9]/85 backdrop-blur-md rounded-2xl p-4 border-2 border-stone-200/80 shadow-md space-y-3 scroll-reveal reveal-pop-up" style="transition-delay: 120ms;">
+        <div class="bg-[#FFFDF9]/95 backdrop-blur-xs rounded-2xl p-4 border-2 border-stone-200/80 shadow-md space-y-3 scroll-reveal reveal-pop-up" style="transition-delay: 120ms;">
           <div class="w-full h-40 rounded-xl bg-gradient-to-b from-[#E6F4EA] to-[#FEF3C7] border border-[#A7F3D0] relative overflow-hidden flex flex-col justify-between p-3">
             <div class="flex justify-between items-start text-lg opacity-80">
               <span>🌳</span><span>🏰</span><span>🌳</span>
@@ -1796,7 +1796,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
 
         <div class="grid grid-cols-2 gap-2 relative items-stretch">
           <!-- Left Card: Groom (Clickable Modal) -->
-          <div onclick="openPersonModal('groom')" class="relative bg-white/80 backdrop-blur-md p-2.5 pb-4 rounded-2xl shadow-md border border-white/80 hover:border-amber-300 transform -rotate-2 hover:rotate-0 hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-left cursor-pointer group">
+          <div onclick="openPersonModal('groom')" class="relative bg-white/95 backdrop-blur-xs p-2.5 pb-4 rounded-2xl shadow-md border border-white/80 hover:border-amber-300 transform -rotate-2 hover:rotate-0 hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-left cursor-pointer group">
             <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#A7F3D0]/85 rounded shadow-xs rotate-1 border border-[#6EE7B7]"></div>
             <div class="w-20 h-20 rounded-full overflow-hidden bg-stone-100 mt-1 mb-2 border-2 border-stone-200 ring-4 ring-[#E6F4EA] shadow-inner shrink-0 group-hover:ring-emerald-300 transition-all">
               <img id="meet-groom-img" src="${b64Groom || './images/ashish_groom.jpg' || './images/groom.webp'}" alt="${data.hosts?.groom || 'Ashish'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
@@ -1812,7 +1812,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none text-rose-400 text-2xl animate-pulse drop-shadow scroll-reveal reveal-bounce" style="transition-delay: 250ms;">♡</div>
 
           <!-- Right Card: Bride (Clickable Modal) -->
-          <div onclick="openPersonModal('bride')" class="relative bg-white/80 backdrop-blur-md p-2.5 pb-4 rounded-2xl shadow-md border border-white/80 hover:border-rose-300 transform rotate-2 hover:rotate-0 hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-right cursor-pointer group" style="transition-delay: 150ms;">
+          <div onclick="openPersonModal('bride')" class="relative bg-white/95 backdrop-blur-xs p-2.5 pb-4 rounded-2xl shadow-md border border-white/80 hover:border-rose-300 transform rotate-2 hover:rotate-0 hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-right cursor-pointer group" style="transition-delay: 150ms;">
             <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FDE68A]/85 rounded shadow-xs -rotate-1 border border-[#FCD34D]"></div>
             <div class="w-20 h-20 rounded-full overflow-hidden bg-stone-100 mt-1 mb-2 border-2 border-stone-200 ring-4 ring-[#FCE8E6] shadow-inner shrink-0 group-hover:ring-rose-300 transition-all">
               <img id="meet-bride-img" src="${b64Bride || './images/preeti_bride.jpg' || './images/bride.webp'}" alt="${data.hosts?.bride || 'Preeti'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
@@ -1834,7 +1834,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1"></div>
         </div>
 
-        <div class="relative bg-white/80 backdrop-blur-md rounded-2xl p-4 sm:p-5 border-2 border-stone-200/80 shadow-md scroll-reveal reveal-calendar">
+        <div class="relative bg-white/95 backdrop-blur-xs rounded-2xl p-4 sm:p-5 border-2 border-stone-200/80 shadow-md scroll-reveal reveal-calendar">
           <div class="absolute -top-3 left-1/3 -translate-x-1/2 w-3.5 h-6 rounded-full border-2 border-stone-400 bg-stone-100 shadow-inner"></div>
           <div class="absolute -top-3 right-1/3 translate-x-1/2 w-3.5 h-6 rounded-full border-2 border-stone-400 bg-stone-100 shadow-inner"></div>
 
@@ -1905,7 +1905,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           return `
           <div class="relative w-full select-none space-y-3">
             <div class="w-full flex justify-center -mb-2 scroll-reveal reveal-pop-up">
-              <div class="w-full max-w-[350px] aspect-[9/16] rounded-t-[44px] rounded-b-2xl overflow-hidden flex items-center justify-center p-0 drop-shadow-md bg-[#FFFDF7]/85 backdrop-blur-md border-2 border-amber-100/80">
+              <div class="w-full max-w-[350px] aspect-[9/16] rounded-t-[44px] rounded-b-2xl overflow-hidden flex items-center justify-center p-0 drop-shadow-md bg-[#FFFDF7]/95 backdrop-blur-xs border-2 border-amber-100/80">
                 <img id="event-img-${evt.id || idx}" src="${archB64}" alt="${evt.name}" class="w-full h-full object-contain object-center" />
               </div>
             </div>
@@ -1914,7 +1914,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
               <h3 class="font-serif text-2xl font-bold text-[#2B1E17]">${evt.name}</h3>
             </div>
 
-            <div class="relative bg-[#FFFDF9]/85 backdrop-blur-md rounded-2xl p-4 sm:p-5 border-2 border-stone-200/80 shadow-md space-y-2.5 scroll-reveal" style="transition-delay: 160ms;">
+            <div class="relative bg-[#FFFDF9]/95 backdrop-blur-xs rounded-2xl p-4 sm:p-5 border-2 border-stone-200/80 shadow-md space-y-2.5 scroll-reveal" style="transition-delay: 160ms;">
               <div class="space-y-1.5 text-xs text-stone-700">
                 <p class="flex items-center gap-2"><span>📅</span><strong class="text-stone-900">${evt.date}</strong> · ⏰ ${evt.time}</p>
                 <p class="flex items-center gap-2"><span>📍</span><span><strong class="text-stone-900">${evt.venue}</strong> — ${evt.address}</span></p>
@@ -1972,7 +1972,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
             const tiltClass = isLeft ? 'reveal-tilt-left -rotate-1' : 'reveal-tilt-right rotate-1';
             const delay = Math.min(360, (idx % 4) * 120);
             return `
-            <div class="relative bg-white/80 backdrop-blur-md p-2 pb-3.5 rounded-lg shadow-md border border-white/80 hover:border-amber-200 transform ${tiltClass} hover:rotate-0 transition-all duration-300 scroll-reveal cursor-pointer" style="transition-delay: ${delay}ms;" onclick="openMomentLightbox('${item.b64 || './images/couple-potrait.webp'}', '${item.caption}')">
+            <div class="relative bg-white/95 backdrop-blur-xs p-2 pb-3.5 rounded-lg shadow-md border border-white/80 hover:border-amber-200 transform ${tiltClass} hover:rotate-0 transition-all duration-300 scroll-reveal cursor-pointer" style="transition-delay: ${delay}ms;" onclick="openMomentLightbox('${item.b64 || './images/couple-potrait.webp'}', '${item.caption}')">
               <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 ${tapeClass} rounded shadow-2xs border rotate-1"></div>
               <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
                 <img src="${item.b64 || './images/couple-potrait.webp'}" class="w-full h-full object-cover" />
@@ -1984,90 +1984,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       </section>
 
       <!-- 5. THE VENUE ROADMAP -->
-      <section class="py-6 px-2 w-full max-w-[390px] mx-auto select-none">
-        <div class="text-center space-y-1 mb-5 scroll-reveal">
-          <span class="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">Where it's all happening</span>
-          <h3 class="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">The Venue</h3>
-          <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1"></div>
-        </div>
-
-        <div class="bg-[#FFFDF9]/85 backdrop-blur-md rounded-2xl p-4 border-2 border-stone-200/80 shadow-md space-y-3 scroll-reveal reveal-pop-up" style="transition-delay: 120ms;">
-          <div class="w-full h-40 rounded-xl bg-gradient-to-b from-[#E6F4EA] to-[#FEF3C7] border border-[#A7F3D0] relative overflow-hidden flex flex-col justify-between p-3">
-            <div class="flex justify-between items-start text-lg opacity-80">
-              <span>🌳</span><span>🏰</span><span>🌳</span>
-            </div>
-            <div class="relative w-full flex items-center justify-center my-auto">
-              <svg viewBox="0 0 200 40" class="w-full h-10" fill="none">
-                <path d="M10,25 Q100,5 190,25" stroke="#94A3B8" stroke-width="2.5" stroke-dasharray="5,4" />
-              </svg>
-              <div class="absolute right-4 top-1/2 -translate-y-1/2 text-rose-600 text-2xl animate-pin-drop">📍</div>
-            </div>
-            <div class="bg-white/90 backdrop-blur-xs rounded-lg p-2 text-center border border-stone-200 shadow-2xs">
-              <h4 class="font-serif text-sm font-bold text-[#2B1E17]">${data.events?.[0]?.venue || 'Diaz Banquet'}</h4>
-              <p class="text-[10px] text-stone-500">${data.hosts?.city || 'Meerut, Uttar Pradesh'} · ${data.events?.[0]?.address || '111, Delhi Road, Opposite Deewan International Public School, Rithani, Meerut'}</p>
-            </div>
-          </div>
-
-          <a href="https://maps.google.com/?q=${encodeURIComponent((data.events?.[0]?.venue || 'Diaz Banquet') + ' ' + (data.hosts?.city || 'Meerut'))}" target="_blank" class="w-full py-2.5 rounded-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#881337] text-white hover:bg-[#9F1239] transition-all shadow-sm cursor-pointer">
-            <span>🧭 Open in Google Maps</span>
-          </a>
-        </div>
-      </section>
-
-      <!-- 6. MULTI-STEP INTERACTIVE RSVP -->
-      <section class="py-6 px-2 w-full max-w-[390px] mx-auto select-none scroll-reveal">
-        <div class="bg-[#FFFDF9]/88 backdrop-blur-md rounded-2xl p-5 border-2 border-stone-200/80 shadow-md space-y-4 text-center">
-          <span class="text-[10px] uppercase tracking-[0.25em] font-bold text-stone-500 block">PLEASE RESPOND</span>
-          <h3 class="font-serif text-2xl font-light text-[#2B1E17]">Are you attending?</h3>
-          <p class="text-xs text-stone-500 font-light">Kindly confirm your presence so we can reserve your seat and celebrations.</p>
-
-          <form id="theme-rsvp-form" onsubmit="submitRsvp(event)" class="space-y-3.5 text-left">
-            <div class="space-y-1">
-              <label class="text-[10px] uppercase font-bold text-stone-600 block">Your Full Name *</label>
-              <input type="text" id="rsvp-guest-name" required placeholder="e.g. Rahul & Priya Sharma" class="w-full px-3.5 py-2 rounded-xl border border-stone-200 text-xs focus:outline-none focus:ring-1 focus:ring-[#881337] bg-white" />
-            </div>
-
-            <div class="space-y-1">
-              <label class="text-[10px] uppercase font-bold text-stone-600 block">Phone Number *</label>
-              <input type="tel" id="rsvp-guest-phone" required placeholder="e.g. +91 98765 43210" class="w-full px-3.5 py-2 rounded-xl border border-stone-200 text-xs focus:outline-none focus:ring-1 focus:ring-[#881337] bg-white" />
-            </div>
-
-            <div class="grid grid-cols-2 gap-2.5">
-              <div class="space-y-1">
-                <label class="text-[10px] uppercase font-bold text-stone-600 block">Total Guests</label>
-                <select id="rsvp-guest-count" class="w-full px-2.5 py-2 rounded-xl border border-stone-200 text-xs focus:outline-none bg-white">
-                  <option value="1">1 Guest</option>
-                  <option value="2" selected>2 Guests</option>
-                  <option value="3">3 Guests</option>
-                  <option value="4">4 Guests</option>
-                  <option value="5+">5+ Family</option>
-                </select>
-              </div>
-              <div class="space-y-1">
-                <label class="text-[10px] uppercase font-bold text-stone-600 block">Dietary Preference</label>
-                <select id="rsvp-dietary" class="w-full px-2.5 py-2 rounded-xl border border-stone-200 text-xs focus:outline-none bg-white">
-                  <option value="Vegetarian" selected>Vegetarian</option>
-                  <option value="Jain">Jain</option>
-                  <option value="Non-Vegetarian">Non-Vegetarian</option>
-                  <option value="Vegan">Vegan</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="space-y-1">
-              <label class="text-[10px] uppercase font-bold text-stone-600 block">Warm Wishes / Message</label>
-              <textarea id="rsvp-guest-message" rows="2" placeholder="Send a sweet wish to the couple..." class="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs focus:outline-none bg-white resize-none"></textarea>
-            </div>
-
-            <button type="submit" class="w-full py-3 rounded-full bg-[#881337] hover:bg-[#9F1239] text-white font-bold text-xs uppercase tracking-widest shadow-md cursor-pointer transition-all active:scale-98">
-              Confirm Attendance (RSVP) ✨
-            </button>
-          </form>
-          <div id="rsvp-success-banner" class="hidden p-4 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-semibold">
-            🎉 Thank you! Your RSVP has been confirmed. We can't wait to celebrate with you!
-          </div>
-        </div>
-      </section>
+      
 
       <!-- 7. SHARE THE MOMENTS -->
       <section class="py-6 px-2 w-full max-w-[390px] mx-auto text-center select-none space-y-2 scroll-reveal reveal-pop-up">
@@ -2102,7 +2019,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
 
   <!-- GROOM & BRIDE ENLARGED PORTRAIT CARD MODAL (BLURRED BACKDROP) -->
   <div id="person-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/65 backdrop-blur-md transition-all animate-fadeIn" onclick="closePersonModal()">
-    <div class="relative w-full max-w-[330px] bg-[#FFFDF9]/95 backdrop-blur-lg rounded-3xl p-5 border-2 border-[#FDE68A]/80 shadow-2xl text-center space-y-3 animate-scaleUp" onclick="event.stopPropagation()">
+    <div class="relative w-full max-w-[330px] bg-[#FFFDF9]/95 backdrop-blur-xs rounded-3xl p-5 border-2 border-[#FDE68A]/80 shadow-2xl text-center space-y-3 animate-scaleUp" onclick="event.stopPropagation()">
       <div id="modal-washi" class="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-5 rounded shadow-xs bg-[#A7F3D0] border border-[#6EE7B7] rotate-1"></div>
       <button onclick="closePersonModal()" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center text-sm font-bold shadow-xs cursor-pointer z-10 transition-colors" aria-label="Close">✕</button>
       <div class="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-stone-100 border-2 border-stone-200 shadow-inner mt-2">
@@ -2623,73 +2540,6 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       setTimeout(() => {
         if (btn) btn.innerHTML = '<span>📋 Copy Hashtag</span>';
       }, 2500);
-    };
-
-    // Tabbed Multi-step RSVP for Caricature
-    window.goToRsvpStep = function(step) {
-      ['1', '2', '3'].forEach(s => {
-        const el = document.getElementById('rsvp-step-' + s);
-        if (el) el.classList.toggle('hidden', s !== String(step));
-      });
-      const tEvt = document.getElementById('tab-events');
-      const tDet = document.getElementById('tab-details');
-      const tSng = document.getElementById('tab-song');
-      if (tEvt && tDet && tSng) {
-        tEvt.className = step === 1 ? 'text-[#881337] border-b-2 border-[#881337] pb-0.5' : '';
-        tDet.className = step === 2 ? 'text-[#881337] border-b-2 border-[#881337] pb-0.5' : '';
-        tSng.className = step === 3 ? 'text-[#881337] border-b-2 border-[#881337] pb-0.5' : '';
-      }
-    };
-
-    window.toggleSelectAllEvents = function() {
-      const chks = document.querySelectorAll('.caricature-evt-chk');
-      const allChecked = Array.from(chks).every(c => c.checked);
-      chks.forEach(c => c.checked = !allChecked);
-    };
-
-    window.submitCaricatureRsvp = function() {
-      const name = document.getElementById('rsvp-input-name')?.value || 'Guest';
-      ['1', '2', '3'].forEach(s => {
-        const el = document.getElementById('rsvp-step-' + s);
-        if (el) el.classList.add('hidden');
-      });
-      const step4 = document.getElementById('rsvp-step-4');
-      if (step4) {
-        step4.classList.remove('hidden');
-        const sName = document.getElementById('rsvp-success-name');
-        if (sName) sName.innerText = 'Thank you, ' + name + '! We cannot wait to celebrate with you!';
-      }
-      triggerCelebrationEffect();
-      sound.playChime(1046.5);
-    };
-
-    window.submitRsvp = function(e) {
-      if (e) e.preventDefault();
-      var form = document.getElementById('theme-rsvp-form');
-      var name = document.getElementById('rsvp-guest-name')?.value || 'Guest';
-      var phone = document.getElementById('rsvp-guest-phone')?.value || '';
-      var count = document.getElementById('rsvp-guest-count')?.value || '2';
-      var dietary = document.getElementById('rsvp-dietary')?.value || 'Vegetarian';
-      var msg = document.getElementById('rsvp-guest-message')?.value || '';
-
-      try {
-        var existing = JSON.parse(localStorage.getItem('wishlys_rsvps') || '[]');
-        existing.unshift({ id: 'rsvp_' + Date.now(), name: name, phone: phone, guestCount: count, dietary: dietary, message: msg, submittedAt: new Date().toISOString() });
-        localStorage.setItem('wishlys_rsvps', JSON.stringify(existing));
-      } catch(err) {}
-
-      if (form) form.classList.add('hidden');
-      var succ = document.getElementById('rsvp-success-banner');
-      if (succ) {
-        succ.classList.remove('hidden');
-        succ.textContent = '🎉 Thank you, ' + name + '! Your RSVP (' + count + ' guests, ' + dietary + ') is confirmed. We cannot wait to celebrate with you!';
-      }
-      try {
-        if (typeof triggerCelebrationEffect === 'function') triggerCelebrationEffect();
-      } catch(err) {}
-      try {
-        if (window.sound && typeof window.sound.playChime === 'function') window.sound.playChime(1046.5);
-      } catch(err) {}
     };
 
     // Scratch Card Engine (Guarded for non-Caricature themes)
@@ -3738,7 +3588,21 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                           <div
                             key={tmpl.id}
                             onClick={() => {
-                              setData(prev => ({ ...prev, template: tmpl.id }));
+                              setData(prev => {
+                                const isCustomCover = prev.photos?.cover && 
+                                  !prev.photos.cover.includes('images/templates/') && 
+                                  !prev.photos.cover.includes('images/themes/') && 
+                                  !prev.photos.cover.includes('scooter_couple.webp') &&
+                                  !prev.photos.cover.includes('caricature.webp');
+                                return {
+                                  ...prev,
+                                  template: tmpl.id,
+                                  photos: {
+                                    ...prev.photos,
+                                    cover: isCustomCover ? prev.photos.cover : getThemeHeroImage(tmpl.id)
+                                  }
+                                };
+                              });
                               setSimulatorMode('invite');
                             }}
                             className={`group relative rounded-2xl overflow-hidden border-2 cursor-pointer transition-all flex flex-col justify-between shadow-sm hover:shadow-md hover:-translate-y-1 ${
@@ -3808,9 +3672,9 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                         <div className="flex items-start gap-3 sm:gap-4">
                           {/* Portrait Thumbnail */}
                           <div className="w-14 h-20 sm:w-16 sm:h-24 rounded-lg overflow-hidden border border-stone-200 bg-stone-100 shadow-xs shrink-0 flex items-center justify-center">
-                            {data.photos?.cover ? (
+                            {((data.photos?.cover && !data.photos.cover.includes('caricature.webp') && !data.photos.cover.includes('scooter_couple.webp') && !data.photos.cover.includes('truck.webp')) || getThemeHeroImage(data.template)) ? (
                               <img 
-                                src={data.photos.cover} 
+                                src={(data.photos?.cover && !data.photos.cover.includes('caricature.webp') && !data.photos.cover.includes('scooter_couple.webp') && !data.photos.cover.includes('truck.webp')) ? data.photos.cover : getThemeHeroImage(data.template)} 
                                 alt="Hero Photo" 
                                 className="w-full h-full object-cover"
                               />

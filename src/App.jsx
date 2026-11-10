@@ -43,8 +43,8 @@ export default function App() {
           parsed.revealStyle = parsed.template === 'caricature' ? 'folding-doors' : 'scratch-date';
         }
         if (!parsed.photos) parsed.photos = {};
-        if (!parsed.photos.cover || parsed.photos.cover.includes('zardozi') || parsed.photos.cover.includes('truck')) {
-          parsed.photos.cover = './images/templates/caricature.webp';
+        if (!parsed.photos.cover || parsed.photos.cover.includes('caricature.webp') || parsed.photos.cover.includes('scooter_couple.webp') || parsed.photos.cover.includes('zardozi') || parsed.photos.cover.includes('truck')) {
+          parsed.photos.cover = './images/themes/Luxe-Pastel-Caricature/04-pheras.webp';
         }
         if (!parsed.photos.bride || parsed.photos.bride.includes('unsplash')) {
           parsed.photos.bride = './images/bride.webp';

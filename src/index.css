@@ -334,3 +334,9 @@
   animation: scaleUpModal 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+
+/* 20% Glassmorphism Blur on All Cards */
+[class*="backdrop-blur"], .backdrop-blur-xs, .backdrop-blur-md, .backdrop-blur-lg {
+  -webkit-backdrop-filter: blur(2.5px) !important;
+  backdrop-filter: blur(2.5px) !important;
+}

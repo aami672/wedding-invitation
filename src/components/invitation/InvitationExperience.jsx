@@ -537,7 +537,7 @@ export default function InvitationExperience({
           {/* THEME HERO & COUPLE & CALENDAR (ALL THEMES SHARE THIS LUXURY STYLE) */}
           <div className="relative z-10 w-full flex flex-col items-center">
             <PastelCaricatureHero 
-              couplePhoto={data.photos?.cover || (currentTemplate.id !== 'caricature' ? getThemeHeroImage(currentTemplate.id) : currentTemplate.image)} 
+              couplePhoto={(data.photos?.cover && !data.photos.cover.includes('caricature.webp') && !data.photos.cover.includes('scooter_couple.webp')) ? data.photos.cover : getThemeHeroImage(currentTemplate.id)} 
               bride={data.hosts?.bride} 
               groom={data.hosts?.groom} 
               date={data.hosts?.date}
@@ -597,7 +597,7 @@ export default function InvitationExperience({
             address={data.events?.[0]?.address || '111, Delhi Road, Opposite Deewan International Public School, Rithani, Meerut'} 
           />
 
-          <PastelMultiStepRsvp events={visibleEvents} />
+          
 
           <PastelHashtagBanner hashtag={data.hosts?.hashtag || `#${(data.hosts?.bride || 'Bride').replace(/\s+/g, '')}Weds${(data.hosts?.groom || 'Groom').replace(/\s+/g, '')}`} />
           <PastelFooter bride={data.hosts?.bride} groom={data.hosts?.groom} />

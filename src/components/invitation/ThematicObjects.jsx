@@ -716,7 +716,7 @@ export function PastelCaricatureHero({
         </div>
 
         {/* The Scalloped Cusped Arch Frame */}
-        <div className="relative w-full bg-[#FFFDF9]/90 backdrop-blur-md rounded-t-[60px] rounded-b-3xl p-3 border-[3px] border-[#FDE68A]/80 shadow-xl overflow-hidden text-center">
+        <div className="relative w-full bg-[#FFFDF9]/95 backdrop-blur-xs rounded-t-[60px] rounded-b-3xl p-3 border-[3px] border-[#FDE68A]/80 shadow-xl overflow-hidden text-center">
           {/* Monogram Seal Badge if initials present */}
           {monogram?.initials && (
             <div 
@@ -804,7 +804,7 @@ export function PastelPolaroidCouple({
         <ScrollReveal variant="tilt-left" delay={0} className="h-full">
           <div 
             onClick={() => setActiveModal('groom')}
-            className="relative bg-white/80 backdrop-blur-md p-2.5 pb-4 rounded-2xl shadow-md border border-white/80 hover:border-amber-300 transition-all duration-300 flex flex-col items-center text-center group h-full cursor-pointer"
+            className="relative bg-white/95 backdrop-blur-xs p-2.5 pb-4 rounded-2xl shadow-md border border-white/80 hover:border-amber-300 transition-all duration-300 flex flex-col items-center text-center group h-full cursor-pointer"
           >
             {/* Mint Washi Tape */}
             <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#A7F3D0]/85 rounded shadow-xs rotate-1 border border-[#6EE7B7]" />
@@ -849,7 +849,7 @@ export function PastelPolaroidCouple({
         <ScrollReveal variant="tilt-right" delay={150} className="h-full">
           <div 
             onClick={() => setActiveModal('bride')}
-            className="relative bg-white/80 backdrop-blur-md p-2.5 pb-4 rounded-2xl shadow-md border border-white/80 hover:border-rose-300 transition-all duration-300 flex flex-col items-center text-center group h-full cursor-pointer"
+            className="relative bg-white/95 backdrop-blur-xs p-2.5 pb-4 rounded-2xl shadow-md border border-white/80 hover:border-rose-300 transition-all duration-300 flex flex-col items-center text-center group h-full cursor-pointer"
           >
             {/* Yellow Washi Tape */}
             <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FDE68A]/85 rounded shadow-xs -rotate-1 border border-[#FCD34D]" />
@@ -1022,7 +1022,7 @@ export function PastelHangingCalendar({ date = '2026-12-09', timeLeft }) {
 
       {/* Hanging Wall Calendar Card */}
       <ScrollReveal variant="calendar-drop" delay={100}>
-        <div ref={calendarCardRef} className="relative bg-white/80 backdrop-blur-md rounded-2xl p-4 sm:p-5 border-2 border-stone-200/80 shadow-md">
+        <div ref={calendarCardRef} className="relative bg-white/95 backdrop-blur-xs rounded-2xl p-4 sm:p-5 border-2 border-stone-200/80 shadow-md">
           {/* Binder Ring Loops */}
           <div className="absolute -top-3 left-1/3 -translate-x-1/2 w-3.5 h-6 rounded-full border-2 border-stone-400 bg-stone-100 shadow-inner" />
           <div className="absolute -top-3 right-1/3 translate-x-1/2 w-3.5 h-6 rounded-full border-2 border-stone-400 bg-stone-100 shadow-inner" />
@@ -1279,7 +1279,7 @@ export function PastelEventCard({ event, index, templateId = 'caricature' }) {
       {archImg && (
         <ScrollReveal variant="pop-up">
           <div className="w-full flex justify-center -mb-2">
-            <div className="w-full max-w-[350px] aspect-[9/16] rounded-t-[44px] rounded-b-2xl overflow-hidden flex items-center justify-center p-0 drop-shadow-md bg-[#FFFDF7]/85 backdrop-blur-md border-2 border-amber-100/80">
+            <div className="w-full max-w-[350px] aspect-[9/16] rounded-t-[44px] rounded-b-2xl overflow-hidden flex items-center justify-center p-0 drop-shadow-md bg-[#FFFDF7]/95 backdrop-blur-xs border-2 border-amber-100/80">
               <img 
                 src={archImg} 
                 alt={event.name} 
@@ -1308,7 +1308,7 @@ export function PastelEventCard({ event, index, templateId = 'caricature' }) {
 
       {/* Hand-Drawn Event Details Card */}
       <ScrollReveal variant="fade-up" delay={160}>
-        <div className="relative bg-[#FFFDF9]/85 backdrop-blur-md rounded-2xl p-4 sm:p-5 border-2 border-stone-200/80 shadow-md space-y-2.5">
+        <div className="relative bg-[#FFFDF9]/95 backdrop-blur-xs rounded-2xl p-4 sm:p-5 border-2 border-stone-200/80 shadow-md space-y-2.5">
           <div className="space-y-1.5 text-xs text-stone-700">
             <p className="flex items-center gap-2">
               <span>📅</span>
@@ -1456,7 +1456,7 @@ export function PastelVenueMap({ venue = 'Umaid Bhawan Palace', city = 'Udaipur,
       </ScrollReveal>
 
       <ScrollReveal variant="pop-up" delay={120}>
-        <div className="bg-[#FFFDF9]/85 backdrop-blur-md rounded-2xl p-4 border-2 border-stone-200/80 shadow-md space-y-3">
+        <div className="bg-[#FFFDF9]/95 backdrop-blur-xs rounded-2xl p-4 border-2 border-stone-200/80 shadow-md space-y-3">
           {/* Illustrated Route Map Card */}
           <div className="w-full h-40 rounded-xl bg-gradient-to-b from-[#E6F4EA] to-[#FEF3C7] border border-[#A7F3D0] relative overflow-hidden flex flex-col justify-between p-3">
             <div className="flex justify-between items-start text-lg opacity-80">
@@ -1663,7 +1663,7 @@ export function PastelMultiStepRsvp({ events = [] }) {
 
   return (
     <section className="py-10 px-4 max-w-md mx-auto select-none">
-      <div className="bg-[#FFFDF9]/88 backdrop-blur-md rounded-3xl p-6 sm:p-7 border-2 border-stone-200/80 shadow-lg space-y-4">
+      <div className="bg-[#FFFDF9]/95 backdrop-blur-xs rounded-3xl p-6 sm:p-7 border-2 border-stone-200/80 shadow-lg space-y-4">
         {/* Header */}
         <div className="text-center space-y-1">
           <span className="text-[10px] uppercase tracking-[0.25em] font-bold text-stone-500 block">RSVP</span>

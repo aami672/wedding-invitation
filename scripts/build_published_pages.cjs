@@ -117,9 +117,52 @@ const isNewspaper = data.template === 'newspaper';
 const isBougain = data.template === 'bougain' || data.template === 'bougainvillea';
 
 // For files inside /published/, assets in /images/ are at ../images/
+const THEME_FOLDER_MAP = {
+  'caricature': 'Luxe-Pastel-Caricature',
+  'mela': 'Luxe-Marigold-Mela',
+  'pichwai': 'Luxe-Pichwai-Lotus',
+  'rajwada': 'Luxe-Rajwada-Miniature',
+  'zardozi': 'Luxe-Heirloom-Zardozi',
+  'storybook': 'Storybook',
+  'newspaper': 'The-Shaadi-Times',
+  'bougain': 'Luxe-Bougainvillea-Blossom',
+  'bougainvillea': 'Luxe-Bougainvillea-Blossom',
+  'ballroom': 'Gilded-Ballroom',
+  'peaks': 'Pastel-Peaks',
+  'resort': 'Luxury-Beach-Resort',
+  'luxury-resort': 'Luxury-Resort',
+  'mandap': 'Paper-Blossom',
+  'paper-blossom': 'Paper-Blossom',
+  'truck': 'Desi-Truck-Art',
+  'nikah': 'Nikah',
+  'rangla': 'Rangla-Viah',
+  '3d-human': '3D-Model-Human-Colorful-v3',
+  '3d-pixar': '3D-Pixar',
+  'aladdin': 'Aladdin-Jasmine',
+  'cute-couples': 'Cute-Couples',
+  'kalyanam': 'Kalyanam',
+  'marble': 'Marble-Style',
+  'water': 'Water',
+  'watercolor': 'Watercolor-Portrait',
+  'cinematic': 'Luxe-Rajwada-Miniature',
+  'royal': 'Luxe-Rajwada-Miniature',
+  'classic': 'Luxe-Pichwai-Lotus',
+  'editorial': 'The-Shaadi-Times',
+  'botanical': 'Luxe-Bougainvillea-Blossom',
+  'express': 'Storybook',
+  'darkroom': 'Luxe-Rajwada-Miniature'
+};
+
 const assetPrefix = '../';
 
-const b64Cover = data.photos?.cover ? `${assetPrefix}${data.photos.cover.replace(/^\.?\//, '')}` : `${assetPrefix}images/templates/caricature.webp`;
+function getBuildThemeHeroImage(templateId) {
+  const folder = THEME_FOLDER_MAP[templateId] || 'Luxe-Pastel-Caricature';
+  return `${assetPrefix}images/themes/${folder}/04-pheras.webp`;
+}
+const defaultThemeHero = getBuildThemeHeroImage(data.template);
+const b64Cover = (data.photos?.cover && !data.photos.cover.includes('templates/caricature.webp') && !data.photos.cover.includes('scooter_couple.webp'))
+  ? `${assetPrefix}${data.photos.cover.replace(/^\.?\//, '')}`
+  : defaultThemeHero;
 const b64Bride = data.photos?.bride ? `${assetPrefix}${data.photos.bride.replace(/^\.?\//, '')}` : `${assetPrefix}images/bride.webp`;
 const b64Groom = data.photos?.groom ? `${assetPrefix}${data.photos.groom.replace(/^\.?\//, '')}` : `${assetPrefix}images/groom.webp`;
 const b64Tmpl = `${assetPrefix}images/templates/caricature.webp`;
@@ -172,42 +215,6 @@ const firstDayIndex = validDate ? new Date(calYear, d.getMonth(), 1).getDay() : 
 const displayWeddingDate = formatDisplayDate(data.hosts.date || '2026-12-09');
 const monogramInitials = getMonogramInitials(data.hosts, data.monogram);
 
-const THEME_FOLDER_MAP = {
-  'caricature': 'Luxe-Pastel-Caricature',
-  'mela': 'Luxe-Marigold-Mela',
-  'pichwai': 'Luxe-Pichwai-Lotus',
-  'rajwada': 'Luxe-Rajwada-Miniature',
-  'zardozi': 'Luxe-Heirloom-Zardozi',
-  'storybook': 'Storybook',
-  'newspaper': 'The-Shaadi-Times',
-  'bougain': 'Luxe-Bougainvillea-Blossom',
-  'bougainvillea': 'Luxe-Bougainvillea-Blossom',
-  'ballroom': 'Gilded-Ballroom',
-  'peaks': 'Pastel-Peaks',
-  'resort': 'Luxury-Beach-Resort',
-  'luxury-resort': 'Luxury-Resort',
-  'mandap': 'Paper-Blossom',
-  'paper-blossom': 'Paper-Blossom',
-  'truck': 'Desi-Truck-Art',
-  'nikah': 'Nikah',
-  'rangla': 'Rangla-Viah',
-  '3d-human': '3D-Model-Human-Colorful-v3',
-  '3d-pixar': '3D-Pixar',
-  'aladdin': 'Aladdin-Jasmine',
-  'cute-couples': 'Cute-Couples',
-  'kalyanam': 'Kalyanam',
-  'marble': 'Marble-Style',
-  'water': 'Water',
-  'watercolor': 'Watercolor-Portrait',
-  'cinematic': 'Luxe-Rajwada-Miniature',
-  'royal': 'Luxe-Rajwada-Miniature',
-  'classic': 'Luxe-Pichwai-Lotus',
-  'editorial': 'The-Shaadi-Times',
-  'botanical': 'Luxe-Bougainvillea-Blossom',
-  'express': 'Storybook',
-  'darkroom': 'Luxe-Rajwada-Miniature'
-};
-
 const EVENT_FILE_SEQUENCE = [
   '01-haldi.webp',
   '02-mehndi.webp',
@@ -223,7 +230,7 @@ function getBuildThemeEventImage(templateId, event, eventIndex) {
   if (event?.image) {
     return (event.image.startsWith('http') || event.image.startsWith('data:')) ? event.image : `${assetPrefix}${event.image.replace(/^\.?\//, '')}`;
   }
-  if (templateId === 'caricature') return '';
+  // Caricature now uses its new theme images
   const folder = THEME_FOLDER_MAP[templateId] || 'Luxe-Pichwai-Lotus';
   const nameLower = (event?.name || '').toLowerCase();
   let filename = '04-pheras.webp';

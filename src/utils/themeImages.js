@@ -61,15 +61,6 @@ export function getThemeEventImage(templateId, event, eventIndex = 0, prefix = '
     return `${prefix}${custom.replace(/^\.?\//, '')}`;
   }
 
-  // Caricature fallback to dedicated arch artwork if available
-  if (templateId === 'caricature') {
-    const nameLower = (event?.name || '').toLowerCase();
-    if (nameLower.includes('haldi')) return `${prefix}images/caricature/haldi_arch.webp`;
-    if (nameLower.includes('mehndi') || nameLower.includes('mehendi')) return `${prefix}images/caricature/mehndi_arch.webp`;
-    if (nameLower.includes('sangeet')) return `${prefix}images/caricature/sangeet_arch.webp`;
-    if (event?.id === 'evt-pheras' || nameLower.includes('wedding') || nameLower.includes('phera') || nameLower.includes('shaadi')) return `${prefix}images/caricature/pheras_arch.webp`;
-    if (nameLower.includes('reception') || nameLower.includes('party') || nameLower.includes('dinner')) return `${prefix}images/caricature/reception_arch.webp`;
-  }
 
   const folder = THEME_FOLDER_MAP[templateId] || 'Luxe-Pichwai-Lotus';
   const nameLower = (event?.name || '').toLowerCase();
