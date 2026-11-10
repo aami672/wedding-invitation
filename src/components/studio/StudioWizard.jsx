@@ -1767,7 +1767,6 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           <span class="text-xs text-stone-400">💨</span>
         </div>
         <p class="text-xs text-stone-500 font-light italic">We can't wait to celebrate with you</p>
-        <p class="text-[9px] uppercase tracking-widest text-stone-400 pt-1">Powered by Wishlys Free</p>
       </footer>
     </div>` : `
     <!-- CIRCULAR COUPLE PORTRAITS -->
@@ -1962,7 +1961,6 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       </div>
       <p class="font-serif text-2xl font-light text-[#2B1E17]">See you at the shaadi!</p>
       <p class="text-xs text-stone-500 font-light">With love, ${data.hosts?.bride} & ${data.hosts?.groom}</p>
-      <p class="text-[10px] tracking-widest uppercase text-stone-400 pt-2">Powered by Wishlys Free</p>
     </footer>`}
   </main>
 

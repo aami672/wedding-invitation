@@ -1895,12 +1895,6 @@ export function PastelFooter({ bride = 'Bride', groom = 'Groom' }) {
       <p className="text-xs text-stone-500 font-light italic">
         We can't wait to celebrate with you
       </p>
-
-      <div className="pt-2">
-        <span className="text-[9px] tracking-widest uppercase text-stone-400">
-          Powered by Wishlys Free
-        </span>
-      </div>
     </footer>
   );
 }

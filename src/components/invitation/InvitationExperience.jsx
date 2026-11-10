@@ -828,11 +828,6 @@ export default function InvitationExperience({
               <p className="text-xs text-stone-500 font-light">
                 With love, {data.hosts?.bride} & {data.hosts?.groom}
               </p>
-              <div className="pt-2">
-                <span className="text-[10px] tracking-widest uppercase text-stone-400">
-                  Powered by Wishlys Free · 100% Free Creation
-                </span>
-              </div>
             </footer>
           </>
         )}

@@ -1,19 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const downloadFile = path.join(process.env.USERPROFILE, 'Downloads', 'preeti-and-ashish.html');
-if (!fs.existsSync(downloadFile)) {
-  console.error('Download file not found:', downloadFile);
-  process.exit(1);
-}
-
-const html = fs.readFileSync(downloadFile, 'utf8');
-console.log('Read download file, size:', html.length, 'bytes');
-
-// 1. Save master copy in src/data/downloaded_published.html
 const masterFile = path.join(__dirname, '..', 'src', 'data', 'downloaded_published.html');
-fs.writeFileSync(masterFile, html, 'utf8');
-console.log('Saved master file to:', masterFile);
+const html = fs.readFileSync(masterFile, 'utf8');
+console.log('Read master file, size:', html.length, 'bytes');
 
 // 2. Write to public/published/
 const pubDir = path.join(__dirname, '..', 'public', 'published');
