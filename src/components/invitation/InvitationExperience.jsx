@@ -52,6 +52,7 @@ export default function InvitationExperience({
   });
   const [isPlayingMusic, setIsPlayingMusic] = useState(false);
   const [rsvpSubmitted, setRsvpSubmitted] = useState(false);
+  const [activePersonModal, setActivePersonModal] = useState(null); // 'groom' | 'bride' | null
   
   // RSVP Form State with multi-event selection (matching Wishlys frame_0110s.jpg)
   const [rsvpForm, setRsvpForm] = useState({
@@ -655,8 +656,11 @@ export default function InvitationExperience({
               {/* TWO CIRCULAR PORTRAIT CARDS SIDE-BY-SIDE */}
               <div className="grid grid-cols-2 gap-3.5 sm:gap-6 max-w-xl mx-auto">
                 {/* The Groom Card */}
-                <div className="bg-white/95 backdrop-blur-sm rounded-3xl p-4 sm:p-7 border border-[#C5A880]/60 shadow-lg text-center flex flex-col items-center group transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
-                  <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-4 border-[#C5A880] shadow-md mb-3.5 p-1 bg-white ring-4 ring-[#FAF5ED]">
+                <div 
+                  onClick={() => setActivePersonModal('groom')}
+                  className="bg-white/95 backdrop-blur-sm rounded-3xl p-4 sm:p-7 border border-[#C5A880]/60 shadow-lg text-center flex flex-col items-center group transition-all duration-300 hover:shadow-xl hover:border-amber-400 hover:-translate-y-0.5 cursor-pointer"
+                >
+                  <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-4 border-[#C5A880] shadow-md mb-3.5 p-1 bg-white ring-4 ring-[#FAF5ED] group-hover:ring-amber-300 transition-all">
                     <img 
                       src={data.photos?.groom || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80'} 
                       alt={data.hosts?.groom || 'Groom'} 
@@ -666,17 +670,28 @@ export default function InvitationExperience({
                   <span className="inline-block px-3 py-0.5 rounded-full text-[9px] sm:text-[10px] uppercase tracking-widest font-bold mb-1.5 bg-[#FAF5ED] border border-[#E6D5BF] text-[#8B6F47]">
                     The Groom
                   </span>
-                  <h4 className="font-serif text-lg sm:text-2xl text-[#2B1E17] font-semibold">
+                  <h4 className="font-serif text-lg sm:text-2xl text-[#2B1E17] font-semibold group-hover:text-amber-800 transition-colors">
                     {data.hosts?.groom || 'Groom'}
                   </h4>
                   <p className="text-[11px] sm:text-xs text-stone-600 italic mt-1.5 leading-relaxed">
                     "{data.photos?.groomBio || 'Foodie, photography enthusiast, and the architect of their happiest memories.'}"
                   </p>
+                  {data.hosts?.groomParents && (
+                    <p className="text-[10px] text-stone-400 font-sans border-t border-stone-100 pt-1.5 mt-2 w-full">
+                      {data.hosts.groomParents}
+                    </p>
+                  )}
+                  <span className="text-[9px] text-[#8B6F47] font-semibold mt-2 flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
+                    🔍 Tap to view
+                  </span>
                 </div>
 
                 {/* The Bride Card */}
-                <div className="bg-white/95 backdrop-blur-sm rounded-3xl p-4 sm:p-7 border border-[#C5A880]/60 shadow-lg text-center flex flex-col items-center group transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
-                  <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-4 border-[#C5A880] shadow-md mb-3.5 p-1 bg-white ring-4 ring-[#FAF5ED]">
+                <div 
+                  onClick={() => setActivePersonModal('bride')}
+                  className="bg-white/95 backdrop-blur-sm rounded-3xl p-4 sm:p-7 border border-[#C5A880]/60 shadow-lg text-center flex flex-col items-center group transition-all duration-300 hover:shadow-xl hover:border-rose-400 hover:-translate-y-0.5 cursor-pointer"
+                >
+                  <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-4 border-[#C5A880] shadow-md mb-3.5 p-1 bg-white ring-4 ring-[#FAF5ED] group-hover:ring-rose-300 transition-all">
                     <img 
                       src={data.photos?.bride || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80'} 
                       alt={data.hosts?.bride || 'Bride'} 
@@ -686,15 +701,78 @@ export default function InvitationExperience({
                   <span className="inline-block px-3 py-0.5 rounded-full text-[9px] sm:text-[10px] uppercase tracking-widest font-bold mb-1.5 bg-[#FAF5ED] border border-[#E6D5BF] text-[#8B6F47]">
                     The Bride
                   </span>
-                  <h4 className="font-serif text-lg sm:text-2xl text-[#2B1E17] font-semibold">
+                  <h4 className="font-serif text-lg sm:text-2xl text-[#2B1E17] font-semibold group-hover:text-rose-800 transition-colors">
                     {data.hosts?.bride || 'Bride'}
                   </h4>
                   <p className="text-[11px] sm:text-xs text-stone-600 italic mt-1.5 leading-relaxed">
                     "{data.photos?.brideBio || 'Loves classic poetry, morning chai, and spontaneous mountain hikes.'}"
                   </p>
+                  {data.hosts?.brideParents && (
+                    <p className="text-[10px] text-stone-400 font-sans border-t border-stone-100 pt-1.5 mt-2 w-full">
+                      {data.hosts.brideParents}
+                    </p>
+                  )}
+                  <span className="text-[9px] text-[#8B6F47] font-semibold mt-2 flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
+                    🔍 Tap to view
+                  </span>
                 </div>
               </div>
             </section>
+
+            {/* PERSON POPUP MODAL FOR NON-CARICATURE THEMES */}
+            {activePersonModal && (
+              <div 
+                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-md transition-all animate-fadeIn" 
+                onClick={() => setActivePersonModal(null)}
+              >
+                <div 
+                  className="relative w-full max-w-[340px] bg-[#FFFDF9] rounded-3xl p-5 border-2 border-[#C5A880]/80 shadow-2xl text-center space-y-3 animate-scaleUp"
+                  onClick={e => e.stopPropagation()}
+                >
+                  <button 
+                    type="button"
+                    onClick={() => setActivePersonModal(null)} 
+                    className="absolute top-3 right-3 w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center text-sm font-bold shadow-xs cursor-pointer z-10 transition-colors"
+                  >
+                    ✕
+                  </button>
+                  <div className="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-stone-100 border-2 border-[#E6D5BF] shadow-inner mt-2">
+                    <img 
+                      src={activePersonModal === 'groom' ? (data.photos?.groom || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80') : (data.photos?.bride || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80')} 
+                      alt={activePersonModal === 'groom' ? (data.hosts?.groom || 'Groom') : (data.hosts?.bride || 'Bride')} 
+                      className="w-full h-full object-cover object-top"
+                    />
+                  </div>
+                  <div className="space-y-1 pt-1">
+                    <span className={`inline-block px-3 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-bold ${
+                      activePersonModal === 'groom' ? 'bg-[#E6F4EA] text-[#137333]' : 'bg-[#FCE8E6] text-[#C5221F]'
+                    }`}>
+                      {activePersonModal === 'groom' ? 'The Groom' : 'The Bride'}
+                    </span>
+                    <h3 className="font-serif text-2xl font-bold text-[#2B1E17]">
+                      {activePersonModal === 'groom' ? (data.hosts?.groom || 'Groom') : (data.hosts?.bride || 'Bride')}
+                    </h3>
+                    <p className="text-xs text-stone-600 italic px-2">
+                      "{activePersonModal === 'groom' ? (data.photos?.groomBio || 'Foodie, photography enthusiast, and the architect of their happiest memories.') : (data.photos?.brideBio || 'Loves classic poetry, morning chai, and spontaneous mountain hikes.')}"
+                    </p>
+                    {(activePersonModal === 'groom' ? data.hosts?.groomParents : data.hosts?.brideParents) && (
+                      <p className="text-[10px] text-stone-500 font-sans border-t border-stone-200/60 pt-2 mt-2">
+                        {activePersonModal === 'groom' ? data.hosts?.groomParents : data.hosts?.brideParents}
+                      </p>
+                    )}
+                  </div>
+                  <div className="pt-1">
+                    <button 
+                      type="button"
+                      onClick={() => setActivePersonModal(null)} 
+                      className="text-[11px] uppercase tracking-widest text-[#8B6F47] font-semibold hover:underline cursor-pointer"
+                    >
+                      Tap to close ✕
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* MOMENTS & MEMORIES GALLERY & GUEST PHOTO UPLOAD SECTION */}
             <MomentsAndMemories 
@@ -786,8 +864,21 @@ export default function InvitationExperience({
                           )}
                         </div>
 
-                        {isHaldiMehndi && <UrliCeremonyScene title={evt.name} />}
-                        {isWeddingPheras && <RoyalWeddingMandap bride={data.hosts?.bride} groom={data.hosts?.groom} />}
+                        {/* Custom Event Photo or Arch Artwork */}
+                        {(evt.image || evt.img) && (
+                          <div className="w-full flex justify-center -mb-2">
+                            <div className="w-full max-w-[340px] aspect-[9/16] rounded-t-[40px] rounded-b-2xl overflow-hidden flex items-center justify-center p-0 drop-shadow-md bg-[#FFFDF7] border-2 border-[#E6D5BF]">
+                              <img 
+                                src={evt.image || evt.img} 
+                                alt={evt.name} 
+                                className="w-full h-full object-contain object-center hover:scale-105 transition-transform duration-500" 
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        {isHaldiMehndi && !evt.image && !evt.img && <UrliCeremonyScene title={evt.name} />}
+                        {isWeddingPheras && !evt.image && !evt.img && <RoyalWeddingMandap bride={data.hosts?.bride} groom={data.hosts?.groom} />}
 
                         <DirectionalSignpost 
                           venue={evt.venue} 
@@ -813,6 +904,14 @@ export default function InvitationExperience({
                 </div>
               </div>
             </section>
+
+            {/* INTERACTIVE MULTI-STEP RSVP */}
+            <div className="py-10 px-3 max-w-xl mx-auto">
+              <PastelMultiStepRsvp events={visibleEvents} />
+            </div>
+
+            {/* HASHTAG BANNER */}
+            <PastelHashtagBanner hashtag={data.hosts?.hashtag || `#${(data.hosts?.bride || 'Bride').replace(/\s+/g, '')}Weds${(data.hosts?.groom || 'Groom').replace(/\s+/g, '')}`} />
 
             {/* RADIATING CELEBRATORY FIREWORKS SPARKLERS */}
             <CelebratoryFireworks />

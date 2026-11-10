@@ -1799,75 +1799,82 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         <p class="text-xs text-stone-500 font-light italic">We can't wait to celebrate with you</p>
       </footer>
     </div>` : `
-    <!-- CIRCULAR COUPLE PORTRAITS -->
-    <section class="py-16 px-4 max-w-4xl mx-auto">
-      <div class="text-center space-y-2 mb-10">
+    <!-- CIRCULAR COUPLE PORTRAITS (ALL THEMES) -->
+    <section class="py-16 px-4 max-w-4xl mx-auto select-none">
+      <div class="text-center space-y-2 mb-10 scroll-reveal">
         <span class="text-[10px] tracking-[0.3em] uppercase font-bold text-[#8B6F47]">The Couple</span>
-        <h2 class="font-serif text-3xl sm:text-4xl font-light text-[#2B1E17]">Meet Bride & Groom</h2>
-        <div class="h-0.5 w-12 bg-[#C5A880] mx-auto mt-2"></div>
+        <h2 id="meet-couple-heading" class="font-serif text-3xl sm:text-4xl font-light text-[#2B1E17]">Meet Bride & Groom</h2>
+        <div class="h-0.5 w-16 bg-gradient-to-r from-transparent via-[#C5A880] to-transparent mx-auto mt-2"></div>
       </div>
 
       <div class="grid grid-cols-2 gap-3.5 sm:gap-6 max-w-xl mx-auto">
         <!-- Groom Card -->
-        <div class="bg-white/95 rounded-3xl p-4 sm:p-7 border border-[#C5A880]/60 shadow-lg text-center flex flex-col items-center">
-          <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-4 border-[#C5A880] shadow-md mb-3.5 p-1 bg-white ring-4 ring-[#FAF5ED]">
-            <img id="noncaricature-groom-img" src="${b64Groom || b64Cover || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80'}" class="w-full h-full object-cover rounded-full" />
+        <div onclick="openPersonModal('groom')" class="bg-white/95 rounded-3xl p-4 sm:p-7 border border-[#C5A880]/60 shadow-lg text-center flex flex-col items-center cursor-pointer group hover:shadow-xl hover:border-amber-400 hover:-translate-y-1 transition-all duration-300 scroll-reveal reveal-tilt-left">
+          <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-4 border-[#C5A880] shadow-md mb-3.5 p-1 bg-white ring-4 ring-[#FAF5ED] group-hover:ring-amber-300 transition-all">
+            <img id="noncaricature-groom-img" src="${b64Groom || './images/ashish_groom.jpg' || './images/groom.webp'}" alt="${data.hosts?.groom || 'Ashish'}" class="w-full h-full object-cover rounded-full group-hover:scale-105 transition-transform duration-500" />
           </div>
           <span class="inline-block px-3 py-0.5 rounded-full bg-[#FAF5ED] border border-[#E6D5BF] text-[9px] uppercase tracking-widest font-bold text-[#8B6F47] mb-1.5">The Groom</span>
-          <h4 class="font-serif text-lg sm:text-2xl text-[#2B1E17] font-semibold">${data.hosts?.groom || 'Groom'}</h4>
-          <p class="text-[11px] sm:text-xs text-stone-600 italic mt-1.5 leading-relaxed">"${data.photos?.groomBio || 'Foodie, photography enthusiast, and the architect of their happiest memories.'}"</p>
+          <h4 id="meet-groom-name" class="font-serif text-lg sm:text-2xl text-[#2B1E17] font-semibold group-hover:text-amber-800 transition-colors">${data.hosts?.groom || 'Ashish'}</h4>
+          <p id="meet-groom-bio" class="text-[11px] sm:text-xs text-stone-600 italic mt-1.5 leading-relaxed">"${data.photos?.groomBio || 'Foodie, photography enthusiast, and the architect of their happiest memories.'}"</p>
+          <p id="meet-groom-parents" class="text-[10px] text-stone-400 mt-2 font-sans border-t border-stone-100 pt-1.5 w-full">${data.hosts?.groomParents || 'S/o Mr. Ramesh & Mrs. Sunita Sharma'}</p>
+          <span class="text-[9px] text-[#8B6F47] font-semibold mt-2 flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">🔍 Tap to view</span>
         </div>
 
         <!-- Bride Card -->
-        <div class="bg-white/95 rounded-3xl p-4 sm:p-7 border border-[#C5A880]/60 shadow-lg text-center flex flex-col items-center">
-          <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-4 border-[#C5A880] shadow-md mb-3.5 p-1 bg-white ring-4 ring-[#FAF5ED]">
-            <img id="noncaricature-bride-img" src="${b64Bride || b64Cover || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80'}" class="w-full h-full object-cover rounded-full" />
+        <div onclick="openPersonModal('bride')" class="bg-white/95 rounded-3xl p-4 sm:p-7 border border-[#C5A880]/60 shadow-lg text-center flex flex-col items-center cursor-pointer group hover:shadow-xl hover:border-rose-400 hover:-translate-y-1 transition-all duration-300 scroll-reveal reveal-tilt-right">
+          <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-4 border-[#C5A880] shadow-md mb-3.5 p-1 bg-white ring-4 ring-[#FAF5ED] group-hover:ring-rose-300 transition-all">
+            <img id="noncaricature-bride-img" src="${b64Bride || './images/preeti_bride.jpg' || './images/bride.webp'}" alt="${data.hosts?.bride || 'Preeti'}" class="w-full h-full object-cover rounded-full group-hover:scale-105 transition-transform duration-500" />
           </div>
           <span class="inline-block px-3 py-0.5 rounded-full bg-[#FAF5ED] border border-[#E6D5BF] text-[9px] uppercase tracking-widest font-bold text-[#8B6F47] mb-1.5">The Bride</span>
-          <h4 class="font-serif text-lg sm:text-2xl text-[#2B1E17] font-semibold">${data.hosts?.bride || 'Bride'}</h4>
-          <p class="text-[11px] sm:text-xs text-stone-600 italic mt-1.5 leading-relaxed">"${data.photos?.brideBio || 'Loves classic poetry, morning chai, and spontaneous mountain hikes.'}"</p>
+          <h4 id="meet-bride-name" class="font-serif text-lg sm:text-2xl text-[#2B1E17] font-semibold group-hover:text-rose-800 transition-colors">${data.hosts?.bride || 'Preeti'}</h4>
+          <p id="meet-bride-bio" class="text-[11px] sm:text-xs text-stone-600 italic mt-1.5 leading-relaxed">"${data.photos?.brideBio || 'Loves classic poetry, morning chai, and spontaneous mountain hikes.'}"</p>
+          <p id="meet-bride-parents" class="text-[10px] text-stone-400 mt-2 font-sans border-t border-stone-100 pt-1.5 w-full">${data.hosts?.brideParents || 'Mr. Omveer Singh & Mrs. Leela Devi'}</p>
+          <span class="text-[9px] text-[#8B6F47] font-semibold mt-2 flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">🔍 Tap to view</span>
         </div>
       </div>
     </section>
 
-    <!-- RAJASTHANI JHAROKHA PHOTO GALLERY (vframe_210.jpg) -->
-    <section class="py-12 px-4 max-w-4xl mx-auto">
-      <div class="text-center space-y-2 mb-8">
-        <span class="text-[10px] tracking-[0.3em] uppercase font-bold text-[#C5A880]">Our Journey</span>
+    <!-- MOMENTS & MEMORIES GALLERY (ALL THEMES) -->
+    <section class="py-12 px-4 max-w-4xl mx-auto select-none" id="moments-section">
+      <div class="text-center space-y-2 mb-8 scroll-reveal">
+        <span class="text-[10px] tracking-[0.3em] uppercase font-bold text-[#8B6F47]">Our Journey</span>
         <h3 class="font-serif text-3xl font-light text-[#2B1E17]">Moments & Memories</h3>
+        <p class="text-xs text-stone-500 font-light max-w-md mx-auto">A glimpse into our sweetest celebrations & unforgettable memories.</p>
+        <div class="h-0.5 w-16 bg-gradient-to-r from-transparent via-[#C5A880] to-transparent mx-auto mt-2"></div>
       </div>
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-        ${[
-          { title: 'Sangeet Night', img: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80' },
-          { title: 'Mehndi Joy', img: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=600&q=80' },
-          { title: 'The Proposal', img: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=600&q=80' },
-          { title: 'Golden Hour', img: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=600&q=80' },
-        ].map((item, idx) => `
-          <div class="rounded-t-[50px] rounded-b-xl border-2 border-[#C5A880] overflow-hidden bg-white shadow-md p-1">
-            <div class="w-full h-44 rounded-t-[46px] rounded-b-lg overflow-hidden">
-              <img src="${item.img}" class="w-full h-full object-cover" />
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4" id="moments-grid">
+        ${(b64Gallery || []).map((item, idx) => {
+          const rawUrl = item.b64 || item.url || item.img || './images/couple-potrait.webp';
+          const cap = (item.caption || item.title || `Moment 0${idx + 1}`).replace(/'/g, "\\'");
+          return `
+          <div onclick="openMomentLightbox('${rawUrl}', '${cap}')" class="rounded-t-[44px] rounded-b-xl border-2 border-[#C5A880]/70 overflow-hidden bg-white shadow-md p-1.5 cursor-pointer group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 scroll-reveal">
+            <div class="w-full aspect-[4/5] rounded-t-[40px] rounded-b-lg overflow-hidden bg-stone-100">
+              <img src="${rawUrl}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             </div>
-            <div class="text-center py-1">
-              <span class="text-[9px] uppercase font-royal font-bold text-[#8B6F47]">✦ ${item.title} ✦</span>
+            <div class="text-center py-2 px-1">
+              <span class="text-[9px] uppercase font-bold text-[#8B6F47] tracking-wider truncate block">✦ ${item.caption || item.title || 'Wedding Memory'} ✦</span>
             </div>
-          </div>
-        `).join('')}
+          </div>`;
+        }).join('')}
       </div>
     </section>
 
-    <!-- ITINERARY & THEMATIC OBJECTS WITH MAPS -->
-    <section class="py-16 px-4 bg-[#FAF5ED]/50 border-y border-[#E6D5BF]/60">
+    <!-- ITINERARY & THEMATIC OBJECTS WITH MAPS (ALL THEMES) -->
+    <section class="py-16 px-4 bg-[#FAF5ED]/50 border-y border-[#E6D5BF]/60 select-none">
       <div class="max-w-3xl mx-auto space-y-10">
-        <div class="text-center space-y-2 mb-10">
+        <div class="text-center space-y-2 mb-10 scroll-reveal">
           <span class="text-[10px] tracking-[0.3em] uppercase font-bold text-[#8B6F47]">The Itinerary</span>
           <h2 class="font-serif text-3xl sm:text-4xl font-light text-[#2B1E17]">Celebration Events</h2>
+          <p class="text-xs text-stone-500 font-light">Dates, timings, dress codes, and interactive venue maps.</p>
+          <div class="h-0.5 w-16 bg-gradient-to-r from-transparent via-[#C5A880] to-transparent mx-auto mt-2"></div>
         </div>
 
         ${(data.events || []).map((evt, idx) => {
           const isHaldi = evt.name?.toLowerCase().includes('haldi') || evt.name?.toLowerCase().includes('mehndi');
           const isWedding = evt.name?.toLowerCase().includes('wedding') || evt.name?.toLowerCase().includes('phera');
+          const customEvtImg = (typeof b64Events !== 'undefined' && b64Events && b64Events[idx] && b64Events[idx].customB64) || evt.image || evt.img;
           return `
-          <div class="bg-white rounded-3xl p-6 sm:p-8 border border-[#E6D5BF] shadow-md space-y-5">
+          <div class="bg-white rounded-3xl p-6 sm:p-8 border border-[#E6D5BF] shadow-md space-y-5 scroll-reveal">
             <div class="flex justify-between items-start gap-2">
               <div>
                 <span class="text-[9px] uppercase font-bold text-[#8B6F47] block mb-1">CHAPTER ${idx + 1}</span>
@@ -1877,8 +1884,15 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
               ${evt.dressCode ? `<span class="text-[9px] uppercase font-bold text-[#8B6F47] bg-[#FAF5ED] border border-[#E6D5BF] px-2.5 py-1 rounded-full">${evt.dressCode}</span>` : ''}
             </div>
 
-            ${isHaldi ? `
-            <!-- Urli Ceremony Illustration (vframe_280.jpg) -->
+            ${customEvtImg ? `
+            <div class="w-full flex justify-center -mb-2">
+              <div class="w-full max-w-[340px] aspect-[9/16] rounded-t-[40px] rounded-b-2xl overflow-hidden flex items-center justify-center p-0 drop-shadow-md bg-[#FFFDF7] border-2 border-[#E6D5BF]">
+                <img id="event-img-${evt.id || idx}" src="${customEvtImg}" alt="${evt.name}" class="w-full h-full object-contain object-center hover:scale-105 transition-transform duration-500" />
+              </div>
+            </div>` : ''}
+
+            ${isHaldi && !customEvtImg ? `
+            <!-- Urli Ceremony Illustration -->
             <div class="text-center my-4">
               <div class="w-48 h-16 mx-auto rounded-full bg-gradient-to-b from-[#E6B800] via-[#AA7A1E] to-[#6A4706] p-1.5 flex items-center justify-center border-2 border-[#FFE885] shadow-lg">
                 <div class="w-full h-full rounded-full bg-[#2B7A78] flex items-center justify-around px-3 text-sm">
@@ -1888,21 +1902,21 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
               <p class="text-[9px] uppercase tracking-widest font-bold text-[#8B6F47] mt-1">TRADITIONAL URLI BLESSINGS</p>
             </div>` : ''}
 
-            ${isWedding ? `
-            <!-- Royal Wedding Mandap Illustration (vframe_350.jpg) -->
+            ${isWedding && !customEvtImg ? `
+            <!-- Royal Wedding Mandap Illustration -->
             <div class="border border-[#D4AF37] rounded-2xl p-4 bg-gradient-to-b from-amber-50/70 to-rose-50/70 text-center my-4">
               <div class="flex justify-between items-center px-4">
                 <div class="w-3 h-16 bg-[#AA771C] rounded"></div>
                 <div class="space-y-1">
                   <div class="text-base">🌹 🌼 🔥 🌼 🌹</div>
-                  <h4 class="font-serif text-lg font-bold text-[#881337]">Main Pheras (The Wedding)</h4>
+                  <h4 class="font-serif text-lg font-bold text-[#881337]">${evt.name}</h4>
                   <p class="text-[9px] uppercase tracking-widest text-[#8B6F47]">Under The Sacred Floral Mandap</p>
                 </div>
                 <div class="w-3 h-16 bg-[#AA771C] rounded"></div>
               </div>
             </div>` : ''}
 
-            <!-- DIRECTIONAL ROAD SIGNPOST (vframe_160.jpg) -->
+            <!-- DIRECTIONAL ROAD SIGNPOST -->
             <div class="flex flex-col items-center my-6">
               <div class="w-full max-w-sm flex justify-center gap-1.5 mb-2">
                 <span class="w-5 h-6 bg-red-500 inline-block" style="clip-path: polygon(0 0, 100% 0, 50% 100%);"></span>
@@ -1938,7 +1952,74 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       </div>
     </section>
 
-    <!-- RADIATING CELEBRATION FIREWORKS SPARKLERS (vframe_250.jpg) -->
+    <!-- MULTI-STEP INTERACTIVE RSVP (ALL THEMES) -->
+    <section class="py-12 px-4 max-w-xl mx-auto select-none scroll-reveal">
+      <div class="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#C5A880]/60 shadow-xl space-y-5 text-center">
+        <span class="text-[10px] uppercase tracking-[0.25em] font-bold text-[#8B6F47] block">PLEASE RESPOND</span>
+        <h3 class="font-serif text-3xl font-light text-[#2B1E17]">Are you attending?</h3>
+        <p class="text-xs text-stone-500 font-light">Kindly confirm your presence so we can reserve your seat and celebrations.</p>
+
+        <form id="theme-rsvp-form" onsubmit="submitRsvp(event)" class="space-y-4 text-left">
+          <div class="space-y-1">
+            <label class="text-[10px] uppercase font-bold text-stone-600 block">Your Full Name *</label>
+            <input type="text" id="rsvp-guest-name" required placeholder="e.g. Rahul & Priya Sharma" class="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-xs focus:outline-none focus:ring-1 focus:ring-[#8B6F47] bg-[#FAF8F5]" />
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-[10px] uppercase font-bold text-stone-600 block">Phone Number *</label>
+            <input type="tel" id="rsvp-guest-phone" required placeholder="e.g. +91 98765 43210" class="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-xs focus:outline-none focus:ring-1 focus:ring-[#8B6F47] bg-[#FAF8F5]" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-1">
+              <label class="text-[10px] uppercase font-bold text-stone-600 block">Total Guests</label>
+              <select id="rsvp-guest-count" class="w-full px-3 py-2.5 rounded-xl border border-stone-200 text-xs focus:outline-none bg-[#FAF8F5]">
+                <option value="1">1 Guest</option>
+                <option value="2" selected>2 Guests</option>
+                <option value="3">3 Guests</option>
+                <option value="4">4 Guests</option>
+                <option value="5+">5+ Family</option>
+              </select>
+            </div>
+            <div class="space-y-1">
+              <label class="text-[10px] uppercase font-bold text-stone-600 block">Dietary Preference</label>
+              <select id="rsvp-dietary" class="w-full px-3 py-2.5 rounded-xl border border-stone-200 text-xs focus:outline-none bg-[#FAF8F5]">
+                <option value="Vegetarian" selected>Vegetarian</option>
+                <option value="Jain">Jain</option>
+                <option value="Non-Vegetarian">Non-Vegetarian</option>
+                <option value="Vegan">Vegan</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-[10px] uppercase font-bold text-stone-600 block">Warm Wishes / Message</label>
+            <textarea id="rsvp-guest-message" rows="2" placeholder="Send a sweet wish to the couple..." class="w-full px-4 py-2 rounded-xl border border-stone-200 text-xs focus:outline-none bg-[#FAF8F5] resize-none"></textarea>
+          </div>
+
+          <button type="submit" class="w-full py-3.5 rounded-full bg-gradient-to-r from-[#8B6F47] via-[#C5A880] to-[#8B6F47] text-white font-bold text-xs uppercase tracking-widest shadow-md hover:opacity-95 cursor-pointer transition-all active:scale-98">
+            Confirm Attendance (RSVP) ✨
+          </button>
+        </form>
+        <div id="rsvp-success-banner" class="hidden p-4 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-semibold">
+          🎉 Thank you! Your RSVP has been confirmed. We can't wait to celebrate with you!
+        </div>
+      </div>
+    </section>
+
+    <!-- HASHTAG BANNER (ALL THEMES) -->
+    <section class="py-8 px-4 max-w-xl mx-auto text-center select-none space-y-2.5 scroll-reveal">
+      <span class="text-[10px] uppercase tracking-[0.25em] font-bold text-stone-500 block">SHARE THE MOMENTS</span>
+      <h3 class="font-serif text-3xl font-bold text-[#2B1E17]">${data.hosts?.hashtag || '#Wedding'}</h3>
+      <p class="text-xs text-stone-600 font-light">Tag your photos and stories so we can relive every moment.</p>
+      <div class="pt-2">
+        <button id="theme-hashtag-btn" onclick="copyHashtag('${data.hosts?.hashtag || '#Wedding'}')" class="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full bg-[#8B6F47] hover:bg-[#6D5333] text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md cursor-pointer active:scale-95">
+          <span>📋 Copy Hashtag</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- RADIATING CELEBRATION FIREWORKS SPARKLERS -->
     <div class="my-8 flex flex-col items-center select-none pointer-events-none">
       <div class="flex items-center justify-center gap-8">
         <div class="w-12 h-12 animate-firework">
@@ -1947,10 +2028,6 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
             <line x1="50" y1="50" x2="90" y2="50" stroke-dasharray="4,4" />
             <line x1="50" y1="50" x2="50" y2="90" stroke-dasharray="4,4" />
             <line x1="50" y1="50" x2="10" y2="50" stroke-dasharray="4,4" />
-            <line x1="50" y1="50" x2="78" y2="22" stroke-dasharray="4,4" />
-            <line x1="50" y1="50" x2="78" y2="78" stroke-dasharray="4,4" />
-            <line x1="50" y1="50" x2="22" y2="78" stroke-dasharray="4,4" />
-            <line x1="50" y1="50" x2="22" y2="22" stroke-dasharray="4,4" />
             <circle cx="50" cy="50" r="4" fill="#D4AF37" />
           </svg>
         </div>
@@ -1960,34 +2037,16 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
             <line x1="50" y1="50" x2="95" y2="50" stroke-dasharray="6,3" />
             <line x1="50" y1="50" x2="50" y2="95" stroke-dasharray="6,3" />
             <line x1="50" y1="50" x2="5" y2="50" stroke-dasharray="6,3" />
-            <line x1="50" y1="50" x2="82" y2="18" stroke-dasharray="6,3" />
-            <line x1="50" y1="50" x2="82" y2="82" stroke-dasharray="6,3" />
-            <line x1="50" y1="50" x2="18" y2="82" stroke-dasharray="6,3" />
-            <line x1="50" y1="50" x2="18" y2="18" stroke-dasharray="6,3" />
             <circle cx="50" cy="50" r="6" fill="#F59E0B" />
           </svg>
         </div>
-        <div class="w-12 h-12 animate-firework" style="animation-delay: 0.6s;">
-          <svg viewBox="0 0 100 100" class="w-full h-full text-[#D4AF37]" fill="none" stroke="currentColor" stroke-width="3">
-            <line x1="50" y1="50" x2="50" y2="10" stroke-dasharray="4,4" />
-            <line x1="50" y1="50" x2="90" y2="50" stroke-dasharray="4,4" />
-            <line x1="50" y1="50" x2="50" y2="90" stroke-dasharray="4,4" />
-            <line x1="50" y1="50" x2="10" y2="50" stroke-dasharray="4,4" />
-            <circle cx="50" cy="50" r="4" fill="#D4AF37" />
-          </svg>
-        </div>
-      </div>
-      <div class="flex items-center gap-2 mt-4 text-[#C5A880]">
-        <span class="w-1.5 h-1.5 rotate-45 bg-[#C5A880]"></span>
-        <span class="w-2 h-2 rotate-45 bg-[#8B6F47]"></span>
-        <span class="w-1.5 h-1.5 rotate-45 bg-[#C5A880]"></span>
       </div>
     </div>
 
     <!-- FOOTER -->
     <footer class="py-12 text-center space-y-2 border-t border-[#E6D5BF]/60 bg-white/40">
       <div class="w-10 h-10 mx-auto rounded-full border border-[#C5A880] flex items-center justify-center font-royal text-xs font-bold text-[#8B6F47]">
-        ${data.monogram?.initials || 'A & S'}
+        ${monogramInitials || 'P & A'}
       </div>
       <p class="font-serif text-2xl font-light text-[#2B1E17]">See you at the shaadi!</p>
       <p class="text-xs text-stone-500 font-light">With love, ${data.hosts?.bride} & ${data.hosts?.groom}</p>
@@ -2555,6 +2614,35 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       }
       triggerCelebrationEffect();
       sound.playChime(1046.5);
+    };
+
+    window.submitRsvp = function(e) {
+      if (e) e.preventDefault();
+      var form = document.getElementById('theme-rsvp-form');
+      var name = document.getElementById('rsvp-guest-name')?.value || 'Guest';
+      var phone = document.getElementById('rsvp-guest-phone')?.value || '';
+      var count = document.getElementById('rsvp-guest-count')?.value || '2';
+      var dietary = document.getElementById('rsvp-dietary')?.value || 'Vegetarian';
+      var msg = document.getElementById('rsvp-guest-message')?.value || '';
+
+      try {
+        var existing = JSON.parse(localStorage.getItem('wishlys_rsvps') || '[]');
+        existing.unshift({ id: 'rsvp_' + Date.now(), name: name, phone: phone, guestCount: count, dietary: dietary, message: msg, submittedAt: new Date().toISOString() });
+        localStorage.setItem('wishlys_rsvps', JSON.stringify(existing));
+      } catch(err) {}
+
+      if (form) form.classList.add('hidden');
+      var succ = document.getElementById('rsvp-success-banner');
+      if (succ) {
+        succ.classList.remove('hidden');
+        succ.textContent = '🎉 Thank you, ' + name + '! Your RSVP (' + count + ' guests, ' + dietary + ') is confirmed. We cannot wait to celebrate with you!';
+      }
+      try {
+        if (typeof triggerCelebrationEffect === 'function') triggerCelebrationEffect();
+      } catch(err) {}
+      try {
+        if (window.sound && typeof window.sound.playChime === 'function') window.sound.playChime(1046.5);
+      } catch(err) {}
     };
 
     // Scratch Card Engine (Guarded for non-Caricature themes)
