@@ -742,8 +742,8 @@ export const DEFAULT_INVITATION_DATA = {
   },
   photos: {
     cover: './images/templates/caricature.webp',
-    bride: './images/bride.webp',
-    groom: './images/groom.webp',
+    bride: './images/preeti_bride.jpg',
+    groom: './images/ashish_groom.jpg',
     brideBio: 'Loves classic poetry, morning chai, and spontaneous mountain hikes.',
     groomBio: 'Foodie, photography enthusiast, and the architect of their happiest memories.',
   },

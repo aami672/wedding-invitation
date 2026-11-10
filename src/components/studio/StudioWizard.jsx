@@ -842,13 +842,42 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         if (elMeetGroom) elMeetGroom.textContent = groom;
         var elMeetBride = document.getElementById('meet-bride-name');
         if (elMeetBride) elMeetBride.textContent = bride;
-        if (d.photos && d.photos.groomBio) {
-          var elMeetGroomBio = document.getElementById('meet-groom-bio');
-          if (elMeetGroomBio) elMeetGroomBio.textContent = '"' + d.photos.groomBio + '"';
+        if (d.photos) {
+          if (d.photos.groom) {
+            var elMeetGroomImg = document.getElementById('meet-groom-img');
+            if (elMeetGroomImg) elMeetGroomImg.src = d.photos.groom;
+            var elNcGroomImg = document.getElementById('noncaricature-groom-img');
+            if (elNcGroomImg) elNcGroomImg.src = d.photos.groom;
+            window.__hydratedGroomPhoto = d.photos.groom;
+          }
+          if (d.photos.bride) {
+            var elMeetBrideImg = document.getElementById('meet-bride-img');
+            if (elMeetBrideImg) elMeetBrideImg.src = d.photos.bride;
+            var elNcBrideImg = document.getElementById('noncaricature-bride-img');
+            if (elNcBrideImg) elNcBrideImg.src = d.photos.bride;
+            window.__hydratedBridePhoto = d.photos.bride;
+          }
+          if (d.photos.cover) {
+            var elDoorsCover = document.getElementById('doors-cover-img');
+            if (elDoorsCover) elDoorsCover.src = d.photos.cover;
+            window.__hydratedCoverPhoto = d.photos.cover;
+          }
+          if (d.photos.groomBio) {
+            var elMeetGroomBio = document.getElementById('meet-groom-bio');
+            if (elMeetGroomBio) elMeetGroomBio.textContent = '"' + d.photos.groomBio + '"';
+          }
+          if (d.photos.brideBio) {
+            var elMeetBrideBio = document.getElementById('meet-bride-bio');
+            if (elMeetBrideBio) elMeetBrideBio.textContent = '"' + d.photos.brideBio + '"';
+          }
         }
-        if (d.photos && d.photos.brideBio) {
-          var elMeetBrideBio = document.getElementById('meet-bride-bio');
-          if (elMeetBrideBio) elMeetBrideBio.textContent = '"' + d.photos.brideBio + '"';
+        if (d.hosts && d.hosts.groomParents) {
+          var elGroomParents = document.getElementById('meet-groom-parents');
+          if (elGroomParents) elGroomParents.textContent = d.hosts.groomParents;
+        }
+        if (d.hosts && d.hosts.brideParents) {
+          var elBrideParents = document.getElementById('meet-bride-parents');
+          if (elBrideParents) elBrideParents.textContent = d.hosts.brideParents;
         }
 
         // Live Countdown Target
@@ -1089,7 +1118,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     <div id="door-card-container" onclick="unlockCaricatureDoors(event)" class="relative w-[85vw] max-w-[300px] aspect-[9/16] max-h-[58vh] sm:max-h-[66vh] cursor-pointer group select-none" style="perspective: 1200px;">
       <!-- Inside Couple Artwork -->
       <div class="absolute inset-0 rounded-2xl bg-[#FFFDF7] border-2 border-[#FDE68A] shadow-inner overflow-hidden flex flex-col items-center justify-center p-0">
-        <img src="${b64Cover || b64Scooter || selectedTmpl?.image}" alt="${data.hosts?.groom || 'Ashish'} & ${data.hosts?.bride || 'Preeti'}" class="w-full h-full object-contain object-center" />
+        <img id="doors-cover-img" src="${b64Cover || b64Scooter || selectedTmpl?.image}" alt="${data.hosts?.groom || 'Ashish'} & ${data.hosts?.bride || 'Preeti'}" class="w-full h-full object-contain object-center" />
       </div>
 
       <!-- Left Folding Door -->
@@ -1447,12 +1476,12 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           <div onclick="openPersonModal('groom')" class="relative bg-white p-2.5 pb-4 rounded-2xl shadow-md border border-stone-200 transform -rotate-2 hover:rotate-0 hover:shadow-xl hover:border-amber-300 transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-left cursor-pointer group">
             <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#A7F3D0]/85 rounded shadow-xs rotate-1 border border-[#6EE7B7]"></div>
             <div class="w-20 h-20 rounded-full overflow-hidden bg-stone-100 mt-1 mb-2 border-2 border-stone-200 ring-4 ring-[#E6F4EA] shadow-inner shrink-0 group-hover:ring-emerald-300 transition-all">
-              <img src="${b64Groom || './images/groom.webp'}" alt="${data.hosts?.groom || 'Ashish'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+              <img id="meet-groom-img" src="${b64Groom || './images/ashish_groom.jpg' || './images/groom.webp'}" alt="${data.hosts?.groom || 'Ashish'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
             </div>
             <span class="inline-block px-2 py-0.5 rounded-full text-[8.5px] uppercase tracking-wider font-bold bg-[#E6F4EA] text-[#137333] mb-1">The Groom</span>
             <h4 id="meet-groom-name" class="font-serif text-sm sm:text-base font-bold text-[#2B1E17] leading-tight group-hover:text-amber-800 transition-colors">${data.hosts?.groom || 'Ashish'}</h4>
             <p id="meet-groom-bio" class="text-[10px] text-stone-600 italic mt-1 leading-snug px-0.5 flex-1">"${data.photos?.groomBio || 'Foodie, photography enthusiast, and the architect of their happiest memories.'}"</p>
-            <p class="text-[8.5px] text-stone-400 mt-1.5 font-sans border-t border-stone-100 pt-1 w-full">${data.hosts?.groomParents || 'S/o Mr. Ramesh & Mrs. Sunita Sharma'}</p>
+            <p id="meet-groom-parents" class="text-[8.5px] text-stone-400 mt-1.5 font-sans border-t border-stone-100 pt-1 w-full">${data.hosts?.groomParents || 'S/o Mr. Ramesh & Mrs. Sunita Sharma'}</p>
             <span class="text-[8.5px] text-amber-700 font-semibold mt-1 flex items-center gap-0.5 opacity-80 group-hover:opacity-100">🔍 Tap to view</span>
           </div>
 
@@ -1463,12 +1492,12 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           <div onclick="openPersonModal('bride')" class="relative bg-white p-2.5 pb-4 rounded-2xl shadow-md border border-stone-200 transform rotate-2 hover:rotate-0 hover:shadow-xl hover:border-rose-300 transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-right cursor-pointer group" style="transition-delay: 150ms;">
             <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FDE68A]/85 rounded shadow-xs -rotate-1 border border-[#FCD34D]"></div>
             <div class="w-20 h-20 rounded-full overflow-hidden bg-stone-100 mt-1 mb-2 border-2 border-stone-200 ring-4 ring-[#FCE8E6] shadow-inner shrink-0 group-hover:ring-rose-300 transition-all">
-              <img src="${b64Bride || './images/bride.webp'}" alt="${data.hosts?.bride || 'Preeti'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+              <img id="meet-bride-img" src="${b64Bride || './images/preeti_bride.jpg' || './images/bride.webp'}" alt="${data.hosts?.bride || 'Preeti'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
             </div>
             <span class="inline-block px-2 py-0.5 rounded-full text-[8.5px] uppercase tracking-wider font-bold bg-[#FCE8E6] text-[#C5221F] mb-1">The Bride</span>
             <h4 id="meet-bride-name" class="font-serif text-sm sm:text-base font-bold text-[#2B1E17] leading-tight group-hover:text-rose-800 transition-colors">${data.hosts?.bride || 'Preeti'}</h4>
             <p id="meet-bride-bio" class="text-[10px] text-stone-600 italic mt-1 leading-snug px-0.5 flex-1">"${data.photos?.brideBio || 'Loves classic poetry, morning chai, and spontaneous mountain hikes.'}"</p>
-            <p class="text-[8.5px] text-stone-400 mt-1.5 font-sans border-t border-stone-100 pt-1 w-full">${data.hosts?.brideParents || 'D/o Mr. Vijay & Mrs. Rekha Malhotra'}</p>
+            <p id="meet-bride-parents" class="text-[8.5px] text-stone-400 mt-1.5 font-sans border-t border-stone-100 pt-1 w-full">${data.hosts?.brideParents || 'D/o Mr. Vijay & Mrs. Rekha Malhotra'}</p>
             <span class="text-[8.5px] text-rose-700 font-semibold mt-1 flex items-center gap-0.5 opacity-80 group-hover:opacity-100">🔍 Tap to view</span>
           </div>
         </div>
@@ -1715,7 +1744,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         <!-- Groom Card -->
         <div class="bg-white/95 rounded-3xl p-4 sm:p-7 border border-[#C5A880]/60 shadow-lg text-center flex flex-col items-center">
           <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-4 border-[#C5A880] shadow-md mb-3.5 p-1 bg-white ring-4 ring-[#FAF5ED]">
-            <img src="${b64Groom || b64Cover || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80'}" class="w-full h-full object-cover rounded-full" />
+            <img id="noncaricature-groom-img" src="${b64Groom || b64Cover || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80'}" class="w-full h-full object-cover rounded-full" />
           </div>
           <span class="inline-block px-3 py-0.5 rounded-full bg-[#FAF5ED] border border-[#E6D5BF] text-[9px] uppercase tracking-widest font-bold text-[#8B6F47] mb-1.5">The Groom</span>
           <h4 class="font-serif text-lg sm:text-2xl text-[#2B1E17] font-semibold">${data.hosts?.groom || 'Groom'}</h4>
@@ -1725,7 +1754,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         <!-- Bride Card -->
         <div class="bg-white/95 rounded-3xl p-4 sm:p-7 border border-[#C5A880]/60 shadow-lg text-center flex flex-col items-center">
           <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-4 border-[#C5A880] shadow-md mb-3.5 p-1 bg-white ring-4 ring-[#FAF5ED]">
-            <img src="${b64Bride || b64Cover || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80'}" class="w-full h-full object-cover rounded-full" />
+            <img id="noncaricature-bride-img" src="${b64Bride || b64Cover || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80'}" class="w-full h-full object-cover rounded-full" />
           </div>
           <span class="inline-block px-3 py-0.5 rounded-full bg-[#FAF5ED] border border-[#E6D5BF] text-[9px] uppercase tracking-widest font-bold text-[#8B6F47] mb-1.5">The Bride</span>
           <h4 class="font-serif text-lg sm:text-2xl text-[#2B1E17] font-semibold">${data.hosts?.bride || 'Bride'}</h4>
@@ -2392,7 +2421,9 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       const bioEl = document.getElementById('modal-person-bio');
       const linEl = document.getElementById('modal-person-lineage');
       const washi = document.getElementById('modal-washi');
-      if (img) img.src = isGroom ? '${b64Groom || './images/groom.webp'}' : '${b64Bride || './images/bride.webp'}';
+      var groomPhoto = window.__hydratedGroomPhoto || '${b64Groom || './images/ashish_groom.jpg' || './images/groom.webp'}';
+      var bridePhoto = window.__hydratedBridePhoto || '${b64Bride || './images/preeti_bride.jpg' || './images/bride.webp'}';
+      if (img) img.src = isGroom ? groomPhoto : bridePhoto;
       if (roleEl) {
         roleEl.innerText = isGroom ? 'The Groom' : 'The Bride';
         roleEl.className = 'inline-block px-3 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-bold ' + (isGroom ? 'bg-[#E6F4EA] text-[#137333]' : 'bg-[#FCE8E6] text-[#C5221F]');
