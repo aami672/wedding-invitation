@@ -23,8 +23,8 @@
   },
   "photos": {
     "cover": "./images/themes/The-Shaadi-Times/03-sangeet.webp",
-    "bride": "",
-    "groom": "",
+    "bride": "./images/bride.webp",
+    "groom": "./images/groom.webp",
     "brideBio": "Loves classic poetry, morning chai, and spontaneous mountain hikes.",
     "groomBio": "Foodie, photography enthusiast, and the architect of their happiest memories."
   },
