@@ -20,6 +20,7 @@ import { soundManager } from '../../utils/audio';
 import { triggerCelebration } from '../../utils/confetti';
 import { toBase64Optimized } from '../../utils/imageOptimizer';
 import { getThemeEventImage, getThemeHeroImage, THEMES_LIST, CEREMONY_FILES, ALL_THEME_ARTWORKS } from '../../utils/themeImages';
+import { publishStandaloneToGitHub } from '../../utils/githubPublish';
 
 const REVEAL_ICON_MAP = {
   Mail,
@@ -108,6 +109,14 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
   const [publishedInfo, setPublishedInfo] = useState(null);
   const [isPublishing, setIsPublishing] = useState(false);
   const [copiedPublished, setCopiedPublished] = useState(false);
+  const [githubToken, setGithubToken] = useState(() => {
+    try {
+      return localStorage.getItem('wishlys_github_token') || '';
+    } catch {
+      return '';
+    }
+  });
+  const [showGithubSyncConfig, setShowGithubSyncConfig] = useState(false);
   const [isEditCoupleModalOpen, setIsEditCoupleModalOpen] = useState(false);
   const [clientForm, setClientForm] = useState({
     bride: initialData?.hosts?.bride || '',
@@ -641,23 +650,10 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
   // - Hanging Wall Calendar with live countdown timer
   // - Lined notebook story & authentic celebration arches
   // - Interactive Multi-Step RSVP & clipboard hashtag copy
-    const handleFinishAndPublish = async () => {
+  const handleFinishAndPublish = async () => {
     setIsPublishing(true);
     try {
       await handleExportHtml();
-      const slug = getCoupleSlug();
-      const filename = `${slug}.html`;
-      const isGitHubPages = typeof window !== 'undefined' && window.location.hostname.endsWith('github.io');
-      const liveUrl = isGitHubPages
-        ? `https://aami672.github.io/wedding-invitation/published/${filename}`
-        : `${window.location.origin}/published/${filename}`;
-
-      setPublishedInfo({
-        slug,
-        filename,
-        liveUrl,
-        publishedAt: new Date().toLocaleTimeString(),
-      });
       triggerCelebration('fireworks');
     } catch (err) {
       console.error('Error during publish:', err);
@@ -951,10 +947,27 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
             if (elNcBrideImg) elNcBrideImg.src = bUrl;
             window.__hydratedBridePhoto = bUrl;
           }
-          if (d.photos.cover) {
-            var cUrl = resolveAssetUrl(d.photos.cover);
+          var tfMap = {
+            caricature: 'Luxe-Pastel-Caricature', mela: 'Luxe-Marigold-Mela', pichwai: 'Luxe-Pichwai-Lotus',
+            rajwada: 'Luxe-Rajwada-Miniature', zardozi: 'Luxe-Heirloom-Zardozi', storybook: 'Storybook',
+            newspaper: 'The-Shaadi-Times', bougain: 'Luxe-Bougainvillea-Blossom', bougainvillea: 'Luxe-Bougainvillea-Blossom',
+            ballroom: 'Gilded-Ballroom', peaks: 'Pastel-Peaks', resort: 'Luxury-Beach-Resort',
+            'luxury-resort': 'Luxury-Resort', mandap: 'Paper-Blossom', 'paper-blossom': 'Paper-Blossom',
+            truck: 'Desi-Truck-Art', nikah: 'Nikah', rangla: 'Rangla-Viah',
+            '3d-human': '3D-Model-Human-Colorful-v3', '3d-pixar': '3D-Pixar', aladdin: 'Aladdin-Jasmine',
+            'cute-couples': 'Cute-Couples', kalyanam: 'Kalyanam', marble: 'Marble-Style',
+            water: 'Water', watercolor: 'Watercolor-Portrait', cinematic: 'Luxe-Rajwada-Miniature',
+            royal: 'Luxe-Rajwada-Miniature', classic: 'Luxe-Pichwai-Lotus', editorial: 'The-Shaadi-Times',
+            botanical: 'Luxe-Bougainvillea-Blossom'
+          };
+          var activeFolder = d.template ? tfMap[d.template] : '';
+          var coverRaw = d.photos.cover || (activeFolder ? ('./images/themes/' + activeFolder + '/03-sangeet.webp') : '');
+          if (coverRaw) {
+            var cUrl = resolveAssetUrl(coverRaw);
             var elDoorsCover = document.getElementById('doors-cover-img');
             if (elDoorsCover) elDoorsCover.src = cUrl;
+            var elHeroCover = document.getElementById('hero-cover-img');
+            if (elHeroCover) elHeroCover.src = cUrl;
             window.__hydratedCoverPhoto = cUrl;
           }
           if (d.photos.groomBio) {
@@ -976,10 +989,40 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         }
 
         if (d.events && Array.isArray(d.events)) {
-          d.events.forEach(function(evt) {
-            if (evt.id && (evt.image || evt.img)) {
-              var elEvtImg = document.getElementById('event-img-' + evt.id);
-              if (elEvtImg) elEvtImg.src = resolveAssetUrl(evt.image || evt.img);
+          var seqFiles = ['01-haldi.webp','02-mehndi.webp','03-sangeet.webp','04-pheras.webp','05-arrival-of-barat.webp','06-varmala.webp','07-wedding-dinner.webp','08-main-fere-ceremony.webp'];
+          var tfMapEvt = {
+            caricature: 'Luxe-Pastel-Caricature', mela: 'Luxe-Marigold-Mela', pichwai: 'Luxe-Pichwai-Lotus',
+            rajwada: 'Luxe-Rajwada-Miniature', zardozi: 'Luxe-Heirloom-Zardozi', storybook: 'Storybook',
+            newspaper: 'The-Shaadi-Times', bougain: 'Luxe-Bougainvillea-Blossom', bougainvillea: 'Luxe-Bougainvillea-Blossom',
+            ballroom: 'Gilded-Ballroom', peaks: 'Pastel-Peaks', resort: 'Luxury-Beach-Resort',
+            'luxury-resort': 'Luxury-Resort', mandap: 'Paper-Blossom', 'paper-blossom': 'Paper-Blossom',
+            truck: 'Desi-Truck-Art', nikah: 'Nikah', rangla: 'Rangla-Viah',
+            '3d-human': '3D-Model-Human-Colorful-v3', '3d-pixar': '3D-Pixar', aladdin: 'Aladdin-Jasmine',
+            'cute-couples': 'Cute-Couples', kalyanam: 'Kalyanam', marble: 'Marble-Style',
+            water: 'Water', watercolor: 'Watercolor-Portrait', cinematic: 'Luxe-Rajwada-Miniature',
+            royal: 'Luxe-Rajwada-Miniature', classic: 'Luxe-Pichwai-Lotus', editorial: 'The-Shaadi-Times',
+            botanical: 'Luxe-Bougainvillea-Blossom'
+          };
+          var evtFolder = d.template ? tfMapEvt[d.template] : '';
+          d.events.forEach(function(evt, eIdx) {
+            if (!evt.id) return;
+            var elEvtImg = document.getElementById('event-img-' + evt.id);
+            if (!elEvtImg) return;
+            if (evt.image || evt.img) {
+              elEvtImg.src = resolveAssetUrl(evt.image || evt.img);
+            } else if (evtFolder) {
+              var nl = (evt.name || '').toLowerCase();
+              var fn = '04-pheras.webp';
+              if (nl.indexOf('haldi') !== -1 || nl.indexOf('ubtan') !== -1 || nl.indexOf('pithi') !== -1) fn = '01-haldi.webp';
+              else if (nl.indexOf('mehndi') !== -1 || nl.indexOf('mehendi') !== -1 || nl.indexOf('henna') !== -1) fn = '02-mehndi.webp';
+              else if (nl.indexOf('sangeet') !== -1 || nl.indexOf('dance') !== -1 || nl.indexOf('cocktail') !== -1 || nl.indexOf('ring') !== -1) fn = '03-sangeet.webp';
+              else if (nl.indexOf('main') !== -1 && (nl.indexOf('fere') !== -1 || nl.indexOf('phera') !== -1 || nl.indexOf('ceremony') !== -1)) fn = '08-main-fere-ceremony.webp';
+              else if (nl.indexOf('phera') !== -1 || nl.indexOf('wedding') !== -1 || nl.indexOf('shaadi') !== -1 || nl.indexOf('vow') !== -1 || nl.indexOf('mandap') !== -1) fn = '04-pheras.webp';
+              else if (nl.indexOf('barat') !== -1 || nl.indexOf('baraat') !== -1 || nl.indexOf('arrival') !== -1 || nl.indexOf('ghurchari') !== -1) fn = '05-arrival-of-barat.webp';
+              else if (nl.indexOf('varmala') !== -1 || nl.indexOf('jaimala') !== -1 || nl.indexOf('garland') !== -1 || nl.indexOf('milni') !== -1) fn = '06-varmala.webp';
+              else if (nl.indexOf('dinner') !== -1 || nl.indexOf('reception') !== -1 || nl.indexOf('party') !== -1 || nl.indexOf('feast') !== -1 || nl.indexOf('lunch') !== -1) fn = '07-wedding-dinner.webp';
+              else fn = seqFiles[eIdx % seqFiles.length];
+              elEvtImg.src = resolveAssetUrl('./images/themes/' + evtFolder + '/' + fn);
             }
           });
         }
@@ -1498,7 +1541,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
 
           <!-- Scooter Couple Illustration Artwork Filled in Card - Full 9:16 Aspect Ratio -->
           <div class="w-full aspect-[9/16] rounded-2xl overflow-hidden relative flex items-center justify-center group bg-[#FFFDF7] shadow-inner">
-            <img src="${b64Cover || b64Tmpl || (typeof selectedTmpl !== 'undefined' ? selectedTmpl?.image : '')}" alt="${data.hosts?.groom} & ${data.hosts?.bride}" class="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-700" />
+            <img id="hero-cover-img" src="${b64Cover || b64Tmpl || (typeof selectedTmpl !== 'undefined' ? selectedTmpl?.image : '')}" alt="${data.hosts?.groom} & ${data.hosts?.bride}" class="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-700" />
           </div>
 
           <!-- Request Honour Flanked by Marigolds -->
@@ -1548,7 +1591,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
 
           <!-- Couple Illustration Artwork Filled in Card - Full 9:16 Aspect Ratio -->
           <div class="w-full aspect-[9/16] rounded-2xl overflow-hidden relative flex items-center justify-center group bg-[#FFFDF7] shadow-inner">
-            <img src="${b64Cover || b64Tmpl || (typeof selectedTmpl !== 'undefined' ? selectedTmpl?.image : '')}" alt="${data.hosts?.groom} & ${data.hosts?.bride}" class="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-700" />
+            <img id="hero-cover-img" src="${b64Cover || b64Tmpl || (typeof selectedTmpl !== 'undefined' ? selectedTmpl?.image : '')}" alt="${data.hosts?.groom} & ${data.hosts?.bride}" class="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-700" />
           </div>
 
           <!-- Request Honour Flanked by Marigolds -->
@@ -2920,25 +2963,72 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       }
     } catch (storageErr) {}
 
-    // Auto-save to public/published folder if running locally
-    try {
-      await fetch('/api/save-published', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filename: `${slug}.html`, content: standaloneHtml, data, slug })
-      });
-      await fetch('/api/save-published', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filename: 'preeti-and-ashish.html', content: standaloneHtml, data, slug })
-      });
-      await fetch('/api/save-published', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filename: 'index.html', content: standaloneHtml, data, slug })
-      });
-    } catch (e) {
-      // ignore
+    const isGitHubPages = typeof window !== 'undefined' && window.location.hostname.endsWith('github.io');
+    const liveUrl = isGitHubPages
+      ? `https://aami672.github.io/wedding-invitation/published/${slug}.html`
+      : `${window.location.origin}/published/${slug}.html`;
+
+    let syncMode = 'download-only';
+    let syncMessage = 'Downloaded standalone HTML to your device.';
+    let actionsUrl = 'https://github.com/aami672/wedding-invitation/actions';
+
+    // 1. Single request to Local Vite Dev server when running on localhost
+    let savedOnLocalServer = false;
+    if (!isGitHubPages) {
+      try {
+        const saveRes = await fetch('/api/save-published', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename: `${slug}.html`, content: standaloneHtml, data, slug }),
+        });
+        if (saveRes.ok) {
+          savedOnLocalServer = true;
+          const result = await saveRes.json().catch(() => ({}));
+          if (result?.pushed) {
+            syncMode = 'github-pushed';
+            syncMessage = result.pushMessage || 'Pushed exact standalone HTML to GitHub; live link updates in ~1 min.';
+          } else {
+            syncMode = 'local-only';
+            syncMessage = result?.pushMessage || 'Updated local server preview only (set GITHUB_PAT in .env.local to auto-push to GitHub Pages).';
+          }
+        }
+      } catch {
+        // Local dev API unavailable
+      }
+    }
+
+    // 2. When hosted statically on GitHub Pages, optionally commit exact standaloneHtml via user's browser GitHub token
+    if (!savedOnLocalServer) {
+      let activeToken = githubToken;
+      if (!activeToken) {
+        try {
+          activeToken = localStorage.getItem('wishlys_github_token') || '';
+        } catch {
+          activeToken = '';
+        }
+      }
+
+      if (activeToken && activeToken.trim()) {
+        try {
+          const ghRes = await publishStandaloneToGitHub({
+            token: activeToken,
+            slug,
+            content: standaloneHtml,
+            data,
+          });
+          syncMode = 'github-pushed';
+          actionsUrl = ghRes.actionsUrl;
+          syncMessage = 'Pushed exact standalone HTML to GitHub main. GitHub Pages is rebuilding (~1 min).';
+        } catch (ghErr) {
+          syncMode = 'github-error';
+          syncMessage = `Downloaded locally, but GitHub push failed: ${ghErr.message}`;
+        }
+      } else {
+        syncMode = 'download-only';
+        syncMessage = isGitHubPages
+          ? 'Downloaded locally only. GitHub Pages is static-only — connect your GitHub Token below or run Local Studio (localhost:5173) to update the live URL.'
+          : 'Downloaded locally only.';
+      }
     }
 
     const blob = new Blob([standaloneHtml], { type: 'text/html' });
@@ -2948,15 +3038,15 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     a.download = `${slug}.html`;
     a.click();
     URL.revokeObjectURL(url);
-    const isGitHubPages = typeof window !== 'undefined' && window.location.hostname.endsWith('github.io');
-    const liveUrl = isGitHubPages
-      ? `https://aami672.github.io/wedding-invitation/published/${getCoupleSlug()}.html`
-      : `${window.location.origin}/published/${slug}.html`;
+
     setPublishedInfo({
       slug,
       filename: `${slug}.html`,
       liveUrl,
       publishedAt: new Date().toLocaleTimeString(),
+      syncMode,
+      syncMessage,
+      actionsUrl,
     });
     } catch (err) {
       console.error('Error in handleExportHtml:', err);
@@ -5470,17 +5560,52 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
 
                 {/* DYNAMIC UPDATED LIVE URL BANNER */}
                 <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-[#FFD700]/40 space-y-2.5">
-                  <div className="flex items-center justify-between text-xs">
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
                     <span className="text-[10px] uppercase font-bold tracking-wider text-[#FFD700] flex items-center gap-1.5">
                       <Globe className="w-3.5 h-3.5" />
                       Live Invitation URL for {data.hosts?.bride || 'Bride'} & {data.hosts?.groom || 'Groom'}
                     </span>
                     {publishedInfo && (
-                      <span className="text-[9px] text-emerald-300 font-semibold bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-500/40">
-                        ✓ Published at {publishedInfo.publishedAt}
+                      <span
+                        className={`text-[9px] font-semibold px-2.5 py-0.5 rounded-full border ${
+                          publishedInfo.syncMode === 'github-pushed'
+                            ? 'text-emerald-300 bg-emerald-950/60 border-emerald-500/40'
+                            : publishedInfo.syncMode === 'github-error'
+                              ? 'text-rose-200 bg-rose-950/70 border-rose-400/50'
+                              : 'text-amber-200 bg-amber-950/70 border-amber-400/50'
+                        }`}
+                      >
+                        {publishedInfo.syncMode === 'github-pushed'
+                          ? `✓ Synced to GitHub at ${publishedInfo.publishedAt}`
+                          : publishedInfo.syncMode === 'local-only'
+                            ? `✓ Saved Locally at ${publishedInfo.publishedAt}`
+                            : publishedInfo.syncMode === 'github-error'
+                              ? '✕ GitHub Sync Failed (Downloaded Locally)'
+                              : `⚠ Downloaded Locally Only at ${publishedInfo.publishedAt}`}
                       </span>
                     )}
                   </div>
+                  {publishedInfo?.syncMessage && (
+                    <div className={`text-[11px] leading-relaxed rounded-xl px-3 py-2 border flex flex-wrap items-center justify-between gap-2 ${
+                      publishedInfo.syncMode === 'github-pushed'
+                        ? 'bg-emerald-950/40 border-emerald-500/30 text-emerald-100'
+                        : publishedInfo.syncMode === 'github-error'
+                          ? 'bg-rose-950/50 border-rose-500/30 text-rose-100'
+                          : 'bg-amber-950/45 border-amber-400/35 text-amber-100'
+                    }`}>
+                      <span>{publishedInfo.syncMessage}</span>
+                      {publishedInfo.syncMode === 'github-pushed' && publishedInfo.actionsUrl && (
+                        <a
+                          href={publishedInfo.actionsUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[10px] font-bold uppercase tracking-wider text-[#FFD700] underline shrink-0"
+                        >
+                          Deploy Status ↗
+                        </a>
+                      )}
+                    </div>
+                  )}
 
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                     <input
@@ -5526,6 +5651,61 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                         <span>WhatsApp</span>
                       </a>
                     </div>
+                  </div>
+
+                  {/* OPTIONAL DIRECT GITHUB PUBLISH FROM BROWSER (SAVED IN LOCALSTORAGE ONLY) */}
+                  <div className="pt-2 border-t border-white/10">
+                    <button
+                      type="button"
+                      onClick={() => setShowGithubSyncConfig(prev => !prev)}
+                      className="text-[10px] font-semibold uppercase tracking-wider text-stone-300 hover:text-[#FFD700] flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Lock className="w-3 h-3 text-[#FFD700]" />
+                      <span>
+                        {githubToken ? 'GitHub Auto-Sync Connected (Updates live URL with exact downloaded HTML)' : 'Connect GitHub Token to auto-update live URL from github.io'}
+                      </span>
+                    </button>
+                    {showGithubSyncConfig && (
+                      <div className="mt-2 p-3 rounded-xl bg-black/40 border border-white/15 space-y-2">
+                        <p className="text-[10px] text-stone-300 leading-relaxed">
+                          Paste a GitHub Personal Access Token (Contents: Read &amp; Write on <span className="font-mono text-[#FFD700]">aami672/wedding-invitation</span>). Saved only in your browser localStorage so Finish &amp; Publish pushes the exact standalone HTML directly to <span className="font-mono">main</span>.
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <input
+                            type="password"
+                            value={githubToken}
+                            onChange={e => {
+                              const val = e.target.value;
+                              setGithubToken(val);
+                              try {
+                                if (val.trim()) localStorage.setItem('wishlys_github_token', val.trim());
+                                else localStorage.removeItem('wishlys_github_token');
+                              } catch {
+                                // ignore storage quota/privacy mode
+                              }
+                            }}
+                            placeholder="github_pat_... (stored in this browser only)"
+                            className="flex-1 px-3 py-1.5 rounded-lg bg-black/60 border border-white/20 text-xs text-white font-mono focus:outline-none focus:ring-1 focus:ring-[#FFD700]"
+                          />
+                          {githubToken && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setGithubToken('');
+                                try {
+                                  localStorage.removeItem('wishlys_github_token');
+                                } catch {
+                                  // ignore
+                                }
+                              }}
+                              className="px-3 py-1.5 rounded-lg bg-rose-950/70 hover:bg-rose-900 border border-rose-500/40 text-rose-100 text-[10px] font-bold uppercase tracking-wider cursor-pointer"
+                            >
+                              Clear Token
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

@@ -67,18 +67,39 @@ function savePublishedPlugin() {
 
               // 7. Auto-commit & push new client invitation to GitHub if token configured
               const token = getGitHubToken();
+              let pushed = false;
+              let pushMessage = 'Saved locally (no GitHub push token configured in .env.local).';
               if (token) {
-                const { exec } = await import('node:child_process');
-                const cmd = `git add public/published public/preeti-and-ashish.html src/data/published_invitation.json dist; git commit -m "Publish live client invitation: ${filename}"; git remote set-url origin "https://oauth2:${token}@github.com/aami672/wedding-invitation.git"; git push origin main; git remote set-url origin "https://github.com/aami672/wedding-invitation.git"`;
-                exec(cmd, { cwd: __dirname }, (err) => {
-                  if (err) console.log('Auto-push notice:', err.message);
-                  else console.log('Successfully published and pushed to GitHub:', filename);
-                });
+                const { execFile } = await import('node:child_process');
+                const { promisify } = await import('node:util');
+                const execFileAsync = promisify(execFile);
+                const runGit = (args) => execFileAsync('git', args, { cwd: __dirname });
+                try {
+                  await runGit(['add', 'public/published', 'public/preeti-and-ashish.html', 'src/data/published_invitation.json']);
+                  const { stdout: staged } = await runGit(['status', '--porcelain', 'public/published', 'public/preeti-and-ashish.html', 'src/data/published_invitation.json']);
+                  if (staged.trim()) {
+                    await runGit(['commit', '-m', `Publish live client invitation: ${filename}`]);
+                  }
+                  await runGit(['remote', 'set-url', 'origin', `https://oauth2:${token}@github.com/aami672/wedding-invitation.git`]);
+                  await runGit(['push', 'origin', 'HEAD:refs/heads/main']);
+                  pushed = true;
+                  pushMessage = 'Pushed standalone HTML to GitHub; live link updates in ~1 min.';
+                  console.log('Successfully published and pushed to GitHub:', filename);
+                } catch (err) {
+                  pushMessage = `Saved locally, but GitHub push failed: ${err.message}`;
+                  console.log('Auto-push notice:', err.message);
+                } finally {
+                  try {
+                    await runGit(['remote', 'set-url', 'origin', 'https://github.com/aami672/wedding-invitation.git']);
+                  } catch {
+                    // ignore cleanup error
+                  }
+                }
               }
 
               res.statusCode = 200;
               res.setHeader('Content-Type', 'application/json');
-              res.end(JSON.stringify({ success: true, path: `/published/${filename}` }));
+              res.end(JSON.stringify({ success: true, pushed, pushMessage, path: `/published/${filename}` }));
             } catch (err) {
               res.statusCode = 500;
               res.end(JSON.stringify({ error: err.message }));

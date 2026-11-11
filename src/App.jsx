@@ -36,7 +36,7 @@ export default function App() {
           const gI = (parsed.hosts?.groom || 'G')[0]?.toUpperCase() || 'G';
           parsed.monogram = { ...parsed.monogram, initials: `${bI} & ${gI}` };
         }
-        if (parsed.template === 'truck' || !parsed.template) {
+        if (!parsed.template) {
           parsed.template = 'caricature';
         }
         if (!parsed.revealStyle || parsed.revealStyle === 'scratch') {

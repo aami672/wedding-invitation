@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/build_published_pages.cjs && vite build",
+    "build": "vite build",
+    "build:pages": "node scripts/build_published_pages.cjs",
     "lint": "oxlint",
     "preview": "vite preview"
   },
