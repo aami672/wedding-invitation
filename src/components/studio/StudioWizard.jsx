@@ -30,6 +30,14 @@ import {
   renderThemeDividerHtml,
   SHARED_INVITATION_CSS
 } from '../../utils/themeDecorConfig';
+import {
+  REVEAL_SHARED_CSS,
+  normalizeRevealId,
+} from '../../utils/revealConfig';
+import {
+  buildStandaloneUniversalScreenHtml,
+  buildStandaloneRevealRuntimeScript,
+} from '../../utils/revealHtmlBuilder';
 import { publishStandaloneToGitHub } from '../../utils/githubPublish';
 
 const REVEAL_ICON_MAP = {
@@ -106,6 +114,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
   const [activeTab, setActiveTab] = useState('design');
   const [previewDevice, setPreviewDevice] = useState('mobile');
   const [simulatorMode, setSimulatorMode] = useState('invite'); // 'invite', 'replay', 'whatsapp'
+  const [replayNonce, setReplayNonce] = useState(0);
   const [previewGroup, setPreviewGroup] = useState('all');
   const [playingMusicId, setPlayingMusicId] = useState(null);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -809,6 +818,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
 
     const displayWeddingDate = formatDisplayDate(data.hosts?.date || '2026-12-09');
     const monogramInitials = getMonogramInitials(data.hosts, data.monogram);
+    const activeRevealId = normalizeRevealId(data.revealStyle, selectedTmpl.id);
 
     const standaloneHtml = `<!DOCTYPE html>
 <html lang="en" data-publish-time="${Date.now()}" data-slug="${slug}">
@@ -865,7 +875,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     };
 
     window.unlockInvitation = function() {
-      var revs = document.querySelectorAll('#reveal-screen, #reveal-screen-folding, #reveal-screen-scratch');
+      var revs = document.querySelectorAll('#reveal-screen, #reveal-screen-folding, #reveal-screen-scratch, #reveal-screen-universal');
       revs.forEach(function(rev) {
         rev.classList.add('opacity-0', 'pointer-events-none');
         setTimeout(function() {
@@ -1012,24 +1022,24 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         var elScTitle = document.getElementById('scratch-title-names');
         if (elScTitle) elScTitle.textContent = bride + ' & ' + groom;
 
-        // Toggle Reveal Screen between 3D Folding Doors & Scratch Card
+        // Activate any of the 30 interactive Reveal Screens dynamically
         var revStyle = d.revealStyle || 'folding-doors';
-        var isDoors = (revStyle === 'folding-doors') || (!revStyle && d.template === 'caricature') || (revStyle !== 'scratch-date');
-        var foldingEl = document.getElementById('reveal-screen-folding');
-        var scratchEl = document.getElementById('reveal-screen-scratch');
-        if (foldingEl && scratchEl) {
-          if (isDoors) {
-            foldingEl.classList.remove('hidden');
-            scratchEl.classList.add('hidden');
-          } else {
-            scratchEl.classList.remove('hidden');
-            foldingEl.classList.add('hidden');
-          }
-        }
         var doorsGroom = document.getElementById('doors-groom-name');
         if (doorsGroom) doorsGroom.textContent = groom;
         var doorsBride = document.getElementById('doors-bride-name');
         if (doorsBride) doorsBride.textContent = bride;
+        var coverEl = document.getElementById('doors-cover-img');
+        var revCover = resolveAssetUrl((d.photos && d.photos.cover) || '') || (coverEl ? coverEl.src : '');
+        if (typeof window.__activateRevealScreen === 'function') {
+          window.__activateRevealScreen(revStyle, {
+            bride: bride,
+            groom: groom,
+            city: city,
+            displayDate: displayDate,
+            initials: initials,
+            coverImg: revCover,
+          });
+        }
 
         // Hero elements
         var elHeroGroom = document.getElementById('hero-groom-name');
@@ -1243,6 +1253,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       backdrop-filter: blur(3.5px) !important;
     }
     ${SHARED_INVITATION_CSS}
+    ${REVEAL_SHARED_CSS}
     @keyframes floatGentle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
     .animate-float-gentle { animation: floatGentle 4.2s ease-in-out infinite; }
 
@@ -1376,7 +1387,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
   </div>
 
   <!-- REVEAL SCREEN 1: 3D FOLDING CARD DOORS -->
-  <div id="reveal-screen-folding" onclick="unlockCaricatureDoors()" class="fixed inset-0 z-40 flex flex-col items-center justify-center p-4 transition-opacity duration-700 select-none cursor-pointer ${(data.revealStyle === 'scratch-date') ? 'hidden' : ''}" style="background-color: var(--pal-bg);">
+  <div id="reveal-screen-folding" onclick="unlockCaricatureDoors()" class="fixed inset-0 z-40 flex flex-col items-center justify-center p-4 transition-opacity duration-700 select-none cursor-pointer ${activeRevealId === 'folding-doors' ? '' : 'hidden'}" style="background-color: var(--pal-bg);">
     ${isCaricature ? `
     <!-- Top Hanging Marigold Garland -->
     <div class="w-full max-w-sm flex justify-center -mb-2 pointer-events-none">
@@ -1461,7 +1472,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
   </div>
 
   <!-- REVEAL SCREEN 2: SCRATCH THE DATE TO REVEAL -->
-  <div id="reveal-screen-scratch" class="fixed inset-0 z-40 backdrop-blur-md flex flex-col items-center justify-center p-4 transition-opacity duration-700 ${(data.revealStyle === 'scratch-date') ? '' : 'hidden'}" style="background-color: var(--pal-bg);">
+  <div id="reveal-screen-scratch" class="fixed inset-0 z-40 backdrop-blur-md flex flex-col items-center justify-center p-4 transition-opacity duration-700 ${activeRevealId === 'scratch-date' ? '' : 'hidden'}" style="background-color: var(--pal-bg);">
     <div class="text-center space-y-2 mb-6 max-w-md">
       <span class="text-[10px] tracking-[0.3em] uppercase font-bold inv-pill border px-3.5 py-1 rounded-full shadow-xs">
         Exclusive Invitation
@@ -1497,6 +1508,12 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       </button>
     </div>
   </div>
+
+${buildStandaloneUniversalScreenHtml({
+    data,
+    initials: monogramInitials,
+    isVisible: activeRevealId !== 'folding-doors' && activeRevealId !== 'scratch-date',
+  })}
 
   <!-- MAIN INVITATION WEBPAGE (Revealed) -->
   <main id="main-invitation" class="opacity-0 transition-opacity duration-1000 relative">
@@ -2349,7 +2366,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     }
 
     window.unlockInvitation = function() {
-      const revs = document.querySelectorAll('#reveal-screen, #reveal-screen-folding, #reveal-screen-scratch');
+      const revs = document.querySelectorAll('#reveal-screen, #reveal-screen-folding, #reveal-screen-scratch, #reveal-screen-universal');
       revs.forEach(function(rev) {
         rev.classList.add('opacity-0', 'pointer-events-none');
         setTimeout(function() {
@@ -2470,64 +2487,17 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       }, 2500);
     };
 
-    // Scratch Card Engine (Guarded for non-Caricature themes)
-    const canvas = document.getElementById('scratch-canvas');
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      let isScratching = false;
-      let scratchedPixels = 0;
-      const totalPixels = canvas.width * canvas.height;
-
-      // Draw Gold Foil
-      const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-      grad.addColorStop(0, '#D4AF37');
-      grad.addColorStop(0.5, '#F3E5AB');
-      grad.addColorStop(1, '#AA771C');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.fillStyle = '#4A3B32';
-      ctx.font = 'bold 15px Cinzel, serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('SCRATCH TO REVEAL DATE', 160, 115);
-      ctx.font = '11px Plus Jakarta Sans, sans-serif';
-      ctx.fillText('✨ Use touch or mouse ✨', 160, 138);
-
-      function scratch(x, y) {
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.beginPath();
-        ctx.arc(x, y, 22, 0, Math.PI * 2);
-        ctx.fill();
-        sound.playChime(1200 + Math.random() * 400);
-
-        scratchedPixels += 80;
-        const pct = Math.min(100, Math.round((scratchedPixels / (totalPixels * 0.4)) * 100));
-        const hint = document.getElementById('scratch-hint');
-        if (hint) hint.innerText = 'Scrubbing foil... ' + pct + '% cleared';
-
-        if (pct >= 85) {
-          unlockInvitation();
-        }
-      }
-
-      canvas.addEventListener('mousedown', () => isScratching = true);
-      window.addEventListener('mouseup', () => isScratching = false);
-      canvas.addEventListener('mousemove', e => {
-        if (!isScratching) return;
-        const rect = canvas.getBoundingClientRect();
-        scratch(e.clientX - rect.left, e.clientY - rect.top);
-      });
-
-      canvas.addEventListener('touchstart', e => { isScratching = true; e.preventDefault(); });
-      window.addEventListener('touchend', () => isScratching = false);
-      canvas.addEventListener('touchmove', e => {
-        if (!isScratching) return;
-        const rect = canvas.getBoundingClientRect();
-        const t = e.touches[0];
-        scratch(t.clientX - rect.left, t.clientY - rect.top);
-        e.preventDefault();
-      });
-    }
+    // Modular Reveal Runtime (All 30 Interactive Reveal Styles + Scratch Canvas)
+    ${buildStandaloneRevealRuntimeScript({
+      revealStyle: activeRevealId,
+      template: selectedTmpl.id,
+      bride: data.hosts?.bride || 'Preeti',
+      groom: data.hosts?.groom || 'Ashish',
+      city: data.hosts?.city || 'Meerut',
+      initials: monogramInitials,
+      displayDate: displayWeddingDate,
+      coverImg: b64Cover || b64Tmpl || b64Scooter || selectedTmpl?.image || '',
+    })}
 
     const skipBtn = document.getElementById('skip-reveal-btn');
     if (skipBtn) skipBtn.addEventListener('click', unlockInvitation);
@@ -4260,7 +4230,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                         {REVEAL_STYLES.map(rev => {
                           const isSelected = data.revealStyle === rev.id || (!data.revealStyle && rev.id === 'folding-doors');
-                          const isLocked = rev.template && rev.template !== 'caricature' && rev.template !== data.template;
+                          const isLocked = false;
                           const IconComponent = REVEAL_ICON_MAP[rev.icon] || Mail;
 
                           return (
@@ -4268,11 +4238,8 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                               key={rev.id}
                               type="button"
                               onClick={() => {
-                                if (rev.template && rev.template !== data.template) {
-                                  setData(prev => ({ ...prev, template: rev.template, revealStyle: rev.id }));
-                                } else {
-                                  setData(prev => ({ ...prev, revealStyle: rev.id }));
-                                }
+                                setData(prev => ({ ...prev, revealStyle: rev.id }));
+                                setReplayNonce(n => n + 1);
                                 setSimulatorMode('replay');
                               }}
                               className={`p-3 sm:py-3.5 sm:px-4 rounded-2xl text-left cursor-pointer transition-all flex items-center justify-between border ${
@@ -5670,7 +5637,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
             <div className="flex items-center gap-1.5">
               <button
                 type="button"
-                onClick={() => setSimulatorMode('replay')}
+                onClick={() => { setReplayNonce(n => n + 1); setSimulatorMode('replay'); }}
                 className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs ${
                   simulatorMode === 'replay'
                     ? 'bg-[#3E2B1F] text-white'
@@ -5731,6 +5698,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                 isPreview={true} 
                 previewMode={simulatorMode} 
                 activeGroup={previewGroup} 
+                replayNonce={replayNonce}
               />
             )}
 

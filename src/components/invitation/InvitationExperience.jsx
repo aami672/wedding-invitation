@@ -50,12 +50,19 @@ import {
   renderThemeSideHtml,
   SHARED_INVITATION_CSS,
 } from '../../utils/themeDecorConfig';
+import {
+  REVEAL_SHARED_CSS,
+  normalizeRevealId,
+  getRevealCopy,
+} from '../../utils/revealConfig';
+import UniversalRevealWidget from '../reveals/UniversalReveals';
 
-export default function InvitationExperience({ 
-  data, 
-  isPreview = false, 
+export default function InvitationExperience({
+  data,
+  isPreview = false,
   previewMode = 'invite', // 'invite' or 'replay'
-  activeGroup = 'all' 
+  activeGroup = 'all',
+  replayNonce = 0,
 }) {
   const [revealed, setRevealed] = useState(() => {
     return isPreview ? (previewMode === 'invite') : false;
@@ -89,7 +96,7 @@ export default function InvitationExperience({
         setRevealed(false);
       }
     }
-  }, [previewMode, isPreview]);
+  }, [previewMode, isPreview, data.revealStyle, replayNonce]);
 
   useEffect(() => {
     const targetDate = new Date(data.hosts?.date || '2026-12-09').getTime();
@@ -198,7 +205,7 @@ export default function InvitationExperience({
         ...typoVars.cssVars,
       }}
     >
-      <style dangerouslySetInnerHTML={{ __html: SHARED_INVITATION_CSS }} />
+      <style dangerouslySetInnerHTML={{ __html: SHARED_INVITATION_CSS + '\n' + REVEAL_SHARED_CSS }} />
       {!isCaricature && (topThemeHtml || sideThemeHtml) && (
         <div dangerouslySetInnerHTML={{ __html: topThemeHtml + sideThemeHtml }} />
       )}
@@ -235,16 +242,27 @@ export default function InvitationExperience({
       </div>
 
       {/* REVEAL COVER MODAL (until unlocked) */}
-      {!revealed && (
+      {!revealed && (() => {
+        const activeRevealId = normalizeRevealId(data.revealStyle, currentTemplate.id);
+        const revealMeta = getRevealCopy(activeRevealId, { templateId: currentTemplate.id });
+        const revealKey = `${activeRevealId}-${replayNonce}`;
+        const formattedWeddingDate = formatDisplayDate(data.hosts?.date) || '9th December 2026';
+        const coupleNames = `${data.hosts?.bride || 'Preeti'} & ${data.hosts?.groom || 'Ashish'}`;
+        const monoInitials = data.monogram?.initials && data.monogram.initials !== 'B & G' && data.monogram.initials !== 'A & S'
+          ? data.monogram.initials
+          : `${(data.hosts?.bride || 'P')[0]} & ${(data.hosts?.groom || 'A')[0]}`;
+
+        return (
         <div
           className="relative min-h-screen flex flex-col items-center justify-center px-4 py-12 z-40 backdrop-blur-sm"
           style={{ backgroundColor: palTheme.bg }}
         >
-          {(data.revealStyle === 'folding-doors' || (isCaricature && (!data.revealStyle || data.revealStyle === 'folding-doors'))) ? (
-            <PastelFoldingDoorsReveal 
-              onReveal={handleReveal} 
-              bride={data.hosts?.bride} 
-              groom={data.hosts?.groom} 
+          {activeRevealId === 'folding-doors' ? (
+            <PastelFoldingDoorsReveal
+              key={revealKey}
+              onReveal={handleReveal}
+              bride={data.hosts?.bride}
+              groom={data.hosts?.groom}
               coverPhoto={data.photos?.cover}
               templateId={currentTemplate.id}
             />
@@ -252,183 +270,65 @@ export default function InvitationExperience({
             <>
               <div className="text-center space-y-3 mb-6 max-w-md">
                 <span className="inv-pill text-[10px] tracking-[0.3em] uppercase font-bold border px-3.5 py-1 rounded-full shadow-sm inline-block">
-                  Exclusive Invitation
+                  {revealMeta.eyebrow}
                 </span>
                 <h2 className="font-royal text-3xl sm:text-4xl font-light inv-heading">
-                  {data.hosts?.bride} & {data.hosts?.groom}
+                  {coupleNames}
                 </h2>
                 <p className="text-xs inv-muted font-light">
-                  We invite you to unveil the celebration details below.
+                  {revealMeta.hint}
                 </p>
               </div>
 
-              {/* Reveal Element Selector */}
               <div className="w-full max-w-md">
-                {data.revealStyle === 'scratch-date' && (
-                  <ScratchDate 
+                {activeRevealId === 'scratch-date' ? (
+                  <ScratchDate
+                    key={revealKey}
                     onReveal={handleReveal}
-                    date={formatDisplayDate(data.hosts?.date) || '9th December 2026'}
+                    date={formattedWeddingDate}
                     day={data.hosts?.day || 'Wednesday'}
                     city={data.hosts?.city || 'Meerut'}
-                    names={`${data.hosts?.bride || 'Preeti'} & ${data.hosts?.groom || 'Ashish'}`}
+                    names={coupleNames}
                   />
-                )}
-                {data.revealStyle === 'scratch' && (
-                  <ScratchCard 
-                    onReveal={handleReveal} 
-                    initials={data.monogram?.initials || 'P & A'}
-                    names={`${data.hosts?.bride} & ${data.hosts?.groom}`}
-                  />
-                )}
-                {data.revealStyle === 'seal' && (
-                  <WaxSeal 
+                ) : activeRevealId === 'scratch' ? (
+                  <ScratchCard
+                    key={revealKey}
                     onReveal={handleReveal}
-                    initials={data.monogram?.initials || 'P & A'}
-                    names={`${data.hosts?.bride} & ${data.hosts?.groom}`}
+                    initials={monoInitials}
+                    names={coupleNames}
                   />
-                )}
-                {data.revealStyle === 'ringbox' && (
-                  <RingBox 
+                ) : activeRevealId === 'seal' ? (
+                  <WaxSeal
+                    key={revealKey}
                     onReveal={handleReveal}
-                    initials={data.monogram?.initials || 'P & A'}
-                    names={`${data.hosts?.bride} & ${data.hosts?.groom}`}
+                    initials={monoInitials}
+                    names={coupleNames}
                   />
-                )}
-                {data.revealStyle === 'doorbell' && (
-                  <Doorbell 
+                ) : activeRevealId === 'ringbox' ? (
+                  <RingBox
+                    key={revealKey}
                     onReveal={handleReveal}
-                    names={`${data.hosts?.bride} & ${data.hosts?.groom}`}
+                    initials={monoInitials}
+                    names={coupleNames}
+                  />
+                ) : activeRevealId === 'doorbell' ? (
+                  <Doorbell
+                    key={revealKey}
+                    onReveal={handleReveal}
+                    names={coupleNames}
+                  />
+                ) : (
+                  <UniversalRevealWidget
+                    key={revealKey}
+                    revealId={activeRevealId}
+                    onReveal={handleReveal}
+                    data={data}
+                    displayDate={formattedWeddingDate}
+                    initials={monoInitials}
+                    coverPhoto={data.photos?.cover}
                   />
                 )}
-                {(data.revealStyle === 'seal' || data.revealStyle === 'drag' || data.revealStyle === 'letter' || data.revealStyle === 'envelope') && (
-                  <WaxSeal 
-                    onReveal={handleReveal} 
-                    initials={data.monogram?.initials || 'P & A'}
-                    names={`${data.hosts?.bride} & ${data.hosts?.groom}`}
-                  />
-                )}
-                {data.revealStyle === 'shaadi-story' && (
-                  <div 
-                    onClick={handleReveal}
-                    className="inv-modal rounded-3xl p-6 shadow-xl text-center space-y-4 cursor-pointer hover:shadow-2xl hover:scale-[1.01] transition-all"
-                  >
-                    <div className="relative inline-block mx-auto">
-                      <div className="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 animate-spin-slow">
-                        <div className="w-full h-full rounded-full inv-surface p-0.5 overflow-hidden">
-                          <img 
-                            src={data.photos?.story || data.photos?.cover || './images/templates/caricature.webp'} 
-                            alt="Story" 
-                            className="w-full h-full object-cover rounded-full"
-                          />
-                        </div>
-                      </div>
-                      <span className="absolute bottom-0 right-0 bg-[#059669] text-white w-6 h-6 rounded-full text-xs font-bold shadow-md flex items-center justify-center">
-                        ★
-                      </span>
-                    </div>
-                    <div className="space-y-1">
-                      <span className="text-[10px] uppercase font-bold tracking-widest inv-pill px-2.5 py-0.5 rounded-full inline-block">
-                        Close Friends Only
-                      </span>
-                      <h3 className="font-royal text-2xl inv-heading font-normal">Shaadi Story</h3>
-                      <p className="text-xs inv-muted font-light">
-                        Tap to watch the wedding story and unlock the celebration.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      className="w-full py-3 rounded-full inv-btn-primary font-medium text-xs tracking-wider uppercase shadow-md flex items-center justify-center gap-2 hover:opacity-95"
-                    >
-                      <span>Watch Shaadi Story</span>
-                      <span>▶</span>
-                    </button>
-                  </div>
-                )}
-                {data.revealStyle === 'incoming-call' && (
-                  <div 
-                    onClick={handleReveal}
-                    className="bg-[#1A1A1A] text-white rounded-3xl p-6 border border-stone-700 shadow-2xl text-center space-y-5 cursor-pointer hover:scale-[1.01] transition-all"
-                  >
-                    <div className="space-y-2">
-                      <span className="text-[11px] text-stone-400 font-light uppercase tracking-widest animate-pulse">
-                        Incoming Audio Call...
-                      </span>
-                      <div className="w-20 h-20 rounded-full mx-auto overflow-hidden border-2 border-emerald-400 p-0.5 shadow-lg">
-                        <img 
-                          src={data.photos?.cover || data.photos?.bride || './images/templates/caricature.webp'} 
-                          alt="Hosts" 
-                          className="w-full h-full object-cover rounded-full"
-                        />
-                      </div>
-                      <h3 className="font-royal text-2xl text-white font-normal">{data.hosts?.bride} & {data.hosts?.groom}</h3>
-                      <p className="text-xs text-stone-400">Wedding Celebration Invitation</p>
-                    </div>
-                    <div className="pt-2">
-                      <button 
-                        type="button"
-                        className="w-full py-3.5 rounded-full bg-[#059669] hover:bg-[#047857] text-white font-medium text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg animate-bounce"
-                      >
-                        <span>Slide / Tap to Answer</span>
-                        <span>📞</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
-                {data.revealStyle === 'quick-delivery' && (
-                  <div 
-                    onClick={handleReveal}
-                    className="inv-modal rounded-3xl p-6 shadow-xl text-center space-y-4 cursor-pointer hover:scale-[1.01] transition-all"
-                  >
-                    <div className="w-16 h-16 rounded-2xl inv-surface flex items-center justify-center mx-auto text-2xl shadow-inner">
-                      📦
-                    </div>
-                    <div className="space-y-1">
-                      <span className="text-[10px] uppercase font-bold tracking-widest inv-pill px-2.5 py-0.5 rounded-full inline-block">
-                        Arriving in 10 mins
-                      </span>
-                      <h3 className="font-royal text-2xl inv-heading font-normal">Express Wedding Delivery</h3>
-                      <p className="text-xs inv-muted font-light">
-                        A special package containing your invitation has arrived.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      className="w-full py-3 rounded-full inv-btn-primary font-medium text-xs tracking-wider uppercase shadow-md flex items-center justify-center gap-2"
-                    >
-                      <span>Tap to Open Package</span>
-                      <span>✨</span>
-                    </button>
-                  </div>
-                )}
-                {!['scratch-date', 'block-date', 'scratch', 'seal', 'drag', 'letter', 'envelope', 'ringbox', 'doorbell', 'shaadi-story', 'incoming-call', 'quick-delivery'].includes(data.revealStyle) && (
-                  <div 
-                    onClick={handleReveal}
-                    className="inv-modal rounded-3xl p-6 shadow-xl text-center space-y-4 cursor-pointer hover:scale-[1.01] transition-all"
-                  >
-                    <div className="w-16 h-16 rounded-2xl inv-surface flex items-center justify-center mx-auto text-2xl shadow-inner">
-                      ✨
-                    </div>
-                    <div className="space-y-1">
-                      <span className="text-[10px] uppercase font-bold tracking-widest inv-pill px-2.5 py-0.5 rounded-full inline-block">
-                        Wedding Invitation Reveal
-                      </span>
-                      <h3 className="font-royal text-2xl inv-heading font-normal">
-                        {data.hosts?.bride} & {data.hosts?.groom}
-                      </h3>
-                      <p className="text-xs inv-muted font-light">
-                        Tap below to unveil the celebration itinerary and RSVP.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      className="w-full py-3 rounded-full inv-btn-primary font-medium text-xs tracking-wider uppercase shadow-md flex items-center justify-center gap-2"
-                    >
-                      <span>Open Invitation</span>
-                      <span>→</span>
-                    </button>
-                  </div>
-                )}
-                </div>
+              </div>
             </>
           )}
 
@@ -442,7 +342,8 @@ export default function InvitationExperience({
             </button>
           </div>
         </div>
-      )}
+        );
+      })()}
 
       {/* FULL INVITATION WEBPAGE (Revealed) */}
       <div className={`transition-opacity duration-1000 relative ${revealed ? 'opacity-100' : 'hidden'}`}>

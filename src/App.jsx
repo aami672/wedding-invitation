@@ -39,7 +39,7 @@ export default function App() {
         if (!parsed.template) {
           parsed.template = 'caricature';
         }
-        if (!parsed.revealStyle || parsed.revealStyle === 'scratch') {
+        if (!parsed.revealStyle) {
           parsed.revealStyle = parsed.template === 'caricature' ? 'folding-doors' : 'scratch-date';
         }
         if (!parsed.photos) parsed.photos = {};
