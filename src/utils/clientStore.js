@@ -1,6 +1,7 @@
-import { DEFAULT_INVITATION_DATA } from '../data/presets';
+import { DEFAULT_INVITATION_DATA, OCCASIONS } from '../data/presets';
 
 const ACTIVE_SLUG_KEY = 'wishlys_active_client_slug';
+const OCCASION_ACTIVE_SLUG_PREFIX = 'wishlys_active_client_slug_';
 const REGISTRY_KEY = 'wishlys_clients_registry';
 const LEGACY_SAVED_KEY = 'wishlys_free_saved_data';
 const PUBLISHED_PREFIX = 'wishlys_published_data_';
@@ -106,6 +107,7 @@ function buildMetaFromData(slug, data, existing = {}, extraMeta = {}) {
     slug,
     bride: data?.hosts?.bride || existing.bride || 'Bride',
     groom: data?.hosts?.groom || existing.groom || 'Groom',
+    occasion: data?.occasion || existing.occasion || 'wedding',
     date: data?.hosts?.date || existing.date || '',
     city: data?.hosts?.city || existing.city || '',
     template: data?.template || existing.template || DEFAULT_INVITATION_DATA.template,
@@ -169,18 +171,20 @@ export async function loadClientFromIdb(slug) {
   });
 }
 
-export function getActiveClientSlug() {
+export function getActiveClientSlug(occasionId = 'wedding') {
   try {
-    return localStorage.getItem(ACTIVE_SLUG_KEY) || '';
+    const key = occasionId && occasionId !== 'wedding' ? `${OCCASION_ACTIVE_SLUG_PREFIX}${occasionId}` : ACTIVE_SLUG_KEY;
+    return localStorage.getItem(key) || '';
   } catch {
     return '';
   }
 }
 
-export function setActiveClientSlug(slug) {
+export function setActiveClientSlug(slug, occasionId = 'wedding') {
   try {
-    if (slug) localStorage.setItem(ACTIVE_SLUG_KEY, slug);
-    else localStorage.removeItem(ACTIVE_SLUG_KEY);
+    const key = occasionId && occasionId !== 'wedding' ? `${OCCASION_ACTIVE_SLUG_PREFIX}${occasionId}` : ACTIVE_SLUG_KEY;
+    if (slug) localStorage.setItem(key, slug);
+    else localStorage.removeItem(key);
   } catch {
     // ignore storage restrictions
   }
@@ -236,7 +240,7 @@ export async function getSavedClientAsync(slug) {
 
   if (typeof window !== 'undefined' && !window.location.hostname.includes('github.io')) {
     try {
-      const res = await fetch(`./api/clients?slug=${encodeURIComponent(slug)}`);
+      const res = await fetch(`/api/clients?slug=${encodeURIComponent(slug)}`);
       if (res.ok) {
         const json = await res.json();
         if (json?.client?.data) {
@@ -270,7 +274,7 @@ export function saveClientLocal(data, extraMeta = {}) {
   }
 
   if (extraMeta.setActive !== false) {
-    setActiveClientSlug(slug);
+    setActiveClientSlug(slug, data?.occasion || 'wedding');
   }
 
   registry[slug] = meta;
@@ -287,7 +291,7 @@ export async function saveClientToServer(slug, data) {
     return false;
   }
   try {
-    const res = await fetch('./api/save-client', {
+    const res = await fetch('/api/save-client', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ slug, data }),
@@ -321,23 +325,156 @@ export function removeSavedClient(slug) {
   }
 }
 
-export function getInitialClientData() {
+const OCCASION_STARTERS = {
+  engagement: {
+    hosts: {
+      bride: 'Ananya',
+      groom: 'Vikram',
+      date: '2026-11-18',
+      city: 'Jaipur',
+      storyTitle: 'We Said Yes',
+      storyText: 'Surrounded by candlelight and roses, a quiet promise turned into our favourite celebration.',
+    },
+    events: [
+      { id: 'ring-ceremony', name: 'Ring Ceremony & High Tea', date: '2026-11-18', time: '5:30 PM onwards', venue: 'Rambagh Lawns, Jaipur', attire: 'Indo-Western Pastel', description: 'Join us for the exchange of rings, champagne toasts, and live acoustic sitar.' },
+      { id: 'engagement-soiree', name: 'Evening Soiree & Dinner', date: '2026-11-18', time: '8:30 PM onwards', venue: 'Peacock Courtyard, Jaipur', attire: 'Evening Formals', description: 'Music, dancing under fairy lights, and a curated royal dinner.' },
+    ],
+  },
+  birthday: {
+    hosts: {
+      bride: 'Aarav',
+      groom: 'Kapoor Family',
+      date: '2026-10-24',
+      city: 'Mumbai',
+      storyTitle: 'Chapter Thirty',
+      storyText: 'Three decades of laughter, midnight drives, and unforgettable friendships deserve a celebration.',
+    },
+    events: [
+      { id: 'birthday-soiree', name: 'Sunset Cocktails & Toast', date: '2026-10-24', time: '7:30 PM onwards', venue: 'The Terrace Atelier, Mumbai', attire: 'Cocktail Chic', description: 'Raising a glass to thirty golden years with good music and warm company.' },
+    ],
+  },
+  housewarming: {
+    hosts: {
+      bride: 'Meera',
+      groom: 'Rohan',
+      date: '2026-12-05',
+      city: 'Bengaluru',
+      storyTitle: 'Gruha Pravesh',
+      storyText: 'With gratitude and joy, we welcome our loved ones as we light the first diya in our new home.',
+    },
+    events: [
+      { id: 'griha-puja', name: 'Gruha Pravesh Puja', date: '2026-12-05', time: '10:00 AM', venue: 'Villa 14, Palm Meadows, Bengaluru', attire: 'Traditional Silk & Kurta', description: 'Sacred morning prayers, marigold garlands, and traditional festive lunch.' },
+    ],
+  },
+  'house-party': {
+    hosts: {
+      bride: 'Rhea',
+      groom: 'Kabir',
+      date: '2026-11-28',
+      city: 'New Delhi',
+      storyTitle: 'The Autumn Soiree',
+      storyText: 'Good vinyls, candlelit tables, and long overdue conversations with our favourite people.',
+    },
+    events: [
+      { id: 'autumn-soiree', name: 'Rooftop Supper & Music', date: '2026-11-28', time: '8:00 PM till late', venue: 'The Conservatory Residence, New Delhi', attire: 'Smart Evening Casual', description: 'Craft mocktails, wood-fired supper, and late-night vinyl sessions.' },
+    ],
+  },
+  'baby-shower': {
+    hosts: {
+      bride: 'Neha',
+      groom: 'Arjun',
+      date: '2026-12-12',
+      city: 'Pune',
+      storyTitle: 'Godh Bharai',
+      storyText: 'Tiny feet are on their way! Come bless the parents-to-be with love, laughter, and sweet wishes.',
+    },
+    events: [
+      { id: 'godh-bharai', name: 'Blessings & High Tea', date: '2026-12-12', time: '4:00 PM onwards', venue: 'Banyan Courtyard, Pune', attire: 'Pastels & Florals', description: 'Traditional blessings, fun games, and a botanical garden high tea.' },
+    ],
+  },
+  annaprashan: {
+    hosts: {
+      bride: 'Baby Ved',
+      groom: 'Sood Family',
+      date: '2026-12-19',
+      city: 'Kolkata',
+      storyTitle: 'First Rice Ceremony',
+      storyText: 'With folded hands and full hearts, join us for Baby Ved’s auspicious Mukhe Bhaat ceremony.',
+    },
+    events: [
+      { id: 'mukhe-bhaat', name: 'Annaprashan & Blessing Feast', date: '2026-12-19', time: '11:30 AM onwards', venue: 'Heritage Verandah, Kolkata', attire: 'Festive Ethnic', description: 'Morning blessings for our little one followed by an heirloom Bengali lunch.' },
+    ],
+  },
+  'holy-communion': {
+    hosts: {
+      bride: 'Chloe',
+      groom: 'D’Souza Family',
+      date: '2026-12-20',
+      city: 'Goa',
+      storyTitle: 'First Holy Communion',
+      storyText: 'A sacred milestone in faith, grace, and thanksgiving celebrated with family and close friends.',
+    },
+    events: [
+      { id: 'communion-mass', name: 'Holy Communion Mass & Brunch', date: '2026-12-20', time: '9:30 AM onwards', venue: 'Our Lady of Grace & Courtyard, Goa', attire: 'Sunday Whites & Pastels', description: 'Morning Mass followed by family brunch and celebratory cake.' },
+    ],
+  },
+};
+
+export function createOccasionStarterData(occasionId = 'wedding') {
+  const base = cloneClientData(DEFAULT_INVITATION_DATA);
+  if (!occasionId || occasionId === 'wedding') {
+    return base;
+  }
+  const occ = OCCASIONS.find(o => o.id === occasionId);
+  const starter = OCCASION_STARTERS[occasionId] || {};
+  return mergeClientWithDefaults({
+    ...base,
+    occasion: occasionId,
+    template: occ?.defaultTemplate || base.template,
+    revealStyle: occ?.defaultReveal || base.revealStyle,
+    hosts: {
+      ...base.hosts,
+      ...(starter.hosts || {}),
+    },
+    monogram: {
+      ...base.monogram,
+      initials: starter.hosts
+        ? `${(starter.hosts.bride || 'A').trim()[0]?.toUpperCase() || 'A'} & ${(starter.hosts.groom || 'B').trim()[0]?.toUpperCase() || 'B'}`
+        : base.monogram.initials,
+    },
+    events: starter.events || base.events,
+  });
+}
+
+export function getInitialClientData(preferredOccasion = null) {
   try {
     if (typeof window !== 'undefined') {
       const urlSlug = new URLSearchParams(window.location.search).get('client');
       if (urlSlug) {
         const fromUrl = getSavedClient(urlSlug);
         if (fromUrl) {
-          setActiveClientSlug(urlSlug);
+          setActiveClientSlug(urlSlug, fromUrl.occasion || 'wedding');
           return fromUrl;
         }
       }
     }
 
-    const activeSlug = getActiveClientSlug();
+    const occKey = preferredOccasion && preferredOccasion !== 'wedding' ? preferredOccasion : 'wedding';
+    const activeSlug = getActiveClientSlug(occKey);
     if (activeSlug) {
       const fromActive = getSavedClient(activeSlug);
-      if (fromActive) return fromActive;
+      if (fromActive && (!preferredOccasion || preferredOccasion === 'wedding' || (fromActive.occasion || 'wedding') === preferredOccasion)) {
+        return fromActive;
+      }
+    }
+
+    if (occKey !== 'wedding') {
+      const savedOccClient = listSavedClients().find(c => (c.occasion || 'wedding') === occKey);
+      if (savedOccClient?.slug) {
+        const loaded = getSavedClient(savedOccClient.slug);
+        if (loaded) return loaded;
+      }
+      return createOccasionStarterData(occKey);
     }
 
     const legacyRaw = localStorage.getItem(LEGACY_SAVED_KEY);
@@ -347,7 +484,7 @@ export function getInitialClientData() {
         const merged = mergeClientWithDefaults(parsed);
         const slug = computeCoupleSlug(merged.hosts);
         saveClientLocal(merged, { setActive: true });
-        setActiveClientSlug(slug);
+        setActiveClientSlug(slug, merged.occasion || 'wedding');
         return merged;
       }
     }

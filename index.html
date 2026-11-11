@@ -3,17 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wishlys Free | Premium Cinematic Invitation Websites</title>
-    <meta name="description" content="Turn life's biggest moments into interactive invitation websites: opening films, gold-foil reveals, your photos & music, and live RSVPs at your own link. 100% Free Forever." />
+    <title>Paigaam — Delivering Life’s Most Cherished Moments</title>
+    <meta name="description" content="Paigaam Atelier — Bespoke interactive digital invitations with couture reveal rituals, illustrated artistry, custom typography, music, and effortless sharing." />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Alex+Brush&family=Allura&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Great+Vibes&family=Italianno&family=Lora:ital,wght@0,400..700;1,400..700&family=Marcellus&family=Montserrat:wght@300;400;500;600;700&family=Parisienne&family=Philosopher:ital,wght@0,400;0,700;1,400&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400..800;1,400..800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Prata&family=Rozha+One&family=Satisfy&family=Tangerine:wght@700&display=swap" rel="stylesheet">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%232B1E17%22 stroke=%22%23C5A880%22 stroke-width=%224%22/><text y=%2260%22 x=%2250%22 text-anchor=%22middle%22 font-family=%22serif%22 font-size=%2242%22 fill=%22%23FFD700%22 font-weight=%22bold%22>W</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Alex+Brush&family=Allura&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Great+Vibes&family=Italianno&family=Lora:ital,wght@0,400..700;1,400..700&family=Manrope:wght@300;400;500;600;700;800&family=Marcellus&family=Montserrat:wght@300;400;500;600;700&family=Parisienne&family=Philosopher:ital,wght@0,400;0,700;1,400&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400..800;1,400..800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Prata&family=Rozha+One&family=Satisfy&family=Tangerine:wght@700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%23120C0A%22 stroke=%22%23C8A055%22 stroke-width=%224%22/><text y=%2263%22 x=%2250%22 text-anchor=%22middle%22 font-family=%22Georgia,serif%22 font-size=%2248%22 fill=%22%23E6C88A%22 font-style=%22italic%22 font-weight=%22bold%22>P</text></svg>">
     <script>
-      // Automatic GitHub Pages trailing-slash enforcer to ensure relative assets resolve cleanly
+      // Automatic GitHub Pages trailing-slash enforcer for repo root & occasion subpaths
       (function() {
-        if (window.location.hostname.endsWith('github.io') && window.location.pathname.endsWith('/wedding-invitation')) {
-          window.location.replace(window.location.pathname + '/' + window.location.search + window.location.hash);
+        var host = window.location.hostname;
+        var path = window.location.pathname;
+        if (host.endsWith('github.io') && /(?:\/wedding-invitation|\/[a-z-]+-invitation)$/.test(path)) {
+          window.location.replace(path + '/' + window.location.search + window.location.hash);
         }
       })();
 
@@ -22,23 +24,23 @@
         if (e.target && (e.target.tagName === 'IMG' || e.target.tagName === 'AUDIO' || e.target.tagName === 'SOURCE')) {
           var src = e.target.src || e.target.currentSrc;
           if (src) {
+            var fixed = src;
             if (src.includes('github.io/images/')) {
-              var fixed = src.replace('github.io/images/', 'github.io/wedding-invitation/images/');
-              if (e.target.src !== fixed) {
-                e.target.src = fixed;
-              }
+              fixed = src.replace('github.io/images/', 'github.io/wedding-invitation/images/');
             } else if (src.includes('github.io/audio/')) {
-              var fixed = src.replace('github.io/audio/', 'github.io/wedding-invitation/audio/');
-              if (e.target.src !== fixed) {
-                e.target.src = fixed;
-              }
+              fixed = src.replace('github.io/audio/', 'github.io/wedding-invitation/audio/');
+            } else if (/\/[a-z-]+-invitation\/(images|audio)\//.test(src)) {
+              fixed = src.replace(/\/[a-z-]+-invitation\/(images|audio)\//, '/$1/');
+            }
+            if (fixed !== src && e.target.src !== fixed) {
+              e.target.src = fixed;
             }
           }
         }
       }, true);
     </script>
   </head>
-  <body class="bg-[#FDFBF7] text-neutral-800 antialiased selection:bg-[#C5A880]/30 selection:text-neutral-900">
+  <body class="bg-[#120C0A] text-[#FBF7F0] antialiased selection:bg-[#C8A055]/30 selection:text-[#FBF7F0]">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

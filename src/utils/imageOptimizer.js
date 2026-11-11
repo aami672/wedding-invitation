@@ -5,14 +5,18 @@
  * crisp Retina display quality.
  */
 
+import { resolveAssetUrl } from './appAssets';
+
 export async function toBase64Optimized(url, maxDimension = 1600, quality = 0.90, preserveAlpha = false) {
   if (!url) return '';
   if (typeof window === 'undefined') return url;
 
+  const resolvedUrl = resolveAssetUrl(url);
+
   return new Promise((resolve) => {
     // If it's an SVG data URI or simple text, return directly
-    if (url.startsWith('data:image/svg+xml')) {
-      return resolve(url);
+    if (resolvedUrl.startsWith('data:image/svg+xml')) {
+      return resolve(resolvedUrl);
     }
 
     const img = new window.Image();
@@ -20,7 +24,7 @@ export async function toBase64Optimized(url, maxDimension = 1600, quality = 0.90
 
     const timer = setTimeout(() => {
       // Fallback if loading takes too long
-      fallbackFetch(url).then(resolve);
+      fallbackFetch(resolvedUrl).then(resolve);
     }, 4000);
 
     img.onload = () => {
@@ -30,7 +34,7 @@ export async function toBase64Optimized(url, maxDimension = 1600, quality = 0.90
         let height = img.naturalHeight || img.height;
 
         if (!width || !height) {
-          return fallbackFetch(url).then(resolve);
+          return fallbackFetch(resolvedUrl).then(resolve);
         }
 
         // Downscale maintaining aspect ratio
@@ -67,16 +71,16 @@ export async function toBase64Optimized(url, maxDimension = 1600, quality = 0.90
           resolve(dataUrl);
         }
       } catch (err) {
-        fallbackFetch(url).then(resolve);
+        fallbackFetch(resolvedUrl).then(resolve);
       }
     };
 
     img.onerror = () => {
       clearTimeout(timer);
-      fallbackFetch(url).then(resolve);
+      fallbackFetch(resolvedUrl).then(resolve);
     };
 
-    img.src = url;
+    img.src = resolvedUrl;
   });
 }
 

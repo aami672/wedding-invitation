@@ -1,5 +1,6 @@
 // Comprehensive Web Audio Synthesizer & Sound Effects Engine
-// Plays authentic 320kbps Wishlys original MP3 soundtracks with zero-latency synthesized SFX
+// Plays authentic 320kbps Paigaam / Wishlys original MP3 soundtracks with zero-latency synthesized SFX
+import { resolveAssetUrl } from './appAssets';
 
 export const TRACK_AUDIO_FILES = {
   'modern-muse': './audio/indian-inspirational-modern.mp3',
@@ -112,7 +113,9 @@ class AudioEngine {
     this.isPlaying = true;
     this.currentTrack = trackId;
 
-    const targetUrl = customUrl || TRACK_AUDIO_FILES[trackId] || TRACK_REMOTE_FILES[trackId];
+    const resolvedCustom = customUrl ? resolveAssetUrl(customUrl) : '';
+    const resolvedLocal = TRACK_AUDIO_FILES[trackId] ? resolveAssetUrl(TRACK_AUDIO_FILES[trackId]) : '';
+    const targetUrl = resolvedCustom || resolvedLocal || TRACK_REMOTE_FILES[trackId];
 
     if (targetUrl) {
       try {
@@ -128,7 +131,7 @@ class AudioEngine {
           playPromise.catch((err) => {
             console.warn('Primary audio playback error, trying fallback:', err);
             // If local path failed and we have remote, try remote CDN
-            if (!customUrl && targetUrl === TRACK_AUDIO_FILES[trackId] && TRACK_REMOTE_FILES[trackId]) {
+            if (!customUrl && targetUrl === resolvedLocal && TRACK_REMOTE_FILES[trackId]) {
               this.customAudio.src = TRACK_REMOTE_FILES[trackId];
               this.customAudio.play().catch(() => {
                 this.startSynthesizerTrack(trackId);

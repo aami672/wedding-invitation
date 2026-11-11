@@ -4,6 +4,7 @@ import { soundManager } from '../../utils/audio';
 import { triggerCelebration } from '../../utils/confetti';
 import { getThemeEventImage } from '../../utils/themeImages';
 import { getThemeDesign, renderThemeDividerHtml } from '../../utils/themeDecorConfig';
+import { resolveAssetUrl } from '../../utils/appAssets';
 
 /**
  * 1. INDIAN BIOSCOPE BOOTH (from Wishlys video frame 130)
@@ -54,7 +55,7 @@ export function BioscopeBooth({ couplePhoto, names = 'Bride & Groom' }) {
             {/* The Lens Glass with Couple Photo */}
             <div className="w-full h-full rounded-full overflow-hidden bg-black/60 relative border border-amber-700">
               <img 
-                src={couplePhoto || './images/templates/mela.webp'} 
+                src={resolveAssetUrl(couplePhoto || './images/templates/mela.webp')} 
                 alt={names}
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
               />
@@ -219,7 +220,7 @@ export function JharokhaPhotoGallery({ photos = [], isDark = true }) {
             {/* Cusped Jharokha Arch top outline */}
             <div className="w-full h-44 sm:h-52 rounded-t-[46px] rounded-b-lg overflow-hidden relative">
               <img 
-                src={typeof item === 'string' ? item : item.url} 
+                src={resolveAssetUrl(typeof item === 'string' ? item : item.url)} 
                 alt="Memory" 
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
               />
@@ -298,10 +299,10 @@ export function RoyalWeddingMandap({ bride = 'Bride', groom = 'Groom' }) {
         {/* Caricature Mandap Image */}
         <div className="w-full max-w-[260px] aspect-[9/16] mx-auto rounded-t-3xl overflow-hidden mb-3 border border-amber-200 shadow-sm bg-[#FFFDF7]">
           <img 
-            src="./images/caricature/pheras_arch.webp" 
+            src={resolveAssetUrl('./images/caricature/pheras_arch.webp')} 
             alt="Main Pheras Mandap" 
             className="w-full h-full object-contain"
-            onError={(e) => { e.target.src = './images/caricature/pheras.webp'; }}
+            onError={(e) => { e.target.src = resolveAssetUrl('./images/caricature/pheras.webp'); }}
           />
         </div>
 
@@ -527,7 +528,7 @@ export function PastelFoldingDoorsReveal({ onReveal, bride = 'Bride', groom = 'G
         {/* Inside Preview: Couple artwork */}
         <div className="inv-hero-card inv-hero-img-wrap absolute inset-0 shadow-inner overflow-hidden flex flex-col items-center justify-center p-0">
           <img 
-            src={coverPhoto || `./images/caricature/scooter_couple.webp`} 
+            src={resolveAssetUrl(coverPhoto || `./images/caricature/scooter_couple.webp`)} 
             alt={`${groom} & ${bride}`}
             className="w-full h-full object-contain object-center"
           />
@@ -769,7 +770,7 @@ export function PastelCaricatureHero({
           {/* Hero Couple Artwork Frame */}
           <div className="inv-hero-img-wrap w-full aspect-[9/16] rounded-2xl overflow-hidden relative flex items-center justify-center group shadow-inner">
             <img 
-              src={couplePhoto || "./images/themes/Luxe-Pastel-Caricature/03-sangeet.webp"} 
+              src={resolveAssetUrl(couplePhoto || "./images/themes/Luxe-Pastel-Caricature/03-sangeet.webp")} 
               alt={`${groom} & ${bride}`}
               className="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-700"
             />
@@ -834,7 +835,7 @@ export function PastelPolaroidCouple({
             {/* Circular Icon for Photo */}
             <div className="w-20 h-20 rounded-full overflow-hidden mt-1 mb-2 border-2 shadow-inner shrink-0 transition-all" style={{ borderColor: 'var(--pal-card-border)', backgroundColor: 'var(--pal-card-surface)' }}>
               <img 
-                src={groomPhoto || './images/groom.webp'} 
+                src={resolveAssetUrl(groomPhoto || './images/groom.webp')} 
                 alt={groom}
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
               />
@@ -879,7 +880,7 @@ export function PastelPolaroidCouple({
             {/* Circular Icon for Photo */}
             <div className="w-20 h-20 rounded-full overflow-hidden mt-1 mb-2 border-2 shadow-inner shrink-0 transition-all" style={{ borderColor: 'var(--pal-card-border)', backgroundColor: 'var(--pal-card-surface)' }}>
               <img 
-                src={bridePhoto || './images/bride.webp'} 
+                src={resolveAssetUrl(bridePhoto || './images/bride.webp')} 
                 alt={bride}
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
               />
@@ -933,7 +934,7 @@ export function PastelPolaroidCouple({
             {/* Full Portrait Photo Inside Card */}
             <div className="w-full aspect-[4/5] rounded-2xl overflow-hidden border-2 shadow-inner mt-2" style={{ borderColor: 'var(--pal-card-border)', backgroundColor: 'var(--pal-card-surface)' }}>
               <img 
-                src={activeModal === 'groom' ? (groomPhoto || './images/groom.webp') : (bridePhoto || './images/bride.webp')} 
+                src={resolveAssetUrl(activeModal === 'groom' ? (groomPhoto || './images/groom.webp') : (bridePhoto || './images/bride.webp'))} 
                 alt={activeModal === 'groom' ? groom : bride} 
                 className="w-full h-full object-cover object-top"
               />
@@ -1190,7 +1191,7 @@ export function PastelOurStory({ story = [], quote, bride = 'Bride', groom = 'Gr
                 {chapter.image && (
                   <div className="w-full aspect-video rounded-xl overflow-hidden my-2.5 border shadow-xs" style={{ borderColor: 'var(--pal-card-border)', backgroundColor: 'var(--pal-card-surface)' }}>
                     <img 
-                      src={chapter.image} 
+                      src={resolveAssetUrl(chapter.image)} 
                       alt={chapter.title} 
                       className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
                     />
@@ -1310,13 +1311,13 @@ export function PastelEventCard({ event, index, templateId = 'caricature' }) {
           <div className="w-full flex justify-center -mb-2">
             <div className="inv-arch-card inv-hero-img-wrap w-full max-w-[350px] aspect-[9/16] overflow-hidden flex items-center justify-center p-0 drop-shadow-md">
               <img 
-                src={archImg} 
+                src={resolveAssetUrl(archImg)} 
                 alt={event.name} 
                 onError={(e) => {
                   if (isWedding && !e.target.src.includes('pheras_arch.webp')) {
-                    e.target.src = './images/caricature/pheras_arch.webp';
+                    e.target.src = resolveAssetUrl('./images/caricature/pheras_arch.webp');
                   } else if (isWedding) {
-                    e.target.src = './images/caricature/pheras.webp';
+                    e.target.src = resolveAssetUrl('./images/caricature/pheras.webp');
                   }
                 }}
                 className="w-full h-full object-contain object-center hover:scale-105 transition-transform duration-500" 
@@ -1441,7 +1442,7 @@ export function PastelPolaroidGallery({ photos = [] }) {
               
               <div className="w-full aspect-square rounded overflow-hidden mb-1.5 border" style={{ borderColor: 'var(--pal-card-border)', backgroundColor: 'var(--pal-card-surface)' }}>
                 <img 
-                  src={item.img || item.url} 
+                  src={resolveAssetUrl(item.img || item.url)} 
                   alt={item.title || item.caption || `Memory ${idx + 1}`} 
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                 />

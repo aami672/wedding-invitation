@@ -26,6 +26,67 @@
   font-family: var(--font-sans, 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif);
 }
 
+/* Scoped Paigaam Website Shell Typography & Couture Atelier Tokens (keeps .inv-theme-root isolated) */
+.paigaam-site {
+  --site-bg: #120C0A;
+  --site-surface: #1A120E;
+  --site-surface-elevated: #231813;
+  --site-ivory: #FAF5EC;
+  --site-parchment: #F3EAD9;
+  --site-gold: #C8A055;
+  --site-gold-bright: #E6C88A;
+  --site-gold-deep: #9A722E;
+  --site-font-display: 'Bodoni Moda', 'Cormorant Garamond', Georgia, serif;
+  --site-font-serif: 'Cormorant Garamond', Georgia, serif;
+  --site-font-sans: 'Manrope', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --site-font-script: 'Pinyon Script', 'Great Vibes', cursive;
+  font-family: var(--site-font-sans);
+}
+
+.paigaam-site .site-display {
+  font-family: var(--site-font-display);
+}
+
+.paigaam-site .site-serif {
+  font-family: var(--site-font-serif);
+}
+
+.paigaam-site .site-script {
+  font-family: var(--site-font-script);
+}
+
+.paigaam-site .site-sans {
+  font-family: var(--site-font-sans);
+}
+
+.paigaam-gold-text {
+  background: linear-gradient(125deg, #F6E2B3 0%, #D4AF63 45%, #F2DDA8 72%, #B5883D 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.paigaam-gold-btn {
+  background: linear-gradient(135deg, #E3C27A 0%, #C8A055 55%, #A67B33 100%);
+  color: #160E0B;
+  box-shadow: 0 12px 30px -10px rgba(200, 160, 85, 0.45), inset 0 1px 0 rgba(255, 250, 235, 0.55);
+}
+
+.paigaam-gold-btn:hover {
+  background: linear-gradient(135deg, #EDD192 0%, #D4AC61 55%, #B88B3F 100%);
+}
+
+.paigaam-atelier-card {
+  background: linear-gradient(165deg, rgba(35, 24, 19, 0.94) 0%, rgba(20, 14, 11, 0.98) 100%);
+  border: 1px solid rgba(200, 160, 85, 0.22);
+  box-shadow: 0 22px 50px -22px rgba(0, 0, 0, 0.72);
+}
+
+.paigaam-atelier-card:hover {
+  border-color: rgba(230, 200, 138, 0.55);
+  box-shadow: 0 26px 56px -18px rgba(200, 160, 85, 0.18), 0 0 0 1px rgba(230, 200, 138, 0.16);
+}
+
 /* Custom scrollbars */
 ::-webkit-scrollbar {
   width: 6px;

@@ -11,7 +11,7 @@ export default class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('Wishlys Studio caught an error:', error, errorInfo);
+    console.error('Paigaam Studio caught an error:', error, errorInfo);
   }
 
   handleReload = () => {
@@ -22,22 +22,24 @@ export default class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center p-6 text-center">
-          <div className="bg-white max-w-md p-8 rounded-3xl border border-stone-200 shadow-xl space-y-4">
-            <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-500 mx-auto flex items-center justify-center text-xl font-bold">
-              !
+        <div className="paigaam-site min-h-screen bg-[#120C0A] flex items-center justify-center p-6 text-center text-[#FBF7F0]">
+          <div className="paigaam-atelier-card max-w-md p-8 rounded-3xl space-y-4">
+            <div className="w-12 h-12 rounded-full border border-[#C8A055]/40 bg-[#C8A055]/10 text-[#E6C88A] mx-auto flex items-center justify-center site-display text-xl italic">
+              P
             </div>
-            <h3 className="font-serif text-2xl text-[#2B1E17] font-light">Something went wrong</h3>
-            <p className="text-xs text-stone-500">
-              An unexpected display issue occurred. Your wedding invitation data is safe.
+            <h3 className="site-display text-2xl text-[#FBF7F0] font-normal">
+              Something went wrong
+            </h3>
+            <p className="text-xs text-[#C7B8A3] leading-relaxed">
+              An unexpected display issue occurred inside Paigaam Studio. Your invitation progress is safely preserved.
             </p>
             <div className="pt-2 flex justify-center gap-3">
               <button
                 type="button"
                 onClick={this.handleReload}
-                className="px-5 py-2.5 rounded-xl bg-[#8B6F47] text-white text-xs font-bold uppercase tracking-wider shadow-sm hover:bg-[#725a38] transition-colors cursor-pointer"
+                className="paigaam-gold-btn px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all cursor-pointer"
               >
-                Reload Studio
+                Reload Paigaam Studio
               </button>
             </div>
           </div>

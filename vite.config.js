@@ -206,5 +206,73 @@ export default defineConfig({
     react(),
     tailwindcss(),
     savePublishedPlugin(),
+    occasionSubpathPlugin(),
   ],
-})
+});
+
+const OCCASION_ROUTE_ENTRIES = [
+  ['engagement', 'engagement-invitation'],
+  ['birthday', 'birthday-invitation'],
+  ['housewarming', 'housewarming-invitation'],
+  ['house-party', 'house-party-invitation'],
+  ['baby-shower', 'baby-shower-invitation'],
+  ['annaprashan', 'annaprashan-invitation'],
+  ['holy-communion', 'holy-communion-invitation'],
+];
+
+function occasionSubpathPlugin() {
+  return {
+    name: 'occasion-subpath-routes',
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        try {
+          const urlObj = new URL(req.url || '/', 'http://localhost');
+          const pathname = urlObj.pathname;
+          const match = OCCASION_ROUTE_ENTRIES.find(
+            ([, slug]) => pathname === `/${slug}` || pathname === `/${slug}/`
+          );
+          if (!match) return next();
+
+          const [occId, slug] = match;
+          if (pathname === `/${slug}`) {
+            res.statusCode = 302;
+            res.setHeader('Location', `/${slug}/${urlObj.search || ''}`);
+            res.end();
+            return;
+          }
+
+          const indexPath = path.resolve(__dirname, 'index.html');
+          let html = fs.readFileSync(indexPath, 'utf8');
+          const bootScript = `<script>window.__PAIGAAM_OCCASION__=${JSON.stringify(occId)};window.__PAIGAAM_ASSET_PREFIX__="../";</script>`;
+          html = html.replace('</head>', `  ${bootScript}\n  </head>`);
+          html = await server.transformIndexHtml('/', html);
+          html = html.replace(/(src|href)="\.\/([^"]*)"/g, '$1="/$2"');
+
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'text/html');
+          res.end(html);
+        } catch (err) {
+          next(err);
+        }
+      });
+    },
+    closeBundle() {
+      const distDir = path.resolve(__dirname, 'dist');
+      const distIndex = path.join(distDir, 'index.html');
+      if (!fs.existsSync(distIndex)) return;
+
+      const baseHtml = fs.readFileSync(distIndex, 'utf8');
+      for (const [occId, slug] of OCCASION_ROUTE_ENTRIES) {
+        const subDir = path.join(distDir, slug);
+        fs.mkdirSync(subDir, { recursive: true });
+        const bootScript = `<script>window.__PAIGAAM_OCCASION__=${JSON.stringify(occId)};window.__PAIGAAM_ASSET_PREFIX__="../";</script>`;
+        const subHtml = baseHtml
+          .replace('</head>', `  ${bootScript}\n  </head>`)
+          .replace(/(src|href)="\.\/assets\//g, '$1="../assets/')
+          .replace(/(src|href)="\.\/images\//g, '$1="../images/')
+          .replace(/(src|href)="\.\/audio\//g, '$1="../audio/');
+        fs.writeFileSync(path.join(subDir, 'index.html'), subHtml, 'utf8');
+      }
+    }
+  };
+}

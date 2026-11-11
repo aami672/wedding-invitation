@@ -4,6 +4,7 @@ import {
 } from 'lucide-react';
 import { soundManager } from '../../utils/audio';
 import { getRevealCopy, splitMonogram } from '../../utils/revealConfig';
+import { resolveAssetUrl } from '../../utils/appAssets';
 
 function playRevealCue(id) {
   switch (id) {
@@ -58,7 +59,7 @@ export default function UniversalRevealWidget({
   const groom = data?.hosts?.groom || 'Ashish';
   const city = data?.hosts?.city || 'Meerut';
   const [bInit, gInit] = splitMonogram(initials, bride, groom);
-  const photo = coverPhoto || data?.photos?.story || './images/themes/Luxe-Pastel-Caricature/03-sangeet.webp';
+  const photo = resolveAssetUrl(coverPhoto || data?.photos?.story || './images/themes/Luxe-Pastel-Caricature/03-sangeet.webp');
   const copy = getRevealCopy(revealId, { bride, groom, city, displayDate, initials });
 
   const trigger = (delayMs = 820) => {

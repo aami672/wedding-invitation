@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Palette, BookOpen, Sparkles, Globe, Download, Printer, Video, 
   Smartphone, Tablet, Monitor, Plus, Trash2, Check, ArrowRight, ArrowLeft,
-  Volume2, VolumeX, Shield, CircleDot, Bell, MessageSquare, ChevronDown, ChevronUp,
+  Volume2, VolumeX, CircleDot, Bell, MessageSquare, ChevronDown, ChevronUp,
   Image, Mail, Stamp, PartyPopper, Music as MusicIcon, Compass, MapPin, Upload, Camera, Crop,
   RotateCcw, Share2, Copy, CheckCheck, Phone, Video as VideoIcon, MoreVertical,
   Calendar, Clock, Eye, Lock, Users, Play, PhoneCall, Feather, CreditCard, Package,
@@ -20,6 +20,7 @@ import { soundManager } from '../../utils/audio';
 import { triggerCelebration } from '../../utils/confetti';
 import { toBase64Optimized } from '../../utils/imageOptimizer';
 import { getThemeEventImage, getThemeHeroImage, THEMES_LIST, CEREMONY_FILES, ALL_THEME_ARTWORKS } from '../../utils/themeImages';
+import { resolveAssetUrl, resolvePublishedUrl } from '../../utils/appAssets';
 import {
   getThemeDesign,
   resolvePaletteTheme,
@@ -119,7 +120,7 @@ export function getMonogramInitials(hosts, monogram) {
   return `${bI} & ${gI}`;
 }
 
-export default function StudioWizard({ initialData, onSave, onExitToHome, onOpenDashboard, onOpenLivePreview }) {
+export default function StudioWizard({ initialData, onSave, onExitToHome, onOpenLivePreview }) {
   const [data, setData] = useState(initialData);
   const [activeTab, setActiveTab] = useState('design');
   const [previewDevice, setPreviewDevice] = useState('mobile');
@@ -2860,7 +2861,7 @@ ${buildStandaloneUniversalScreenHtml({
       const isGitHubPages = typeof window !== 'undefined' && window.location.hostname.endsWith('github.io');
       const liveUrl = isGitHubPages
         ? `https://aami672.github.io/wedding-invitation/published/${slug}.html`
-        : `${window.location.origin}/published/${slug}.html`;
+        : resolvePublishedUrl(slug);
 
       await saveClientFull(data, { publishedUrl: liveUrl, awaitServer: false });
       refreshSavedClients();
@@ -3028,7 +3029,7 @@ ${buildStandaloneUniversalScreenHtml({
       return `https://aami672.github.io/wedding-invitation/published/${slug}.html`;
     }
     if (typeof window !== 'undefined') {
-      return `${window.location.origin}/published/${slug}.html`;
+      return resolvePublishedUrl(slug);
     }
     return `https://aami672.github.io/wedding-invitation/published/${slug}.html`;
   };
@@ -3051,29 +3052,37 @@ ${buildStandaloneUniversalScreenHtml({
   const selectedTypographySuite = TYPOGRAPHY_SUITES.find(s => s.id === (data.typography?.preset || 'heritage')) || TYPOGRAPHY_SUITES[0];
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] flex flex-col">
-      {/* STUDIO HEADER */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#E6D5BF] px-4 sm:px-6 py-3.5 flex justify-between items-center shadow-xs">
+    <div className="min-h-screen bg-[#F6EFE4] text-[#1A120E] flex flex-col paigaam-site">
+      {/* PAIGAAM ATELIER STUDIO HEADER */}
+      <header className="sticky top-0 z-40 bg-[#160F0C]/95 backdrop-blur-md border-b border-[#C8A055]/30 px-4 sm:px-6 py-3.5 flex justify-between items-center shadow-lg">
         <div className="flex items-center gap-3 sm:gap-4">
           <button
             type="button"
             onClick={onExitToHome}
-            className="flex items-center gap-1.5 text-xs font-semibold text-stone-600 hover:text-stone-900 cursor-pointer"
+            className="flex items-center gap-1.5 text-xs font-semibold text-[#D8C7B0] hover:text-[#E6C88A] transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">Back to Home</span>
+            <span className="hidden sm:inline">Home</span>
           </button>
-          <div className="h-4 w-px bg-stone-200" />
-          <div>
-            <h1 className="font-serif text-lg font-light text-[#2B1E17] leading-none">
-              Wishlys Studio
-            </h1>
+          <div className="h-5 w-px bg-[#C8A055]/25" />
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full border border-[#C8A055]/60 bg-[#231813] flex items-center justify-center shrink-0">
+              <span className="site-display italic text-base text-[#E6C88A] font-semibold leading-none">P</span>
+            </div>
+            <div>
+              <h1 className="site-display text-lg sm:text-xl font-normal text-[#FBF7F0] leading-none">
+                Paigaam Studio
+              </h1>
+              <p className="hidden sm:block text-[9px] uppercase tracking-[0.2em] text-[#C8A055] mt-1 leading-none">
+                Delivering Life’s Most Cherished Moments
+              </p>
+            </div>
           </div>
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
           {clientSaveToast && (
-            <span className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] font-semibold text-emerald-700 animate-fadeIn">
+            <span className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-[11px] font-semibold text-emerald-200 animate-fadeIn">
               <Check className="w-3 h-3" />
               {clientSaveToast}
             </span>
@@ -3091,10 +3100,10 @@ ${buildStandaloneUniversalScreenHtml({
               });
               setIsEditCoupleModalOpen(true);
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF5ED] border border-[#C5A880] text-xs font-bold text-[#8B6F47] hover:bg-[#8B6F47] hover:text-white transition-all cursor-pointer shadow-2xs"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#241914] border border-[#C8A055]/45 text-xs font-semibold text-[#F4E7D0] hover:border-[#E6C88A] hover:bg-[#2F211B] transition-all cursor-pointer shadow-xs"
             title="Save, switch, or start a new client invitation"
           >
-            <Users className="w-3.5 h-3.5" />
+            <Users className="w-3.5 h-3.5 text-[#E6C88A]" />
             <span className="hidden sm:inline">{data.hosts?.bride || 'Bride'} & {data.hosts?.groom || 'Groom'}</span>
             <span className="sm:hidden">Clients</span>
           </button>
@@ -3104,20 +3113,11 @@ ${buildStandaloneUniversalScreenHtml({
               const pubUrl = publishedInfo ? publishedInfo.liveUrl : getShareUrl();
               window.open(pubUrl, '_blank');
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF5ED] border border-[#C5A880] text-xs font-bold text-[#8B6F47] hover:bg-[#8B6F47] hover:text-white transition-all cursor-pointer shadow-2xs"
+            className="paigaam-gold-btn flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer"
             title="Open published invitation page in new tab"
           >
             <Eye className="w-3.5 h-3.5" />
             <span>Guest Preview</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={onOpenDashboard}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-stone-200 text-xs font-bold text-stone-700 hover:bg-stone-50 transition-colors cursor-pointer"
-          >
-            <Shield className="w-3.5 h-3.5 text-stone-500" />
-            <span>Dashboard</span>
           </button>
         </div>
       </header>
@@ -3135,11 +3135,11 @@ ${buildStandaloneUniversalScreenHtml({
               onClick={() => setActiveTab('design')}
               className={`p-3 sm:p-3.5 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1.5 ${
                 activeTab === 'design' 
-                  ? 'border-[#8B6F47] bg-[#FAF5ED] text-[#8B6F47] shadow-sm ring-1 ring-[#8B6F47]' 
-                  : 'border-[#E6D5BF] bg-white text-stone-500 hover:border-stone-400'
+                  ? 'border-[#C8A055] bg-[#1A120E] text-[#E6C88A] shadow-md ring-1 ring-[#C8A055]/60' 
+                  : 'border-[#E2D3BA] bg-[#FFFDF9] text-[#5C4938] hover:border-[#C8A055]'
               }`}
             >
-              <Palette className="w-5 h-5 text-[#8B6F47]" />
+              <Palette className="w-5 h-5 text-[#C8A055]" />
               <span className="text-[11px] font-bold tracking-widest uppercase">Design</span>
             </button>
 
@@ -3148,11 +3148,11 @@ ${buildStandaloneUniversalScreenHtml({
               onClick={() => setActiveTab('content')}
               className={`p-3 sm:p-3.5 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1.5 ${
                 activeTab === 'content' 
-                  ? 'border-[#8B6F47] bg-[#FAF5ED] text-[#8B6F47] shadow-sm ring-1 ring-[#8B6F47]' 
-                  : 'border-[#E6D5BF] bg-white text-stone-500 hover:border-stone-400'
+                  ? 'border-[#C8A055] bg-[#1A120E] text-[#E6C88A] shadow-md ring-1 ring-[#C8A055]/60' 
+                  : 'border-[#E2D3BA] bg-[#FFFDF9] text-[#5C4938] hover:border-[#C8A055]'
               }`}
             >
-              <BookOpen className="w-5 h-5 text-[#8B6F47]" />
+              <BookOpen className="w-5 h-5 text-[#C8A055]" />
               <span className="text-[11px] font-bold tracking-widest uppercase">Content</span>
             </button>
 
@@ -3161,11 +3161,11 @@ ${buildStandaloneUniversalScreenHtml({
               onClick={() => setActiveTab('extras')}
               className={`p-3 sm:p-3.5 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1.5 ${
                 activeTab === 'extras' 
-                  ? 'border-[#8B6F47] bg-[#FAF5ED] text-[#8B6F47] shadow-sm ring-1 ring-[#8B6F47]' 
-                  : 'border-[#E6D5BF] bg-white text-stone-500 hover:border-stone-400'
+                  ? 'border-[#C8A055] bg-[#1A120E] text-[#E6C88A] shadow-md ring-1 ring-[#C8A055]/60' 
+                  : 'border-[#E2D3BA] bg-[#FFFDF9] text-[#5C4938] hover:border-[#C8A055]'
               }`}
             >
-              <Sparkles className="w-5 h-5 text-[#8B6F47]" />
+              <Sparkles className="w-5 h-5 text-[#C8A055]" />
               <span className="text-[11px] font-bold tracking-widest uppercase">Extras</span>
             </button>
 
@@ -3174,11 +3174,11 @@ ${buildStandaloneUniversalScreenHtml({
               onClick={() => setActiveTab('publish')}
               className={`p-3 sm:p-3.5 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1.5 ${
                 activeTab === 'publish' 
-                  ? 'border-[#8B6F47] bg-[#FAF5ED] text-[#8B6F47] shadow-sm ring-1 ring-[#8B6F47]' 
-                  : 'border-[#E6D5BF] bg-white text-stone-500 hover:border-stone-400'
+                  ? 'border-[#C8A055] bg-[#1A120E] text-[#E6C88A] shadow-md ring-1 ring-[#C8A055]/60' 
+                  : 'border-[#E2D3BA] bg-[#FFFDF9] text-[#5C4938] hover:border-[#C8A055]'
               }`}
             >
-              <Globe className="w-5 h-5 text-[#8B6F47]" />
+              <Globe className="w-5 h-5 text-[#C8A055]" />
               <span className="text-[11px] font-bold tracking-widest uppercase">Publish</span>
             </button>
           </div>
@@ -3187,7 +3187,7 @@ ${buildStandaloneUniversalScreenHtml({
           {activeTab === 'design' && (
             <div className="space-y-6 animate-fadeIn">
               <div>
-                <h2 className="font-serif text-3xl font-light text-[#2B1E17]">Design your invite</h2>
+                <h2 className="site-display text-3xl font-normal text-[#1A120E]">Design your invite</h2>
                 <p className="text-xs text-stone-500 font-light mt-1">
                   Pick a template, colours, how guests open it, and the music that plays.
                 </p>
@@ -3273,7 +3273,7 @@ ${buildStandaloneUniversalScreenHtml({
                           >
                             <div className="aspect-[4/3] w-full bg-stone-900 overflow-hidden relative">
                               <img
-                                src={tmpl.image}
+                                src={resolveAssetUrl(tmpl.image)}
                                 alt={tmpl.name}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                               />
@@ -3336,7 +3336,7 @@ ${buildStandaloneUniversalScreenHtml({
                           <div className="w-14 h-20 sm:w-16 sm:h-24 rounded-lg overflow-hidden border border-stone-200 bg-stone-100 shadow-xs shrink-0 flex items-center justify-center">
                             {((data.photos?.cover && !data.photos.cover.includes('caricature.webp') && !data.photos.cover.includes('scooter_couple.webp') && !data.photos.cover.includes('truck.webp')) || getThemeHeroImage(data.template)) ? (
                               <img 
-                                src={(data.photos?.cover && !data.photos.cover.includes('caricature.webp') && !data.photos.cover.includes('scooter_couple.webp') && !data.photos.cover.includes('truck.webp')) ? data.photos.cover : getThemeHeroImage(data.template)} 
+                                src={resolveAssetUrl((data.photos?.cover && !data.photos.cover.includes('caricature.webp') && !data.photos.cover.includes('scooter_couple.webp') && !data.photos.cover.includes('truck.webp')) ? data.photos.cover : getThemeHeroImage(data.template))} 
                                 alt="Hero Photo" 
                                 className="w-full h-full object-cover"
                               />
@@ -3411,7 +3411,7 @@ ${buildStandaloneUniversalScreenHtml({
                           <div className="flex items-start gap-3 sm:gap-4">
                             <div className="w-14 h-20 sm:w-16 sm:h-24 rounded-lg overflow-hidden border border-stone-200 bg-stone-100 shadow-xs shrink-0 flex items-center justify-center">
                               {data.photos?.bride ? (
-                                <img src={data.photos.bride} alt="Bride Photo" className="w-full h-full object-cover" />
+                                <img src={resolveAssetUrl(data.photos.bride)} alt="Bride Photo" className="w-full h-full object-cover" />
                               ) : (
                                 <span className="text-[10px] text-stone-400">No photo</span>
                               )}
@@ -3485,7 +3485,7 @@ ${buildStandaloneUniversalScreenHtml({
                           <div className="flex items-start gap-3 sm:gap-4">
                             <div className="w-14 h-20 sm:w-16 sm:h-24 rounded-lg overflow-hidden border border-stone-200 bg-stone-100 shadow-xs shrink-0 flex items-center justify-center">
                               {data.photos?.groom ? (
-                                <img src={data.photos.groom} alt="Groom Photo" className="w-full h-full object-cover" />
+                                <img src={resolveAssetUrl(data.photos.groom)} alt="Groom Photo" className="w-full h-full object-cover" />
                               ) : (
                                 <span className="text-[10px] text-stone-400">No photo</span>
                               )}
@@ -3604,7 +3604,7 @@ ${buildStandaloneUniversalScreenHtml({
 
                                   <div className="flex items-start gap-3 sm:gap-4">
                                     <div className="w-16 h-24 sm:w-20 sm:h-28 rounded-lg overflow-hidden border border-stone-200 bg-[#FFFDF7] shadow-xs shrink-0 flex items-center justify-center p-1">
-                                      <img src={currentImg} alt={evt.name} className="w-full h-full object-contain" />
+                                      <img src={resolveAssetUrl(currentImg)} alt={evt.name} className="w-full h-full object-contain" />
                                     </div>
 
                                     <div className="flex-1 space-y-2">
@@ -3793,7 +3793,7 @@ ${buildStandaloneUniversalScreenHtml({
                               {/* Photo Thumbnail */}
                               <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border border-stone-200 bg-stone-100 shrink-0 shadow-xs">
                                 <img
-                                  src={item.url || item.img}
+                                  src={resolveAssetUrl(item.url || item.img)}
                                   alt={item.caption || `Moment ${idx + 1}`}
                                   className="w-full h-full object-cover"
                                 />
@@ -4857,7 +4857,7 @@ ${buildStandaloneUniversalScreenHtml({
                           <label className="block text-[9px] uppercase font-bold text-stone-500 mb-1">Event Photo / Arch Artwork</label>
                           <div className="flex flex-wrap items-center gap-2.5">
                             <div className="w-12 h-16 rounded-lg overflow-hidden border border-stone-200 bg-[#FFFDF7] shrink-0 flex items-center justify-center p-0.5">
-                              <img src={evt.image || evt.img || './images/caricature/pheras_arch.webp'} alt={evt.name} className="w-full h-full object-contain" />
+                              <img src={resolveAssetUrl(evt.image || evt.img || './images/caricature/pheras_arch.webp')} alt={evt.name} className="w-full h-full object-contain" />
                             </div>
                             <div className="flex flex-wrap items-center gap-2">
                               <label className="px-3 py-1.5 rounded-lg border border-[#D5C2AA] hover:border-[#8B6F47] hover:bg-[#FAF5ED] text-stone-700 font-semibold text-[10px] uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs">
@@ -5123,14 +5123,14 @@ ${buildStandaloneUniversalScreenHtml({
                     <input
                       type="text"
                       readOnly
-                      value={publishedInfo ? publishedInfo.liveUrl : `https://aami672.github.io/wedding-invitation/published/${getCoupleSlug()}.html`}
+                      value={publishedInfo ? publishedInfo.liveUrl : getShareUrl()}
                       className="flex-1 px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/20 text-xs text-stone-100 font-mono select-all focus:outline-none focus:ring-1 focus:ring-[#FFD700]"
                     />
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
                         onClick={() => {
-                          const targetUrl = publishedInfo ? publishedInfo.liveUrl : `https://aami672.github.io/wedding-invitation/published/${getCoupleSlug()}.html`;
+                          const targetUrl = publishedInfo ? publishedInfo.liveUrl : getShareUrl();
                           navigator.clipboard.writeText(targetUrl);
                           setCopiedPublished(true);
                           setTimeout(() => setCopiedPublished(false), 2200);
@@ -5143,7 +5143,7 @@ ${buildStandaloneUniversalScreenHtml({
                       </button>
 
                       <a
-                        href={publishedInfo ? publishedInfo.liveUrl : `https://aami672.github.io/wedding-invitation/published/${getCoupleSlug()}.html`}
+                        href={publishedInfo ? publishedInfo.liveUrl : getShareUrl()}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-1.5"
@@ -5154,7 +5154,7 @@ ${buildStandaloneUniversalScreenHtml({
                       </a>
 
                       <a
-                        href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Dearest family & friends,\n\nWe are delighted to invite you to celebrate the wedding of ${data.hosts?.bride || 'Bride'} & ${data.hosts?.groom || 'Groom'}! 💍✨\n\nView our interactive invitation & wedding schedule here:\n${publishedInfo ? publishedInfo.liveUrl : `https://aami672.github.io/wedding-invitation/published/${getCoupleSlug()}.html`}`)}`}
+                        href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Dearest family & friends,\n\nWe are delighted to invite you to celebrate the wedding of ${data.hosts?.bride || 'Bride'} & ${data.hosts?.groom || 'Groom'}! 💍✨\n\nView our interactive invitation & wedding schedule here:\n${publishedInfo ? publishedInfo.liveUrl : getShareUrl()}`)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="px-3.5 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#20BD5A] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-1"
@@ -5283,7 +5283,7 @@ ${buildStandaloneUniversalScreenHtml({
         </div>
 
         {/* RIGHT COLUMN: PHONE SIMULATOR MATCHING WISHLYS RECORDING */}
-        <div className="w-full lg:w-1/2 bg-[#ECE7DE] p-4 sm:p-6 flex flex-col items-center justify-center border-t lg:border-t-0 lg:border-l border-[#E6D5BF] relative overflow-hidden">
+        <div className="w-full lg:w-1/2 bg-[#EAE1D3] p-4 sm:p-6 flex flex-col items-center justify-center border-t lg:border-t-0 lg:border-l border-[#DECFAF] relative overflow-hidden">
           
           {/* TOP CONTROLS BAR: REPLAY, INVITE, WHATSAPP PREVIEW */}
           <div className="mb-4 flex items-center justify-between w-full max-w-md px-2 z-10">
@@ -5327,7 +5327,7 @@ ${buildStandaloneUniversalScreenHtml({
                 onClick={() => { setReplayNonce(n => n + 1); setSimulatorMode('replay'); }}
                 className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs ${
                   simulatorMode === 'replay'
-                    ? 'bg-[#3E2B1F] text-white'
+                    ? 'bg-[#1A120E] text-[#E6C88A] border border-[#C8A055]/60'
                     : 'bg-white text-stone-700 border border-[#D5CFC5] hover:bg-stone-50'
                 }`}
                 title="Replay Opening & Scratch Reveal"
@@ -5341,7 +5341,7 @@ ${buildStandaloneUniversalScreenHtml({
                 onClick={() => setSimulatorMode('invite')}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer shadow-xs ${
                   simulatorMode === 'invite'
-                    ? 'bg-[#3E2B1F] text-white'
+                    ? 'bg-[#1A120E] text-[#E6C88A] border border-[#C8A055]/60'
                     : 'bg-white text-stone-700 border border-[#D5CFC5] hover:bg-stone-50'
                 }`}
                 title="Full Invitation View"
@@ -5354,7 +5354,7 @@ ${buildStandaloneUniversalScreenHtml({
                 onClick={() => setSimulatorMode('whatsapp')}
                 className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer shadow-xs ${
                   simulatorMode === 'whatsapp'
-                    ? 'bg-[#3E2B1F] text-white'
+                    ? 'bg-[#1A120E] text-[#E6C88A] border border-[#C8A055]/60'
                     : 'bg-white text-stone-700 border border-[#D5CFC5] hover:bg-stone-50'
                 }`}
                 title="WhatsApp Share Preview"
@@ -5397,7 +5397,7 @@ ${buildStandaloneUniversalScreenHtml({
                       <ArrowLeft className="w-4 h-4" />
                     </button>
                     <div className="w-8 h-8 rounded-full overflow-hidden border border-white/40">
-                      <img src={data.photos?.bride} className="w-full h-full object-cover" />
+                      <img src={resolveAssetUrl(data.photos?.bride)} className="w-full h-full object-cover" />
                     </div>
                     <div>
                       <h4 className="text-xs font-bold leading-tight truncate max-w-[140px]">
@@ -5434,7 +5434,7 @@ ${buildStandaloneUniversalScreenHtml({
                     >
                       <div className="aspect-[16/9] w-full bg-stone-900 overflow-hidden relative">
                         <img 
-                          src={selectedTemplate.image || data.photos?.cover} 
+                          src={resolveAssetUrl(selectedTemplate.image || data.photos?.cover)} 
                           className="w-full h-full object-cover" 
                         />
                         <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-xs text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase">
@@ -5443,7 +5443,7 @@ ${buildStandaloneUniversalScreenHtml({
                       </div>
                       <div className="p-2.5 space-y-1">
                         <p className="text-[9px] uppercase tracking-wider font-bold text-stone-400">
-                          wishlys-free.com
+                          paigaam.atelier
                         </p>
                         <h5 className="font-serif text-sm font-bold text-stone-900 leading-snug">
                           {data.hosts?.bride} & {data.hosts?.groom} — Wedding Invitation
@@ -5458,7 +5458,7 @@ ${buildStandaloneUniversalScreenHtml({
                       Dearest friends & family! We would love for you to celebrate our special day with us. Here is our personal wedding invitation & event schedule:
                       <br/>
                       <span className="text-emerald-700 font-semibold underline block mt-1">
-                        https://wishlys-free.com/invite/{data.hosts?.bride?.toLowerCase().replace(/\s+/g, '-')}-and-${data.hosts?.groom?.toLowerCase().replace(/\s+/g, '-')}
+                        {getShareUrl()}
                       </span>
                     </p>
 
@@ -5717,7 +5717,7 @@ ${buildStandaloneUniversalScreenHtml({
 
                             {/* Image */}
                             <img
-                              src={pic.url}
+                              src={resolveAssetUrl(pic.url)}
                               alt={`${pic.themeName} ${pic.title}`}
                               loading="lazy"
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
@@ -5783,7 +5783,7 @@ ${buildStandaloneUniversalScreenHtml({
                           onClick={() => handlePickAsset(pic.url, false)}
                           className="group relative aspect-[3/4] rounded-xl overflow-hidden border border-stone-200 bg-stone-50 hover:border-[#8B6F47] hover:ring-2 hover:ring-[#8B6F47]/30 transition-all cursor-pointer shadow-xs"
                         >
-                          <img src={pic.url} alt={pic.title} className="w-full h-full object-contain p-1 group-hover:scale-105 transition-transform" />
+                          <img src={resolveAssetUrl(pic.url)} alt={pic.title} className="w-full h-full object-contain p-1 group-hover:scale-105 transition-transform" />
                           <div className="absolute inset-x-0 bottom-0 bg-black/60 p-1 text-[9px] text-white text-center font-medium truncate">
                             {pic.title}
                           </div>
@@ -5815,7 +5815,7 @@ ${buildStandaloneUniversalScreenHtml({
                           onClick={() => handlePickAsset(pic.url, false)}
                           className="group relative aspect-[3/4] rounded-xl overflow-hidden border border-stone-200 bg-stone-50 hover:border-[#8B6F47] hover:ring-2 hover:ring-[#8B6F47]/30 transition-all cursor-pointer shadow-xs"
                         >
-                          <img src={pic.url} alt={pic.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                          <img src={resolveAssetUrl(pic.url)} alt={pic.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                           <div className="absolute inset-x-0 bottom-0 bg-black/60 p-1 text-[9px] text-white text-center font-medium truncate">
                             {pic.title}
                           </div>
@@ -5838,7 +5838,7 @@ ${buildStandaloneUniversalScreenHtml({
                           onClick={() => handlePickAsset(pic.url || pic.img, false)}
                           className="group relative aspect-square rounded-xl overflow-hidden border border-stone-200 bg-stone-50 hover:border-[#8B6F47] hover:ring-2 hover:ring-[#8B6F47]/30 transition-all cursor-pointer shadow-xs"
                         >
-                          <img src={pic.url || pic.img} alt={pic.caption || 'Memory'} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                          <img src={resolveAssetUrl(pic.url || pic.img)} alt={pic.caption || 'Memory'} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                           <div className="absolute inset-x-0 bottom-0 bg-black/60 p-1 text-[9px] text-white text-center font-medium truncate">
                             {pic.caption || `Moment ${i + 1}`}
                           </div>

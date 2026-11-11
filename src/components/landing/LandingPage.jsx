@@ -1,477 +1,625 @@
-import React, { useState } from 'react';
-import { 
-  Sparkles, Heart, Gift, Home, PartyPopper, Baby, Utensils, Church, 
-  ArrowRight, Check, Film, Volume2, Shield, Calendar, Compass, Share2, 
-  ChevronDown, Download, Eye, Smartphone, HelpCircle
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  Sparkles, Heart, Layers, FileText, ArrowRight, ChevronDown,
+  Crown, Cake, Home, PartyPopper, Baby, Utensils, Cross,
+  Palette, Wand2, Music, Check
 } from 'lucide-react';
-import { OCCASIONS } from '../../data/presets';
-import ScratchCard from '../reveals/ScratchCard';
-import ScratchDate from '../reveals/ScratchDate';
+import { OCCASIONS, TEMPLATES } from '../../data/presets';
+import { getOccasionUrl, resolveAssetUrl, OCCASION_ROUTE_SLUGS } from '../../utils/appAssets';
 
-export default function LandingPage({ onOpenStudio, onOpenDashboard }) {
-  const [activeFaq, setActiveFaq] = useState(null);
-  const [sandboxMode, setSandboxMode] = useState('date'); // 'date' or 'card'
+const CURRENT_YEAR = new Date().getFullYear();
 
-  const faqs = [
-    {
-      q: "What exactly is a cinematic invitation website?",
-      a: "A personal, animated website for your wedding or celebration, not a static PDF or picture. It opens with an interactive reveal (like scratching real gold foil or breaking a wax seal), plays your soundtrack, showcases your photos and multi-day itinerary, and collects guest RSVPs in real time."
-    },
-    {
-      q: "Is Wishlys Free really 100% free with no hidden charges?",
-      a: "Yes! While commercial platforms charge ₹1,899+ or place view limits, Wishlys Free is completely free and open-source. You get unlimited guests, unlimited RSVPs, full access to all 16 palettes, audio synthesizer, and offline HTML export."
-    },
-    {
-      q: "What link do my guests receive?",
-      a: "You can download the standalone single-file HTML to host anywhere (e.g. GitHub Pages, Vercel, Netlify) or share it directly. When pasted into WhatsApp or Instagram, it unfurls into an elegant preview card with your names and photos."
-    },
-    {
-      q: "Can different guests see different events?",
-      a: "Yes! You can configure guest groups (such as Family, Close Friends, and General). For example, Haldi and Mehendi can be reserved for family while everyone sees the Sangeet and Reception."
-    },
-    {
-      q: "Where do guest RSVPs go? Is my data safe?",
-      a: "All replies (attendance, headcounts, dietary choices, and DJ song requests) land directly in your private Host Dashboard stored on your device. You can download the guest list as a CSV spreadsheet anytime."
-    },
-  ];
+const OCCASION_ICONS = {
+  wedding: Crown,
+  engagement: Heart,
+  birthday: Cake,
+  housewarming: Home,
+  'house-party': PartyPopper,
+  'baby-shower': Baby,
+  annaprashan: Utensils,
+  'holy-communion': Cross,
+};
+
+const ATELIER_FEATURES = [
+  {
+    icon: Wand2,
+    badge: 'Interactive Openings',
+    title: 'Couture Reveal Rituals',
+    description:
+      'Captivate guests before a single word appears with velvet folding doors, gilded scratch foils, wax-sealed envelopes, or silk ribbon unboxings.',
+  },
+  {
+    icon: Palette,
+    badge: 'Artisan Typography & Themes',
+    title: 'Heirloom Illustrated Themes',
+    description:
+      'Choose from 20+ hand-crafted visual worlds with matched dynamic motifs, light & obsidian colorways, and expressive editorial fonts.',
+  },
+  {
+    icon: FileText,
+    badge: 'Standalone HTML & Print PDF',
+    title: 'Direct Client Pages & Print Parity',
+    description:
+      'Publish a bespoke standalone web invitation under your client link, share cleanly on WhatsApp, or export crisp multi-page print PDFs.',
+  },
+];
+
+const ATELIER_COMPARISON = [
+  { label: 'Bespoke Occasion Studios', detail: 'Dedicated URL & starter experience per celebration', included: true },
+  { label: 'Illustrated Theme Worlds', detail: '20+ hand-crafted motifs, colorways & custom fonts', included: true },
+  { label: 'Interactive Opening Rituals', detail: '3D Doors, Scratch Card, Wax Seal, Letter & Curtain', included: true },
+  { label: 'Curated Music & SFX Engine', detail: 'Built-in wedding melodies & custom audio uploads', included: true },
+  { label: 'Saved Client Persistence', detail: 'Reopen and refine every saved client anytime', included: true },
+  { label: 'Standalone Web & Print PDF', detail: 'Self-contained HTML link & crisp HTML-matched PDF', included: true },
+];
+
+const FAQS = [
+  {
+    q: 'How do clients receive and open a Paigaam invitation?',
+    a: 'Every invitation publishes to a clean, self-contained link (for example /published/client-names.html) that opens instantaneously in WhatsApp, Safari, and Chrome on mobile or desktop with music, animations, and photos intact.',
+  },
+  {
+    q: 'Does each occasion open in its own dedicated Studio?',
+    a: 'Yes. Choosing Wedding, Engagement, Birthday, Housewarming, House Party, Baby Shower, Annaprashan, or Holy Communion takes you straight into that celebration’s tailored Studio workspace without overwriting your other saved projects.',
+  },
+  {
+    q: 'Can I customize fonts, dark/light palettes, and reveal animations per client?',
+    a: 'Completely. Mix editorial serif headings with flowing script calligraphy, switch between light silk and obsidian velvet palettes, and pair any theme with scratch foil, folding doors, wax seals, or ribbon unveils.',
+  },
+  {
+    q: 'Can I save a client draft and pick up right where I left off?',
+    a: 'Every detail—names, story chapters, photos, fonts, palette, music track, and selected events—is stored under that client’s profile so you can reopen any saved client in the Studio and continue seamlessly.',
+  },
+  {
+    q: 'Is print PDF supported alongside the web experience?',
+    a: 'Yes. Exporting a PDF generates a structured, high-resolution multi-page keepsake directly matching your chosen theme colors, typography, event schedule, and artwork.',
+  },
+];
+
+function InteractiveGoldScratch({ bride = 'Ananya', groom = 'Vikram', date = 'November 24, 2026' }) {
+  const canvasRef = useRef(null);
+  const [revealedPct, setRevealedPct] = useState(0);
+  const [isDone, setIsDone] = useState(false);
+  const isDrawingRef = useRef(false);
+
+  const initScratchSurface = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+
+    const grad = ctx.createLinearGradient(0, 0, w, h);
+    grad.addColorStop(0, '#DFBE74');
+    grad.addColorStop(0.35, '#F5DFAA');
+    grad.addColorStop(0.65, '#C49A4B');
+    grad.addColorStop(1, '#E8CA86');
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+
+    // Subtle metallic sheen grain
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.14)';
+    for (let i = 0; i < 45; i++) {
+      ctx.beginPath();
+      ctx.arc((i * 37) % w, (i * 23) % h, 1.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.fillStyle = '#3B2814';
+    ctx.font = '600 11px Manrope, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('RUB GOLD FOIL TO REVEAL DATE', w / 2, h / 2 - 4);
+    ctx.font = 'italic 13px Georgia, serif';
+    ctx.fillText('✦  Paigaam Atelier Seal  ✦', w / 2, h / 2 + 16);
+    setRevealedPct(0);
+    setIsDone(false);
+  };
+
+  useEffect(() => {
+    initScratchSurface();
+  }, []);
+
+  const scratchAt = (clientX, clientY) => {
+    const canvas = canvasRef.current;
+    if (!canvas || isDone) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = ((clientX - rect.left) / rect.width) * canvas.width;
+    const y = ((clientY - rect.top) / rect.height) * canvas.height;
+    const ctx = canvas.getContext('2d');
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath();
+    ctx.arc(x, y, 22, 0, Math.PI * 2);
+    ctx.fill();
+
+    try {
+      const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      let cleared = 0;
+      const step = 16;
+      for (let i = 3; i < pixels.length; i += 4 * step) {
+        if (pixels[i] < 128) cleared++;
+      }
+      const totalSampled = pixels.length / (4 * step);
+      const pct = Math.min(100, Math.round((cleared / totalSampled) * 100));
+      setRevealedPct(pct);
+      if (pct >= 42) setIsDone(true);
+    } catch {
+      // ignore canvas readback errors
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-neutral-800 font-sans selection:bg-[#C5A880]/30 relative overflow-x-hidden">
-      {/* Background radial dot grid texture */}
-      <div className="absolute inset-0 bg-[radial-gradient(#d4c0ab_0.8px,transparent_0.8px)] bg-[size:28px_28px] opacity-[0.18] pointer-events-none" />
-
-      {/* TOP ANNOUNCEMENT BANNER */}
-      <div className="relative z-50 shrink-0 bg-[#2B1E17] px-6 py-2.5 text-center text-xs leading-snug text-[#F5EBDD] flex items-center justify-center gap-2">
-        <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse shrink-0" />
-        <span>
-          <strong className="font-semibold text-amber-200">Open-Source & 100% Free Forever:</strong> No paywalls, no watermark, unlimited guests & instant offline HTML export.
+    <div className="paigaam-atelier-card rounded-3xl p-6 sm:p-8 max-w-md w-full mx-auto relative overflow-hidden">
+      <div className="flex items-center justify-between mb-4">
+        <span className="text-[10px] uppercase tracking-[0.25em] text-[#E6C88A] font-semibold">
+          Interactive Reveal Preview
         </span>
+        <button
+          type="button"
+          onClick={initScratchSurface}
+          className="text-[11px] text-[#C7B8A3] hover:text-[#E6C88A] underline underline-offset-4 cursor-pointer transition-colors"
+        >
+          Reset Foil
+        </button>
       </div>
 
-      {/* STICKY HEADER */}
-      <header className="sticky top-0 z-40 w-full px-6 py-4 md:px-16 flex justify-between items-center border-b border-[#eae3d2]/70 bg-[#FDFBF7]/85 backdrop-blur-md">
-        <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-          <div className="w-8 h-8 rounded-full bg-[#2B1E17] border border-[#C5A880] flex items-center justify-center font-royal text-gold-300 text-xs font-bold shadow-sm">
-            W
-          </div>
-          <span className="font-serif text-2xl font-light tracking-wide text-[#2B1E17]">
-            Wishlys<span className="text-[#8B6F47] font-semibold">Free</span>
-          </span>
+      <div className="relative rounded-2xl border border-[#C8A055]/35 bg-[#120C0A] p-6 text-center overflow-hidden">
+        <p className="site-script text-2xl text-[#E6C88A] mb-1">Save the Date</p>
+        <h4 className="site-display text-2xl sm:text-3xl text-[#FBF7F0] tracking-tight">
+          {bride} <span className="text-[#C8A055] font-light">&amp;</span> {groom}
+        </h4>
+        <div className="w-12 h-px bg-[#C8A055]/45 mx-auto my-4" />
+
+        <div className="relative h-24 rounded-xl overflow-hidden border border-[#C8A055]/40 bg-gradient-to-br from-[#231813] to-[#140D0A] flex flex-col items-center justify-center">
+          <p className="site-display text-xl text-[#F7E5BD] tracking-wide">{date}</p>
+          <p className="text-[11px] uppercase tracking-[0.22em] text-[#C7B8A3] mt-1">
+            Udaipur · Heritage Palace
+          </p>
+
+          <canvas
+            ref={canvasRef}
+            width={340}
+            height={110}
+            onPointerDown={(e) => {
+              isDrawingRef.current = true;
+              scratchAt(e.clientX, e.clientY);
+            }}
+            onPointerMove={(e) => {
+              if (isDrawingRef.current) scratchAt(e.clientX, e.clientY);
+            }}
+            onPointerUp={() => { isDrawingRef.current = false; }}
+            onPointerLeave={() => { isDrawingRef.current = false; }}
+            className={`absolute inset-0 w-full h-full touch-none cursor-crosshair transition-opacity duration-500 ${
+              isDone ? 'opacity-0 pointer-events-none' : 'opacity-100'
+            }`}
+          />
         </div>
 
-        <nav className="hidden md:flex items-center gap-8 text-[11px] tracking-[0.2em] uppercase font-semibold text-neutral-500">
-          <a href="#collections" className="hover:text-[#8B6F47] transition-colors">Occasions</a>
-          <a href="#features" className="hover:text-[#8B6F47] transition-colors">Features</a>
-          <a href="#sandbox" className="hover:text-[#8B6F47] transition-colors">Live Reveal</a>
-          <a href="#comparison" className="hover:text-[#8B6F47] transition-colors">Why Free</a>
-          <a href="#faq" className="hover:text-[#8B6F47] transition-colors">FAQs</a>
-        </nav>
+        <p className="text-[11px] text-[#B5A48E] mt-4">
+          {isDone ? '✦ Date unveiled — experience 8 reveal styles inside the Studio' : `Rub gently across the gold seal (${revealedPct}% revealed)`}
+        </p>
+      </div>
+    </div>
+  );
+}
 
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={onOpenDashboard}
-            className="hidden sm:inline-flex text-[11px] tracking-wider font-semibold uppercase text-[#8B6F47] hover:text-[#2B1E17] px-3 py-2 cursor-pointer transition-colors"
+export default function LandingPage({ onOpenStudio }) {
+  const [openFaq, setOpenFaq] = useState(0);
+
+  const marqueeTemplates = (TEMPLATES || []).slice(0, 8);
+
+  const handleOccasionNav = (e, occasionId) => {
+    e.preventDefault();
+    onOpenStudio(occasionId);
+  };
+
+  const getRelativeOccasionHref = (occasionId) => {
+    const slug = OCCASION_ROUTE_SLUGS[occasionId];
+    return slug ? `./${slug}/#studio` : './#studio';
+  };
+
+  return (
+    <div className="paigaam-site min-h-screen bg-[#120C0A] text-[#FBF7F0] flex flex-col">
+      {/* Subtle Top Couture Banner */}
+      <div className="border-b border-[#C8A055]/20 bg-[#17100D] px-4 py-2 text-center">
+        <p className="text-[11px] uppercase tracking-[0.24em] text-[#D8C5A6]">
+          <span className="text-[#E6C88A] font-semibold">Paigaam</span> · Delivering Life’s Most Cherished Moments
+        </p>
+      </div>
+
+      {/* Sticky Glass Navigation Bar */}
+      <header className="sticky top-0 z-40 border-b border-[#C8A055]/20 bg-[#120C0A]/88 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between gap-4">
+          <a
+            href="#top"
+            className="flex items-center gap-3 group"
           >
-            Dashboard
-          </button>
-          <button
-            type="button"
-            onClick={() => onOpenStudio('wedding')}
-            className="text-[11px] tracking-widest font-bold uppercase text-white bg-[#2B1E17] hover:bg-[#8B6F47] px-5 py-2.5 rounded-sm transition-all duration-300 active:scale-95 cursor-pointer shadow-sm"
-          >
-            Open Studio
-          </button>
+            <div className="w-10 h-10 rounded-full border border-[#C8A055]/55 bg-gradient-to-br from-[#2B1E17] to-[#120C0A] flex items-center justify-center shadow-lg group-hover:border-[#E6C88A] transition-colors">
+              <span className="site-display italic text-xl text-[#E6C88A] font-semibold leading-none">
+                P
+              </span>
+            </div>
+            <div>
+              <span className="site-display text-xl sm:text-2xl tracking-tight text-[#FBF7F0] block leading-none">
+                Paigaam
+              </span>
+              <span className="text-[9.5px] uppercase tracking-[0.22em] text-[#C8A055] block mt-1">
+                Delivering Life’s Most Cherished Moments
+              </span>
+            </div>
+          </a>
+
+          <nav className="hidden md:flex items-center gap-7 text-xs uppercase tracking-[0.18em] text-[#D7C9B6]">
+            <a href="#occasions" className="hover:text-[#E6C88A] transition-colors">Occasions</a>
+            <a href="#experience" className="hover:text-[#E6C88A] transition-colors">Experience</a>
+            <a href="#craftsmanship" className="hover:text-[#E6C88A] transition-colors">Craftsmanship</a>
+            <a href="#faqs" className="hover:text-[#E6C88A] transition-colors">Questions</a>
+          </nav>
+
+          <div className="flex items-center gap-3">
+            <a
+              href={getRelativeOccasionHref('wedding')}
+              onClick={(e) => handleOccasionNav(e, 'wedding')}
+              className="paigaam-gold-btn px-4 sm:px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-[0.14em] inline-flex items-center gap-2 transition-all cursor-pointer"
+            >
+              <span>Open Studio</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </a>
+          </div>
         </div>
       </header>
 
-      <main>
-        {/* HERO SECTION */}
-        <section className="relative z-10 px-6 pt-16 pb-20 md:pt-24 md:pb-28 max-w-6xl mx-auto text-center">
-          {/* Giant decorative ampersand watermark */}
-          <span 
-            aria-hidden="true" 
-            className="pointer-events-none select-none absolute left-1/2 top-[42%] -translate-x-1/2 -translate-y-1/2 font-serif font-extralight text-[#8B6F47]/[0.05] leading-none text-[20rem] sm:text-[28rem] md:text-[36rem] z-0"
-          >
-            &
-          </span>
-
-          <div className="relative z-10 mx-auto max-w-4xl space-y-6">
-            <div className="flex items-center justify-center gap-4 text-[10px] md:text-[11px] text-[#8B6F47] tracking-[0.3em] uppercase font-semibold">
-              <span className="h-px w-10 sm:w-16 bg-gradient-to-r from-transparent to-[#C5A880]" />
-              <span className="inline-flex items-center gap-2 whitespace-nowrap">
-                <Film className="w-3.5 h-3.5 text-[#C5A880]" />
-                Interactive Invitation Websites
-              </span>
-              <span className="h-px w-10 sm:w-16 bg-gradient-to-l from-transparent to-[#C5A880]" />
+      {/* Hero Atelier Showcase */}
+      <section id="top" className="relative overflow-hidden border-b border-[#C8A055]/15">
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              'radial-gradient(65% 55% at 50% 0%, rgba(200, 160, 85, 0.16) 0%, rgba(18, 12, 10, 0) 70%)',
+          }}
+        />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20 lg:py-24 relative z-10 grid lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+          <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#C8A055]/35 bg-[#1D1410] text-[11px] uppercase tracking-[0.22em] text-[#E6C88A]">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Bespoke Celebration Atelier</span>
             </div>
 
-            <h1 className="font-serif text-5xl sm:text-6xl md:text-[4.5rem] font-extralight tracking-tight leading-[1.05] text-[#2B1E17]">
-              Not a Card.<br />
-              <span className="font-normal text-[#8B6F47]">A Cinematic Invitation.</span>
+            <h1 className="site-display text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-[#FBF7F0] leading-[1.08]">
+              Not Just an Invite.{' '}
+              <span className="paigaam-gold-text italic block sm:inline">
+                A Living Heirloom.
+              </span>
             </h1>
 
-            <div className="flex items-center justify-center gap-3 text-[#C5A880]">
-              <span className="h-px w-16 sm:w-24 bg-gradient-to-r from-transparent to-[#C5A880]/60" />
-              <span className="rotate-45 inline-block w-1.5 h-1.5 border border-[#C5A880]" />
-              <span className="h-px w-16 sm:w-24 bg-gradient-to-l from-transparent to-[#C5A880]/60" />
-            </div>
-
-            <p className="text-neutral-600 text-base md:text-lg font-light leading-relaxed max-w-2xl mx-auto">
-              Send an invitation your guests have never seen before. It opens like a film, plays your music, tells your story, and gathers RSVPs in real time — completely free, forever.
+            <p className="site-serif text-xl sm:text-2xl text-[#DDD0BE] max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal">
+              <strong className="text-[#E6C88A] font-medium">Paigaam</strong> — Delivering Life’s Most Cherished Moments with opening rituals, bespoke motifs, your music, and signature client links.
             </p>
 
-            <div className="pt-2 flex flex-col sm:flex-row justify-center items-center gap-4">
-              <button
-                type="button"
-                onClick={() => onOpenStudio('wedding')}
-                className="group w-full sm:w-auto flex items-center justify-center gap-2.5 text-xs tracking-[0.2em] font-bold uppercase text-white bg-[#2B1E17] hover:bg-[#8B6F47] px-8 py-4 rounded-sm transition-all duration-300 active:scale-[0.98] cursor-pointer shadow-[0_4px_20px_rgba(43,30,23,0.2)]"
-              >
-                <span>Create Your Invitation</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 pt-2">
               <a
-                href="#sandbox"
-                className="w-full sm:w-auto text-xs tracking-[0.2em] font-bold uppercase text-[#8B6F47] border border-[#C5A880] hover:bg-[#FAF5ED] px-8 py-4 rounded-sm transition-all duration-300"
+                href={getRelativeOccasionHref('wedding')}
+                onClick={(e) => handleOccasionNav(e, 'wedding')}
+                className="paigaam-gold-btn w-full sm:w-auto px-7 py-3.5 rounded-full text-xs uppercase tracking-[0.18em] font-bold inline-flex items-center justify-center gap-2.5 transition-all cursor-pointer"
               >
-                Try Scratch Reveal
+                <span>Create Wedding Invitation</span>
+                <ArrowRight className="w-4 h-4" />
+              </a>
+              <a
+                href="#occasions"
+                className="w-full sm:w-auto px-7 py-3.5 rounded-full border border-[#C8A055]/40 bg-[#1B130F] hover:bg-[#251A14] hover:border-[#E6C88A]/65 text-xs uppercase tracking-[0.18em] font-semibold text-[#F5EBDC] inline-flex items-center justify-center transition-all"
+              >
+                Browse All Occasions
               </a>
             </div>
 
-            {/* Value checklist */}
-            <div className="pt-4 text-[10px] tracking-[0.2em] text-neutral-500 uppercase font-medium flex flex-wrap justify-center gap-x-6 gap-y-2">
-              <span className="flex items-center gap-1.5">
-                <Check className="w-3.5 h-3.5 text-[#8B6F47]" /> 100% Free Creation
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Check className="w-3.5 h-3.5 text-[#8B6F47]" /> Unlimited Guests
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Check className="w-3.5 h-3.5 text-[#8B6F47]" /> Offline HTML Export
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Check className="w-3.5 h-3.5 text-[#8B6F47]" /> Zero Subscriptions
-              </span>
+            <div className="grid grid-cols-3 gap-4 pt-5 border-t border-[#C8A055]/15 max-w-lg mx-auto lg:mx-0 text-left">
+              <div>
+                <p className="site-display text-2xl sm:text-3xl text-[#E6C88A]">20+</p>
+                <p className="text-[11px] uppercase tracking-wider text-[#B5A48E]">Artisan Themes</p>
+              </div>
+              <div>
+                <p className="site-display text-2xl sm:text-3xl text-[#E6C88A]">8</p>
+                <p className="text-[11px] uppercase tracking-wider text-[#B5A48E]">Reveal Rituals</p>
+              </div>
+              <div>
+                <p className="site-display text-2xl sm:text-3xl text-[#E6C88A]">HTML + PDF</p>
+                <p className="text-[11px] uppercase tracking-wider text-[#B5A48E]">Instant Exports</p>
+              </div>
             </div>
           </div>
 
-          {/* INFINITE MARQUEE OCCASIONS TICKER */}
-          <div className="relative z-10 mt-16 md:mt-20 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_12%,black_88%,transparent)]">
-            <div className="animate-marquee-slow font-serif text-2xl md:text-3xl font-extralight text-[#2B1E17]/70">
-              <span className="flex items-center gap-10 whitespace-nowrap">
-                Weddings <span className="rotate-45 inline-block w-1.5 h-1.5 bg-[#C5A880]/70" />
-                Engagements <span className="rotate-45 inline-block w-1.5 h-1.5 bg-[#C5A880]/70" />
-                Birthdays <span className="rotate-45 inline-block w-1.5 h-1.5 bg-[#C5A880]/70" />
-                Housewarmings <span className="rotate-45 inline-block w-1.5 h-1.5 bg-[#C5A880]/70" />
-                House Parties <span className="rotate-45 inline-block w-1.5 h-1.5 bg-[#C5A880]/70" />
-                Anniversaries <span className="rotate-45 inline-block w-1.5 h-1.5 bg-[#C5A880]/70" />
-                Baby Showers <span className="rotate-45 inline-block w-1.5 h-1.5 bg-[#C5A880]/70" />
-                Annaprashans <span className="rotate-45 inline-block w-1.5 h-1.5 bg-[#C5A880]/70" />
-                Holy Communions <span className="rotate-45 inline-block w-1.5 h-1.5 bg-[#C5A880]/70" />
-              </span>
-              <span className="flex items-center gap-10 whitespace-nowrap ml-10">
-                Weddings <span className="rotate-45 inline-block w-1.5 h-1.5 bg-[#C5A880]/70" />
-                Engagements <span className="rotate-45 inline-block w-1.5 h-1.5 bg-[#C5A880]/70" />
-                Birthdays <span className="rotate-45 inline-block w-1.5 h-1.5 bg-[#C5A880]/70" />
-                Housewarmings <span className="rotate-45 inline-block w-1.5 h-1.5 bg-[#C5A880]/70" />
-                House Parties <span className="rotate-45 inline-block w-1.5 h-1.5 bg-[#C5A880]/70" />
-                Anniversaries <span className="rotate-45 inline-block w-1.5 h-1.5 bg-[#C5A880]/70" />
-                Baby Showers <span className="rotate-45 inline-block w-1.5 h-1.5 bg-[#C5A880]/70" />
-                Annaprashans <span className="rotate-45 inline-block w-1.5 h-1.5 bg-[#C5A880]/70" />
-                Holy Communions <span className="rotate-45 inline-block w-1.5 h-1.5 bg-[#C5A880]/70" />
-              </span>
-            </div>
+          <div className="lg:col-span-5">
+            <InteractiveGoldScratch />
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* METRICS BAR */}
-        <div className="relative z-10 border-y border-[#eae3d2]/60 bg-white/50 py-10">
-          <div className="max-w-4xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6 text-center">
-            <div>
-              <p className="font-serif text-3xl md:text-4xl font-light text-[#2B1E17]">100% Free</p>
-              <p className="text-[10px] tracking-[0.2em] uppercase text-neutral-400 font-semibold mt-1">
-                Zero Fees & No Watermarks
-              </p>
+      {/* Theme Showcase Strip */}
+      <section className="border-b border-[#C8A055]/15 bg-[#160F0C] py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-[#C8A055] font-semibold">
+              Signature Visual Worlds
+            </p>
+            <span className="site-serif italic text-sm text-[#B5A48E]">
+              Crafted for Light Ivory &amp; Velvet Noir palettes
+            </span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+            {marqueeTemplates.map((tmpl) => (
+              <a
+                key={tmpl.id}
+                href={getRelativeOccasionHref('wedding')}
+                onClick={(e) => handleOccasionNav(e, 'wedding')}
+                className="group rounded-2xl overflow-hidden border border-[#C8A055]/25 bg-[#1D1410] hover:border-[#E6C88A]/65 transition-all"
+              >
+                <div className="aspect-[3/4] overflow-hidden bg-[#120C0A]">
+                  <img
+                    src={resolveAssetUrl(tmpl.image)}
+                    alt={tmpl.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                </div>
+                <p className="px-2 py-2 text-[10px] text-center font-medium text-[#E8DEC8] truncate">
+                  {tmpl.name}
+                </p>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Occasions Directory — Option 1 Per-Occasion Studio Links */}
+      <section id="occasions" className="py-16 sm:py-22 border-b border-[#C8A055]/15">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-2xl mx-auto text-center space-y-3 mb-12">
+            <span className="text-[11px] uppercase tracking-[0.26em] text-[#C8A055] font-semibold block">
+              Dedicated Studios
+            </span>
+            <h2 className="site-display text-3xl sm:text-5xl text-[#FBF7F0] font-normal">
+              Pick Your Occasion
+            </h2>
+            <p className="site-serif text-lg sm:text-xl text-[#D0C1AC]">
+              Every celebration opens its own bespoke Studio URL, pre-styled with tailored ceremonies and artwork while keeping your saved wedding invitations untouched.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {OCCASIONS.map((occ) => {
+              const Icon = OCCASION_ICONS[occ.id] || Sparkles;
+              const isRoyal = occ.tag === 'Royal & Elegant';
+              const isNew = occ.tag === 'New';
+              const routeSlug = OCCASION_ROUTE_SLUGS[occ.id];
+              const displayRoute = routeSlug ? `/${routeSlug}/#studio` : '/wedding-invitation/#studio';
+
+              return (
+                <a
+                  key={occ.id}
+                  href={getOccasionUrl(occ.id)}
+                  onClick={(e) => handleOccasionNav(e, occ.id)}
+                  data-occasion-id={occ.id}
+                  className="paigaam-atelier-card group rounded-3xl p-6 flex flex-col justify-between transition-all duration-300 cursor-pointer"
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-2 mb-5">
+                      <div className="w-11 h-11 rounded-2xl border border-[#C8A055]/35 bg-[#C8A055]/10 flex items-center justify-center text-[#E6C88A] group-hover:scale-105 transition-transform">
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      {occ.tag && (
+                        <span
+                          className={`px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold border ${
+                            isRoyal
+                              ? 'border-[#E6C88A]/60 bg-[#C8A055]/20 text-[#F4D99B]'
+                              : isNew
+                                ? 'border-emerald-400/40 bg-emerald-500/15 text-emerald-200'
+                                : 'border-[#C8A055]/25 bg-[#19110D] text-[#C8B9A6]'
+                          }`}
+                        >
+                          {occ.tag}
+                        </span>
+                      )}
+                    </div>
+
+                    <h3 className="site-display text-xl text-[#FBF7F0] group-hover:text-[#E6C88A] transition-colors mb-2">
+                      {occ.title}
+                    </h3>
+                    <p className="text-xs text-[#BFB09C] leading-relaxed">
+                      {occ.description}
+                    </p>
+                  </div>
+
+                  <div className="mt-6 pt-4 border-t border-[#C8A055]/15 flex items-center justify-between">
+                    <span className="text-[10px] font-mono text-[#9E8E7A] truncate pr-2">
+                      {displayRoute}
+                    </span>
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#E6C88A] inline-flex items-center gap-1 shrink-0 group-hover:translate-x-0.5 transition-transform">
+                      Open <ArrowRight className="w-3.5 h-3.5" />
+                    </span>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Craftsmanship Features */}
+      <section id="craftsmanship" className="py-16 sm:py-22 bg-[#160F0C] border-b border-[#C8A055]/15">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-2xl mx-auto text-center space-y-3 mb-12">
+            <span className="text-[11px] uppercase tracking-[0.26em] text-[#C8A055] font-semibold block">
+              The Paigaam Craft
+            </span>
+            <h2 className="site-display text-3xl sm:text-4xl text-[#FBF7F0] font-normal">
+              Every Detail, Deliberately Elevated
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {ATELIER_FEATURES.map((feat) => {
+              const Icon = feat.icon;
+              return (
+                <div key={feat.title} className="paigaam-atelier-card rounded-3xl p-7 space-y-4">
+                  <div className="w-12 h-12 rounded-2xl border border-[#C8A055]/35 bg-[#C8A055]/10 flex items-center justify-center text-[#E6C88A]">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-[#C8A055] font-bold">
+                    {feat.badge}
+                  </p>
+                  <h3 className="site-display text-2xl text-[#FBF7F0]">{feat.title}</h3>
+                  <p className="text-sm text-[#C7B8A3] leading-relaxed">{feat.description}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Standard Included Ledger */}
+      <section id="experience" className="py-16 sm:py-20 border-b border-[#C8A055]/15">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="paigaam-atelier-card rounded-3xl p-7 sm:p-10">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-[#C8A055]/20">
+              <div>
+                <p className="text-[11px] uppercase tracking-[0.24em] text-[#C8A055] font-semibold">
+                  Paigaam Studio Standard
+                </p>
+                <h2 className="site-display text-3xl text-[#FBF7F0] mt-1">
+                  Included Across Every Client Invitation
+                </h2>
+              </div>
+              <a
+                href={getRelativeOccasionHref('wedding')}
+                onClick={(e) => handleOccasionNav(e, 'wedding')}
+                className="paigaam-gold-btn px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2 self-start md:self-auto"
+              >
+                <Layers className="w-3.5 h-3.5" />
+                <span>Launch Studio</span>
+              </a>
             </div>
-            <div>
-              <p className="font-serif text-3xl md:text-4xl font-light text-[#2B1E17]">16 Palettes</p>
-              <p className="text-[10px] tracking-[0.2em] uppercase text-neutral-400 font-semibold mt-1">
-                Signature Designer Themes
-              </p>
-            </div>
-            <div>
-              <p className="font-serif text-3xl md:text-4xl font-light text-[#2B1E17]">Unlimited</p>
-              <p className="text-[10px] tracking-[0.2em] uppercase text-neutral-400 font-semibold mt-1">
-                Guests, RSVPs & Views
-              </p>
+
+            <div className="grid sm:grid-cols-2 gap-4 pt-6">
+              {ATELIER_COMPARISON.map((row) => (
+                <div
+                  key={row.label}
+                  className="flex items-start gap-3 p-4 rounded-2xl border border-[#C8A055]/15 bg-[#140D0A]/80"
+                >
+                  <div className="w-6 h-6 rounded-full bg-[#C8A055]/15 border border-[#C8A055]/40 text-[#E6C88A] flex items-center justify-center shrink-0 mt-0.5">
+                    <Check className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-[#FBF7F0]">{row.label}</h4>
+                    <p className="text-xs text-[#B5A48E] mt-0.5">{row.detail}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
+      </section>
 
-        {/* OCCASIONS COLLECTION GRID */}
-        <section id="collections" className="relative z-10 py-20 md:py-28 max-w-6xl mx-auto px-6 space-y-16">
-          <div className="text-center max-w-lg mx-auto space-y-3">
-            <span className="text-[11px] tracking-[0.25em] text-[#8B6F47] uppercase font-semibold">
-              Our Collections
+      {/* FAQs */}
+      <section id="faqs" className="py-16 sm:py-20 border-b border-[#C8A055]/15 bg-[#160F0C]">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center space-y-2 mb-10">
+            <span className="text-[11px] uppercase tracking-[0.26em] text-[#C8A055] font-semibold">
+              Atelier Notes
             </span>
-            <h2 className="font-serif text-3xl md:text-[2.6rem] font-light text-[#2B1E17] leading-snug">
-              Pick Your Occasion
+            <h2 className="site-display text-3xl sm:text-4xl text-[#FBF7F0]">
+              Frequently Asked Questions
             </h2>
-            <p className="text-neutral-500 text-sm font-light">
-              Curated invitation experiences tailored for life's biggest milestones.
-            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {OCCASIONS.map((occ) => (
-              <div 
-                key={occ.id}
-                className="group relative overflow-hidden border border-[#E6D5BF] bg-white hover:border-[#C5A880] rounded-2xl p-7 transition-all duration-500 flex flex-col justify-between min-h-[340px] shadow-sm hover:shadow-xl hover:-translate-y-1"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-[#FAF5ED]/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                
-                <div className="relative z-10 flex justify-between items-start">
-                  <div className="p-3 bg-[#FAF5ED] border border-[#E6D5BF] rounded-xl text-[#8B6F47] group-hover:scale-110 transition-transform">
-                    {occ.id === 'wedding' && <Heart className="w-5 h-5" />}
-                    {occ.id === 'engagement' && <Sparkles className="w-5 h-5" />}
-                    {occ.id === 'birthday' && <Gift className="w-5 h-5" />}
-                    {occ.id === 'housewarming' && <Home className="w-5 h-5" />}
-                    {occ.id === 'house-party' && <PartyPopper className="w-5 h-5" />}
-                    {occ.id === 'baby-shower' && <Baby className="w-5 h-5" />}
-                    {occ.id === 'annaprashan' && <Utensils className="w-5 h-5" />}
-                    {occ.id === 'holy-communion' && <Church className="w-5 h-5" />}
-                  </div>
-                  <span className="text-[9px] tracking-widest uppercase font-bold text-[#8B6F47] border border-[#E6D5BF] bg-[#FAF5ED] px-3 py-1 rounded-full">
-                    {occ.tag}
-                  </span>
-                </div>
-
-                <div className="relative z-10 space-y-3 mt-6">
-                  <h3 className="font-serif text-2xl font-light text-[#2B1E17] group-hover:text-[#8B6F47] transition-colors">
-                    {occ.title}
-                  </h3>
-                  <p className="text-neutral-500 text-xs font-light leading-relaxed">
-                    {occ.description}
-                  </p>
+          <div className="space-y-3">
+            {FAQS.map((item, idx) => {
+              const isOpen = openFaq === idx;
+              return (
+                <div
+                  key={item.q}
+                  className="rounded-2xl border border-[#C8A055]/25 bg-[#1C130F] overflow-hidden"
+                >
                   <button
                     type="button"
-                    onClick={() => onOpenStudio(occ.id)}
-                    className="inline-flex items-center gap-1.5 text-xs font-bold tracking-[0.18em] uppercase text-[#8B6F47] group-hover:translate-x-1.5 transition-transform pt-2 cursor-pointer"
+                    onClick={() => setOpenFaq(isOpen ? -1 : idx)}
+                    className="w-full px-5 py-4 flex items-center justify-between gap-4 text-left cursor-pointer"
                   >
-                    <span>Design this invite</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <span className="text-sm sm:text-base font-medium text-[#FBF7F0]">
+                      {item.q}
+                    </span>
+                    <ChevronDown
+                      className={`w-4 h-4 text-[#C8A055] shrink-0 transition-transform ${
+                        isOpen ? 'rotate-180' : ''
+                      }`}
+                    />
                   </button>
+                  {isOpen && (
+                    <div className="px-5 pb-4 text-xs sm:text-sm text-[#C7B8A3] leading-relaxed border-t border-[#C8A055]/10 pt-3">
+                      {item.a}
+                    </div>
+                  )}
                 </div>
-              </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Final Call to Action */}
+      <section className="py-16 sm:py-20">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-5">
+          <Music className="w-6 h-6 text-[#C8A055] mx-auto" />
+          <h2 className="site-display text-3xl sm:text-5xl text-[#FBF7F0] leading-tight">
+            Compose Your Celebration in Paigaam Studio
+          </h2>
+          <p className="site-serif text-xl text-[#D0C1AC] max-w-xl mx-auto">
+            Select an occasion above or enter the Studio directly to design, preview live, and publish your standalone invitation.
+          </p>
+          <div className="pt-2">
+            <a
+              href={getRelativeOccasionHref('wedding')}
+              onClick={(e) => handleOccasionNav(e, 'wedding')}
+              className="paigaam-gold-btn px-8 py-4 rounded-full text-xs uppercase tracking-[0.2em] font-bold inline-flex items-center gap-2.5 cursor-pointer"
+            >
+              <span>Enter Paigaam Studio</span>
+              <ArrowRight className="w-4 h-4" />
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* Luxury Footer */}
+      <footer className="mt-auto border-t border-[#C8A055]/20 bg-[#0E0907] py-10 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full border border-[#C8A055]/50 bg-[#1B120E] flex items-center justify-center">
+              <span className="site-display italic text-lg text-[#E6C88A] font-semibold">P</span>
+            </div>
+            <div>
+              <p className="site-display text-lg text-[#FBF7F0]">Paigaam</p>
+              <p className="text-[11px] uppercase tracking-[0.18em] text-[#A89783]">
+                Delivering Life’s Most Cherished Moments
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-[#C7B8A3]">
+            {OCCASIONS.slice(0, 4).map((occ) => (
+              <a
+                key={occ.id}
+                href={getOccasionUrl(occ.id)}
+                onClick={(e) => handleOccasionNav(e, occ.id)}
+                className="hover:text-[#E6C88A] transition-colors"
+              >
+                {occ.title}
+              </a>
             ))}
           </div>
-        </section>
 
-        {/* INTERACTIVE SANDBOX DEMO */}
-        <section id="sandbox" className="py-20 px-6 bg-[#FAF5ED]/50 border-y border-[#E6D5BF]/60">
-          <div className="max-w-4xl mx-auto text-center space-y-8">
-            <div className="space-y-2">
-              <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#8B6F47]">Interactive Demo</span>
-              <h2 className="font-serif text-3xl sm:text-4xl font-light text-[#2B1E17]">Experience the Gold Foil Scratch</h2>
-              <p className="text-xs sm:text-sm text-neutral-600 font-light max-w-md mx-auto">
-                Test the real reveal animation right here. Use your finger or cursor to scrub off the foil and hear the ambient acoustic sound.
-              </p>
-              
-              <div className="pt-2 flex justify-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSandboxMode('date')}
-                  className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                    sandboxMode === 'date' 
-                      ? 'bg-[#8B6F47] text-white shadow-sm' 
-                      : 'bg-white text-stone-600 border border-stone-200'
-                  }`}
-                >
-                  Scratch The Date
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSandboxMode('card')}
-                  className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                    sandboxMode === 'card' 
-                      ? 'bg-[#8B6F47] text-white shadow-sm' 
-                      : 'bg-white text-stone-600 border border-stone-200'
-                  }`}
-                >
-                  Scratch The Card
-                </button>
-              </div>
-            </div>
-
-            <div className="py-4">
-              {sandboxMode === 'date' ? (
-                <ScratchDate date="14th February 2027" day="Sunday" city="Udaipur, Rajasthan" names="Shanaya & Aarav" />
-              ) : (
-                <ScratchCard initials="A & S" names="Shanaya & Aarav" />
-              )}
-            </div>
-          </div>
-        </section>
-
-        {/* FEATURE HIGHLIGHTS */}
-        <section id="features" className="py-20 md:py-28 max-w-6xl mx-auto px-6 space-y-16">
-          <div className="text-center max-w-lg mx-auto space-y-3">
-            <span className="text-[11px] tracking-[0.25em] text-[#8B6F47] uppercase font-semibold">Every Detail, Elevated</span>
-            <h2 className="font-serif text-3xl md:text-4xl font-light text-[#2B1E17]">Crafted for Unforgettable Impressions</h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white p-8 rounded-2xl border border-stone-200 shadow-sm space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-[#FAF5ED] border border-[#E6D5BF] flex items-center justify-center text-[#8B6F47]">
-                <Film className="w-5 h-5" />
-              </div>
-              <h3 className="font-serif text-xl font-light text-stone-900">Cinematic Story Parallax</h3>
-              <p className="text-xs text-stone-500 font-light leading-relaxed">
-                Told like a film with your curated photography, chapter years, and gold foil accents as guests scroll.
-              </p>
-            </div>
-
-            <div className="bg-white p-8 rounded-2xl border border-stone-200 shadow-sm space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-[#FAF5ED] border border-[#E6D5BF] flex items-center justify-center text-[#8B6F47]">
-                <Volume2 className="w-5 h-5" />
-              </div>
-              <h3 className="font-serif text-xl font-light text-stone-900">Ambient Soundtrack Engine</h3>
-              <p className="text-xs text-stone-500 font-light leading-relaxed">
-                Built-in soothing ambient synthesizers (piano, palace strings, acoustic) or upload your own song.
-              </p>
-            </div>
-
-            <div className="bg-white p-8 rounded-2xl border border-stone-200 shadow-sm space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-[#FAF5ED] border border-[#E6D5BF] flex items-center justify-center text-[#8B6F47]">
-                <Shield className="w-5 h-5" />
-              </div>
-              <h3 className="font-serif text-xl font-light text-stone-900">Private Host Dashboard</h3>
-              <p className="text-xs text-stone-500 font-light leading-relaxed">
-                Live attendance counters, catering dietary summaries, DJ song requests, and 1-click CSV spreadsheet export.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* COMPARISON TABLE */}
-        <section id="comparison" className="py-20 px-6 bg-white border-y border-[#E6D5BF]/60">
-          <div className="max-w-4xl mx-auto space-y-12">
-            <div className="text-center space-y-2">
-              <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#8B6F47]">Value Comparison</span>
-              <h2 className="font-serif text-3xl sm:text-4xl font-light text-[#2B1E17]">Paper Cards vs Paid Services vs Wishlys Free</h2>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left">
-                <thead>
-                  <tr className="border-b border-stone-200 text-stone-400 font-semibold uppercase text-[10px]">
-                    <th className="py-3 px-4">Feature</th>
-                    <th className="py-3 px-4">Printed Paper Cards</th>
-                    <th className="py-3 px-4">Wishlys Paid</th>
-                    <th className="py-3 px-4 text-[#8B6F47]">Wishlys Free</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-stone-100">
-                  <tr>
-                    <td className="py-4 px-4 font-semibold text-stone-800">Cost</td>
-                    <td className="py-4 px-4 text-stone-500">₹15,000 – ₹50,000+</td>
-                    <td className="py-4 px-4 text-stone-500">₹1,899 – ₹3,999</td>
-                    <td className="py-4 px-4 font-bold text-emerald-600">₹0 (100% Free)</td>
-                  </tr>
-                  <tr>
-                    <td className="py-4 px-4 font-semibold text-stone-800">Guest Views Cap</td>
-                    <td className="py-4 px-4 text-stone-500">Limited to printed batch</td>
-                    <td className="py-4 px-4 text-stone-500">Unlimited</td>
-                    <td className="py-4 px-4 font-bold text-emerald-600">Unlimited</td>
-                  </tr>
-                  <tr>
-                    <td className="py-4 px-4 font-semibold text-stone-800">Live RSVP Collection</td>
-                    <td className="py-4 px-4 text-stone-500">Manual phone calling</td>
-                    <td className="py-4 px-4 text-stone-500">Yes</td>
-                    <td className="py-4 px-4 font-bold text-emerald-600">Yes + CSV Export</td>
-                  </tr>
-                  <tr>
-                    <td className="py-4 px-4 font-semibold text-stone-800">Offline Single-File HTML</td>
-                    <td className="py-4 px-4 text-stone-500">No</td>
-                    <td className="py-4 px-4 text-stone-500">No (Host locked)</td>
-                    <td className="py-4 px-4 font-bold text-emerald-600">Yes (Zero dependencies)</td>
-                  </tr>
-                  <tr>
-                    <td className="py-4 px-4 font-semibold text-stone-800">Expiration / Recurring Fees</td>
-                    <td className="py-4 px-4 text-stone-500">One-time print</td>
-                    <td className="py-4 px-4 text-stone-500">Expires 7 days post-event</td>
-                    <td className="py-4 px-4 font-bold text-emerald-600">Never Expires</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        {/* FAQ ACCORDION */}
-        <section id="faq" className="py-20 md:py-28 max-w-3xl mx-auto px-6 space-y-12">
-          <div className="text-center space-y-2">
-            <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#8B6F47]">Curious Minds</span>
-            <h2 className="font-serif text-3xl md:text-4xl font-light text-[#2B1E17]">Frequently Asked Questions</h2>
-          </div>
-
-          <div className="space-y-4">
-            {faqs.map((faq, idx) => (
-              <div 
-                key={idx}
-                className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-xs"
-              >
-                <button
-                  type="button"
-                  onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
-                  className="w-full p-5 text-left flex justify-between items-center gap-4 cursor-pointer hover:bg-stone-50 transition-colors"
-                >
-                  <span className="font-serif text-lg font-light text-[#2B1E17]">{faq.q}</span>
-                  <ChevronDown className={`w-4 h-4 text-[#8B6F47] transition-transform duration-300 ${activeFaq === idx ? 'rotate-180' : ''}`} />
-                </button>
-                {activeFaq === idx && (
-                  <div className="px-5 pb-5 text-xs text-stone-600 font-light leading-relaxed border-t border-stone-100 pt-3">
-                    {faq.a}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* BOTTOM CTA */}
-        <section className="py-20 px-6 bg-[#2B1E17] text-[#FDFBF7] text-center space-y-6">
-          <div className="max-w-2xl mx-auto space-y-4">
-            <h2 className="font-serif text-4xl sm:text-5xl font-light">
-              Your Guests Deserve More Than a Group Text
-            </h2>
-            <p className="text-xs sm:text-sm text-stone-400 font-light leading-relaxed">
-              Design your personalized cinematic invitation website in less than 5 minutes. No signup or credit card required.
-            </p>
-            <div className="pt-4">
-              <button
-                type="button"
-                onClick={() => onOpenStudio('wedding')}
-                className="px-8 py-4 bg-[#8B6F47] hover:bg-[#A88B70] text-white text-xs font-bold tracking-[0.2em] uppercase rounded-sm transition-all shadow-lg cursor-pointer active:scale-95"
-              >
-                Open Studio Now (100% Free)
-              </button>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      {/* FOOTER */}
-      <footer className="py-12 px-6 border-t border-[#E6D5BF] text-center space-y-4 text-xs text-stone-500 font-light">
-        <p className="font-serif text-xl font-light text-[#2B1E17]">Wishlys Free</p>
-        <p className="text-[10px] tracking-widest uppercase text-stone-400">
-          An open-source recreation of Wishlys. Free for personal & celebration use.
-        </p>
-        <div className="flex justify-center gap-6 text-[11px] text-stone-600 font-medium">
-          <a href="#collections" className="hover:text-[#8B6F47]">Occasions</a>
-          <a href="#features" className="hover:text-[#8B6F47]">Features</a>
-          <a href="#comparison" className="hover:text-[#8B6F47]">Why Free</a>
-          <button type="button" onClick={onOpenDashboard} className="hover:text-[#8B6F47] cursor-pointer">Host Dashboard</button>
+          <p className="text-xs text-[#8A7967]">
+            © {CURRENT_YEAR} Paigaam Atelier
+          </p>
         </div>
       </footer>
     </div>

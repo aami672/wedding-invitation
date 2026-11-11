@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { soundManager } from '../../utils/audio';
 import { triggerCelebration } from '../../utils/confetti';
+import { resolveAssetUrl } from '../../utils/appAssets';
 
 const EVENT_TAGS = ['General', 'Haldi', 'Mehndi', 'Sangeet', 'Wedding', 'Reception'];
 
@@ -283,7 +284,7 @@ export default function MomentsAndMemories({
                 {/* Photo Thumbnail */}
                 <div className="w-full aspect-square rounded-lg overflow-hidden mb-2 border relative" style={{ borderColor: 'var(--pal-card-border)', backgroundColor: 'var(--pal-card-surface)' }}>
                   <img
-                    src={item.url}
+                    src={resolveAssetUrl(item.url)}
                     alt={item.caption}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
@@ -550,7 +551,7 @@ export default function MomentsAndMemories({
             {/* Main Lightbox Photo */}
             <div className="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-stone-900 border-2 shadow-inner mt-2 relative" style={{ borderColor: 'var(--pal-card-border)' }}>
               <img
-                src={selectedPhoto.url}
+                src={resolveAssetUrl(selectedPhoto.url)}
                 alt={selectedPhoto.caption}
                 className="w-full h-full object-contain"
               />
