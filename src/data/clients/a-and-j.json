@@ -1,0 +1,171 @@
+{
+  "occasion": "wedding",
+  "type": "full",
+  "template": "newspaper",
+  "revealStyle": "folding-doors",
+  "palette": "champagne",
+  "typography": {
+    "preset": "heirloom",
+    "headingFont": "Rozha One",
+    "bodyFont": "EB Garamond",
+    "scriptFont": "Parisienne"
+  },
+  "music": "mountain-vows",
+  "customMusicUrl": "",
+  "effect": "stars",
+  "atmosphere": {
+    "style": "petals",
+    "intensity": "subtle"
+  },
+  "monogram": {
+    "initials": "A & J",
+    "style": "classic-crest"
+  },
+  "photos": {
+    "cover": "./images/themes/The-Shaadi-Times/03-sangeet.webp",
+    "bride": "",
+    "groom": "",
+    "brideBio": "Loves classic poetry, morning chai, and spontaneous mountain hikes.",
+    "groomBio": "Foodie, photography enthusiast, and the architect of their happiest memories."
+  },
+  "hosts": {
+    "title": "Together with their families",
+    "bride": "A",
+    "groom": "J",
+    "hashtag": "#AWedsJ",
+    "date": "2026-11-11",
+    "day": "Wednesday",
+    "city": "Delhi",
+    "welcomeQuote": "We are stepping into our next great chapter, and our celebration wouldn't be complete without you by our side.",
+    "brideParents": "",
+    "groomParents": ""
+  },
+  "story": [
+    {
+      "year": "2021",
+      "title": "First Coffee in Bandra",
+      "desc": "A 20-minute coffee turned into a 4-hour conversation about books, street food, and old Hindi film songs.",
+      "image": "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "year": "2023",
+      "title": "Sunrise in Cappadocia",
+      "desc": "Floating 1,000 feet above the valleys, we knew our greatest adventures would always be together.",
+      "image": "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "year": "2025",
+      "title": "Under the Northern Lights, He Asked",
+      "desc": "Freezing temperatures in Tromsø, a glowing green sky, a diamond ring, and the easiest \"Yes!\" in the world.",
+      "image": "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80"
+    }
+  ],
+  "events": [
+    {
+      "id": "evt_1794390442366",
+      "name": "New Celebration Event",
+      "date": "Sunday, 14th February 2027",
+      "time": "06:00 PM onwards",
+      "venue": "The Grand Lawn, The Oberoi Udaivilas",
+      "address": "Delhi",
+      "mapsQuery": "The Oberoi Udaivilas Udaipur",
+      "mapsEmbedUrl": "https://maps.google.com/maps?q=The%20Oberoi%20Udaivilas%20Udaipur&t=&z=15&ie=UTF8&iwloc=&output=embed",
+      "mapsUrl": "https://maps.google.com/?q=The%20Oberoi%20Udaivilas%20Udaipur",
+      "dressCode": "Festive Traditional",
+      "group": "all"
+    }
+  ],
+  "gallery": [
+    {
+      "url": "./images/couple-potrait.webp",
+      "caption": "In each other's eyes",
+      "tag": "Wedding"
+    },
+    {
+      "url": "./images/couple-landscape-1.webp",
+      "caption": "Moments under the palace sun",
+      "tag": "Haldi"
+    },
+    {
+      "url": "./images/couple-landscape-2.webp",
+      "caption": "Lakeside serenity in Udaipur",
+      "tag": "General"
+    },
+    {
+      "url": "./images/couple-potrait-1.webp",
+      "caption": "Laughs & forever promises",
+      "tag": "Sangeet"
+    },
+    {
+      "url": "./images/couple-landscape-3.webp",
+      "caption": "Golden hour at Lake Pichola",
+      "tag": "General"
+    },
+    {
+      "url": "./images/couple-landscape-4.webp",
+      "caption": "Under the starlit sky",
+      "tag": "Reception"
+    },
+    {
+      "url": "./images/couple-udaipur-boat.webp",
+      "caption": "Sailing together",
+      "tag": "General"
+    },
+    {
+      "url": "./images/couple-udaipur-rooftop.webp",
+      "caption": "Rooftop whispers",
+      "tag": "General"
+    },
+    {
+      "url": "./images/couple-udaipur-bazaar.webp",
+      "caption": "Old city charm",
+      "tag": "Mehndi"
+    },
+    {
+      "url": "./images/couple-udaipur-hilltop.webp",
+      "caption": "Monsoon palace views",
+      "tag": "General"
+    },
+    {
+      "url": "./images/couple-udaipur-haveli.webp",
+      "caption": "Courtyard royalty",
+      "tag": "Wedding"
+    },
+    {
+      "url": "./images/couple-udaipur-ghat.webp",
+      "caption": "At the water's edge",
+      "tag": "General"
+    }
+  ],
+  "logistics": {
+    "airport": "Maharana Pratap Airport (UDR) — 28 km / 45 mins drive",
+    "hotel": "The Oberoi Udaivilas & Trident Udaipur (Shuttle service provided)",
+    "contact": ""
+  },
+  "rsvpConfig": {
+    "enabled": true,
+    "deadline": "Kindly RSVP by 10th January 2027",
+    "allowKids": true,
+    "askDietary": true,
+    "askSong": true,
+    "customQuestion": "Do you need airport pick-up on 12th February?"
+  },
+  "guestGroups": [
+    {
+      "id": "all",
+      "name": "All Guests (General)",
+      "desc": "Can see Sangeet, Wedding & Reception"
+    },
+    {
+      "id": "family",
+      "name": "Close Family & Relatives",
+      "desc": "Can see all events including Haldi & Mehendi"
+    },
+    {
+      "id": "friends",
+      "name": "Friends & College Gang",
+      "desc": "Special VIP after-party visibility"
+    }
+  ],
+  "rsvp": {}
+}
