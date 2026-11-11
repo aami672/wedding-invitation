@@ -3,6 +3,7 @@ import { Compass, Sparkles, Heart, Copy, Check, MapPin, Calendar, Clock, Phone, 
 import { soundManager } from '../../utils/audio';
 import { triggerCelebration } from '../../utils/confetti';
 import { getThemeEventImage } from '../../utils/themeImages';
+import { getThemeDesign, renderThemeDividerHtml } from '../../utils/themeDecorConfig';
 
 /**
  * 1. INDIAN BIOSCOPE BOOTH (from Wishlys video frame 130)
@@ -475,8 +476,9 @@ export function BougainvilleaCanopy() {
  * The pink folding card with scalloped window stitching and gold dots.
  * Tapping heart seal opens both shutters sideways with 3D animation, revealing the couple!
  */
-export function PastelFoldingDoorsReveal({ onReveal, bride = 'Bride', groom = 'Groom', coverPhoto }) {
+export function PastelFoldingDoorsReveal({ onReveal, bride = 'Bride', groom = 'Groom', coverPhoto, templateId = 'caricature' }) {
   const [isOpen, setIsOpen] = useState(false);
+  const design = getThemeDesign(templateId);
 
   const handleOpen = () => {
     if (isOpen) return;
@@ -488,25 +490,33 @@ export function PastelFoldingDoorsReveal({ onReveal, bride = 'Bride', groom = 'G
 
   return (
     <div className="relative min-h-[500px] w-full max-w-sm mx-auto flex flex-col items-center justify-center p-4 select-none">
-      {/* Top Hanging Marigold Garland */}
-      <div className="w-full flex justify-center -mb-2 pointer-events-none">
-        <svg viewBox="0 0 320 30" className="w-full h-auto text-amber-500">
-          <path d="M0,5 Q80,25 160,5 Q240,25 320,5" stroke="#F59E0B" strokeWidth="3" strokeDasharray="5,4" fill="none" />
-          {[20, 60, 100, 140, 180, 220, 260, 300].map((x, i) => (
-            <circle key={i} cx={x} cy={7 + Math.sin(i) * 10} r="4.5" fill={i % 2 === 0 ? '#F59E0B' : '#EA580C'} />
-          ))}
-        </svg>
-      </div>
+      {/* Top Hanging Garland / Crest */}
+      {design.isCaricature ? (
+        <div className="w-full flex justify-center -mb-2 pointer-events-none">
+          <svg viewBox="0 0 320 30" className="w-full h-auto text-amber-500">
+            <path d="M0,5 Q80,25 160,5 Q240,25 320,5" stroke="#F59E0B" strokeWidth="3" strokeDasharray="5,4" fill="none" />
+            {[20, 60, 100, 140, 180, 220, 260, 300].map((x, i) => (
+              <circle key={i} cx={x} cy={7 + Math.sin(i) * 10} r="4.5" fill={i % 2 === 0 ? '#F59E0B' : '#EA580C'} />
+            ))}
+          </svg>
+        </div>
+      ) : (
+        <div className="mb-2 flex items-center gap-2 inv-accent text-xs font-medium tracking-widest">
+          <span>✦</span>
+          <span>{design.invocation}</span>
+          <span>✦</span>
+        </div>
+      )}
 
       {/* Header text */}
       <div className="text-center space-y-1 mb-5">
-        <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#8B6F47]">You Are Cordially Invited</span>
-        <h2 className="font-serif text-3xl font-light text-[#2B1E17] flex items-center justify-center gap-2">
+        <span className="text-[11px] font-cursive inv-eyebrow tracking-wider font-semibold block">You Are Cordially Invited</span>
+        <h2 className="font-royal text-3xl font-light inv-heading flex items-center justify-center gap-2">
           <span>{bride}</span>
           <span className="text-rose-400 font-sans text-xl animate-pulse">♡</span>
           <span>{groom}</span>
         </h2>
-        <div className="w-24 h-1 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full" />
+        <div className="w-24 h-0.5 inv-rule mx-auto rounded-full" />
       </div>
 
       {/* 3D Folding Card Container */}
@@ -515,9 +525,9 @@ export function PastelFoldingDoorsReveal({ onReveal, bride = 'Bride', groom = 'G
         className="relative w-[88vw] max-w-[340px] aspect-[9/16] cursor-pointer group [perspective:1000px]"
       >
         {/* Inside Preview: Couple artwork */}
-        <div className="absolute inset-0 rounded-2xl bg-[#FFFDF7] border-2 border-[#FDE68A] shadow-inner overflow-hidden flex flex-col items-center justify-center p-0">
+        <div className="inv-hero-card inv-hero-img-wrap absolute inset-0 shadow-inner overflow-hidden flex flex-col items-center justify-center p-0">
           <img 
-            src={coverPhoto && !coverPhoto.includes('zardozi') && !coverPhoto.includes('mela') && !coverPhoto.includes('rajwada') ? coverPhoto : "./images/caricature/scooter_couple.webp"} 
+            src={coverPhoto || `./images/caricature/scooter_couple.webp`} 
             alt={`${groom} & ${bride}`}
             className="w-full h-full object-contain object-center"
           />
@@ -525,19 +535,19 @@ export function PastelFoldingDoorsReveal({ onReveal, bride = 'Bride', groom = 'G
 
         {/* Left Folding Door */}
         <div 
-          className={`absolute inset-y-0 left-0 w-1/2 bg-[#FCE7F3] border-y-2 border-l-2 border-[#F472B6] rounded-l-2xl shadow-md transition-all duration-700 origin-left overflow-hidden ${
+          className={`absolute inset-y-0 left-0 w-1/2 border-y-2 border-l-2 rounded-l-2xl shadow-md transition-all duration-700 origin-left overflow-hidden ${
             isOpen ? '-rotate-y-110 opacity-0 pointer-events-none' : 'rotate-y-0 opacity-100 group-hover:-rotate-y-6'
           }`}
-          style={{ transformStyle: 'preserve-3d' }}
+          style={{ transformStyle: 'preserve-3d', backgroundColor: 'var(--pal-door-left, #FCE7F3)', borderColor: 'var(--pal-card-border, #F472B6)' }}
         >
           <div className="w-full h-full p-2 relative flex flex-col justify-between">
             <div className="flex gap-1.5 pt-1">
               {[0, 1, 2, 3, 4].map(i => (
-                <span key={i} className="w-2 h-2 rounded-full bg-[#F59E0B]/80 inline-block" />
+                <span key={i} className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: 'var(--pal-accent, #F59E0B)', opacity: 0.75 }} />
               ))}
             </div>
-            <div className="w-full h-[72%] rounded-tl-[40px] border-r-0 border-2 border-[#FDE68A] bg-[#FEF3C7]/40 flex items-center justify-end">
-              <div className="w-6 h-6 rounded-l-full bg-[#FDE68A]/70" />
+            <div className="w-full h-[72%] rounded-tl-[40px] border-r-0 border-2 flex items-center justify-end" style={{ borderColor: 'var(--pal-card-border)', backgroundColor: 'var(--pal-pill-bg)' }}>
+              <div className="w-6 h-6 rounded-l-full" style={{ backgroundColor: 'var(--pal-accent)', opacity: 0.35 }} />
             </div>
             <div className="h-4" />
           </div>
@@ -545,19 +555,19 @@ export function PastelFoldingDoorsReveal({ onReveal, bride = 'Bride', groom = 'G
 
         {/* Right Folding Door */}
         <div 
-          className={`absolute inset-y-0 right-0 w-1/2 bg-[#FCE7F3] border-y-2 border-r-2 border-[#F472B6] rounded-r-2xl shadow-md transition-all duration-700 origin-right overflow-hidden ${
+          className={`absolute inset-y-0 right-0 w-1/2 border-y-2 border-r-2 rounded-r-2xl shadow-md transition-all duration-700 origin-right overflow-hidden ${
             isOpen ? 'rotate-y-110 opacity-0 pointer-events-none' : 'rotate-y-0 opacity-100 group-hover:rotate-y-6'
           }`}
-          style={{ transformStyle: 'preserve-3d' }}
+          style={{ transformStyle: 'preserve-3d', backgroundColor: 'var(--pal-door-right, #FCE7F3)', borderColor: 'var(--pal-card-border, #F472B6)' }}
         >
           <div className="w-full h-full p-2 relative flex flex-col justify-between items-end">
             <div className="flex gap-1.5 pt-1">
               {[0, 1, 2, 3, 4].map(i => (
-                <span key={i} className="w-2 h-2 rounded-full bg-[#F59E0B]/80 inline-block" />
+                <span key={i} className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: 'var(--pal-accent, #F59E0B)', opacity: 0.75 }} />
               ))}
             </div>
-            <div className="w-full h-[72%] rounded-tr-[40px] border-l-0 border-2 border-[#FDE68A] bg-[#FEF3C7]/40 flex items-center justify-start">
-              <div className="w-6 h-6 rounded-r-full bg-[#FDE68A]/70" />
+            <div className="w-full h-[72%] rounded-tr-[40px] border-l-0 border-2 flex items-center justify-start" style={{ borderColor: 'var(--pal-card-border)', backgroundColor: 'var(--pal-pill-bg)' }}>
+              <div className="w-6 h-6 rounded-r-full" style={{ backgroundColor: 'var(--pal-accent)', opacity: 0.35 }} />
             </div>
             <div className="h-4" />
           </div>
@@ -565,23 +575,23 @@ export function PastelFoldingDoorsReveal({ onReveal, bride = 'Bride', groom = 'G
 
         {/* Center Heart Seal Button */}
         <div 
-          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-[#FEF08A] border-2 border-[#F59E0B] shadow-lg flex items-center justify-center transition-all duration-500 ${
+          className={`inv-pill absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full border-2 shadow-lg flex items-center justify-center transition-all duration-500 ${
             isOpen ? 'scale-150 opacity-0' : 'group-hover:scale-110 animate-pulse'
           }`}
         >
-          <span className="text-rose-600 text-lg">❤️</span>
+          <span className="text-rose-500 text-lg">❤️</span>
         </div>
 
-        {/* Parked Yellow Scooter at Bottom */}
+        {/* Bottom Theme Seal */}
         <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-10 select-none pointer-events-none">
-          <span className="text-3xl drop-shadow-md">🛵</span>
+          <span className="text-3xl drop-shadow-md">{design.closingEmoji || '✨'}</span>
         </div>
       </div>
 
       {/* Tap to Open Footer */}
       <div className="mt-8 text-center">
-        <div className="w-32 border-b-2 border-dashed border-[#F5D0C5] mx-auto mb-2" />
-        <span className="text-xs font-semibold text-[#8B6F47] tracking-widest uppercase animate-bounce inline-block">
+        <div className="w-32 h-px inv-rule mx-auto mb-2" />
+        <span className="text-xs font-semibold inv-muted tracking-widest uppercase animate-bounce inline-block">
           👆 Tap to Open
         </span>
       </div>
@@ -694,8 +704,10 @@ export function PastelCaricatureHero({
   groom = 'Ashish',
   date = '2026-12-09',
   monogram,
-  palette
+  palette,
+  templateId = 'caricature'
 }) {
+  const design = getThemeDesign(templateId);
   const d = new Date(date || '2026-12-09');
   const formattedDate = !isNaN(d.getTime()) 
     ? `${d.getDate()} ${d.toLocaleString('en-US', { month: 'short' })} ${d.getFullYear()}`
@@ -704,50 +716,58 @@ export function PastelCaricatureHero({
   return (
     <div className="relative my-2 flex flex-col items-center select-none w-full max-w-[390px] mx-auto px-2">
       <ScrollReveal variant="pop-up" className="w-full">
-        {/* Top Draped Marigold Floral Swags */}
-        <div className="w-full flex justify-around items-start -mb-2 px-6 pointer-events-none">
-          <svg viewBox="0 0 400 40" className="w-full h-auto text-amber-500 animate-sway" fill="none">
-            <path d="M0,5 Q100,35 200,5 Q300,35 400,5" stroke="#F59E0B" strokeWidth="4" strokeDasharray="6,4" />
-            <path d="M0,8 Q100,38 200,8 Q300,38 400,8" stroke="#EA580C" strokeWidth="3" />
-            {[20, 60, 100, 140, 180, 220, 260, 300, 340, 380].map((x, i) => (
-              <circle key={i} cx={x} cy={12 + Math.sin(i) * 12} r="5" fill={i % 2 === 0 ? '#F59E0B' : '#EA580C'} />
-            ))}
-          </svg>
-        </div>
+        {/* Top Draped Swags for Caricature vs Theme Crest Accent */}
+        {design.isCaricature ? (
+          <div className="w-full flex justify-around items-start -mb-2 px-6 pointer-events-none">
+            <svg viewBox="0 0 400 40" className="w-full h-auto text-amber-500 animate-sway" fill="none">
+              <path d="M0,5 Q100,35 200,5 Q300,35 400,5" stroke="#F59E0B" strokeWidth="4" strokeDasharray="6,4" />
+              <path d="M0,8 Q100,38 200,8 Q300,38 400,8" stroke="#EA580C" strokeWidth="3" />
+              {[20, 60, 100, 140, 180, 220, 260, 300, 340, 380].map((x, i) => (
+                <circle key={i} cx={x} cy={12 + Math.sin(i) * 12} r="5" fill={i % 2 === 0 ? '#F59E0B' : '#EA580C'} />
+              ))}
+            </svg>
+          </div>
+        ) : (
+          <div className="w-full flex items-center justify-center gap-2 mb-2 px-4 pointer-events-none inv-accent text-xs opacity-90">
+            <div className="h-px flex-1 inv-rule opacity-60" />
+            <span>{design.closingEmoji || '✦'}</span>
+            <div className="h-px flex-1 inv-rule opacity-60" />
+          </div>
+        )}
 
-        {/* The Scalloped Cusped Arch Frame */}
-        <div className="relative w-full bg-[#FFFDF9]/95 backdrop-blur-xs rounded-t-[60px] rounded-b-3xl p-3 border-[3px] border-[#FDE68A]/80 shadow-xl overflow-hidden text-center">
+        {/* Theme-Adaptive Hero Arch / Card Frame */}
+        <div className="inv-hero-card relative w-full p-3 shadow-xl overflow-hidden text-center">
           {/* Monogram Seal Badge if initials present */}
           {monogram?.initials && (
             <div 
-              className="w-12 h-12 mx-auto mb-1.5 rounded-full border-2 flex items-center justify-center shadow-sm font-royal text-xs font-bold tracking-widest bg-white/90 backdrop-blur-xs"
-              style={{ borderColor: palette?.colors?.[2] || '#FBBF24', color: palette?.colors?.[1] || '#B45309' }}
+              className="inv-surface w-12 h-12 mx-auto mb-1.5 rounded-full border-2 flex items-center justify-center shadow-sm font-royal text-xs font-bold tracking-widest backdrop-blur-xs"
+              style={{ borderColor: 'var(--pal-accent)', color: 'var(--pal-heading)' }}
             >
               {monogram.initials}
             </div>
           )}
 
-          {/* Sacred Sanskrit Invocation */}
+          {/* Theme-Authentic Invocation */}
           <div className="pt-1 pb-0.5">
-            <span className="text-[11px] font-serif text-[#B45309] font-medium tracking-wide">
-              ॥ श्री गणेशाय नमः ॥
+            <span className="text-[11px] inv-accent font-medium tracking-wide block">
+              {design.invocation}
             </span>
-            <p className="text-[10px] uppercase tracking-widest font-bold text-stone-500 mt-0.5">
+            <p className="text-[10px] uppercase tracking-widest font-bold inv-muted mt-0.5">
               Together With Their Families
             </p>
           </div>
 
           {/* Main Couple Names */}
-          <h1 className="font-serif text-3xl sm:text-4xl text-[#2B1E17] font-light flex items-center justify-center gap-1.5 mt-0.5 mb-1">
+          <h1 className="font-royal text-3xl sm:text-4xl inv-heading font-light flex items-center justify-center gap-1.5 mt-0.5 mb-1">
             <span>{groom}</span>
             <span className="text-rose-400 font-sans text-lg animate-pulse">♡</span>
             <span>{bride}</span>
           </h1>
-          {/* Golden brush underline */}
-          <div className="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mb-2" />
+          {/* Accent underline */}
+          <div className="w-20 h-0.5 inv-rule mx-auto rounded-full mb-2" />
 
-          {/* Main Illustration: Scooter Couple Artwork Filled in Card - Full 9:16 Ratio */}
-          <div className="w-full aspect-[9/16] rounded-2xl overflow-hidden relative flex items-center justify-center group bg-[#FFFDF7] shadow-inner">
+          {/* Hero Couple Artwork Frame */}
+          <div className="inv-hero-img-wrap w-full aspect-[9/16] rounded-2xl overflow-hidden relative flex items-center justify-center group shadow-inner">
             <img 
               src={couplePhoto || "./images/themes/Luxe-Pastel-Caricature/03-sangeet.webp"} 
               alt={`${groom} & ${bride}`}
@@ -755,13 +775,13 @@ export function PastelCaricatureHero({
             />
           </div>
 
-          {/* Request Honor Text flanked by Marigolds */}
+          {/* Request Honor Text */}
           <div className="py-3 flex items-center justify-center gap-2">
-            <span className="text-amber-500 text-sm">🌼</span>
-            <span className="font-serif text-xs text-stone-700 font-medium tracking-wide italic">
-              Request the honour of your presence
+            <span className="inv-accent text-sm">{design.isCaricature ? '🌼' : (design.closingEmoji || '✦')}</span>
+            <span className="text-xs inv-muted font-medium tracking-wide italic">
+              Request the honour of your presence · {formattedDate}
             </span>
-            <span className="text-amber-500 text-sm">🌼</span>
+            <span className="inv-accent text-sm">{design.isCaricature ? '🌼' : (design.closingEmoji || '✦')}</span>
           </div>
         </div>
       </ScrollReveal>
@@ -781,21 +801,23 @@ export function PastelPolaroidCouple({
   brideBio, 
   groomBio,
   groomLineage,
-  brideLineage
+  brideLineage,
+  templateId = 'caricature'
 }) {
   const [activeModal, setActiveModal] = useState(null); // 'groom' | 'bride' | null
+  const design = getThemeDesign(templateId);
 
   return (
     <section className="py-6 px-2 w-full max-w-[390px] mx-auto select-none">
       <ScrollReveal variant="fade-up">
         <div className="text-center space-y-1 mb-5">
-          <span className="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">
+          <span className="text-[11px] font-cursive tracking-wider inv-eyebrow block font-semibold">
             Meet the two of us
           </span>
-          <h3 className="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">
+          <h3 className="font-royal text-2xl sm:text-3xl font-light inv-heading">
             {groom} & {bride}
           </h3>
-          <div className="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1" />
+          <div className="w-20 h-0.5 inv-rule mx-auto rounded-full mt-1" />
         </div>
       </ScrollReveal>
 
@@ -804,13 +826,13 @@ export function PastelPolaroidCouple({
         <ScrollReveal variant="tilt-left" delay={0} className="h-full">
           <div 
             onClick={() => setActiveModal('groom')}
-            className="relative bg-white/95 backdrop-blur-xs p-2.5 pb-4 rounded-2xl shadow-md border border-white/80 hover:border-amber-300 transition-all duration-300 flex flex-col items-center text-center group h-full cursor-pointer"
+            className="inv-card relative p-2.5 pb-4 shadow-md flex flex-col items-center text-center group h-full cursor-pointer"
           >
-            {/* Mint Washi Tape */}
-            <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#A7F3D0]/85 rounded shadow-xs rotate-1 border border-[#6EE7B7]" />
+            {/* Washi Tape */}
+            <div className="inv-pill absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 rounded shadow-xs rotate-1 border" />
             
             {/* Circular Icon for Photo */}
-            <div className="w-20 h-20 rounded-full overflow-hidden bg-stone-100 mt-1 mb-2 border-2 border-stone-200 ring-4 ring-[#E6F4EA] shadow-inner shrink-0 group-hover:ring-emerald-300 transition-all">
+            <div className="w-20 h-20 rounded-full overflow-hidden mt-1 mb-2 border-2 shadow-inner shrink-0 transition-all" style={{ borderColor: 'var(--pal-card-border)', backgroundColor: 'var(--pal-card-surface)' }}>
               <img 
                 src={groomPhoto || './images/groom.webp'} 
                 alt={groom}
@@ -818,19 +840,19 @@ export function PastelPolaroidCouple({
               />
             </div>
 
-            <span className="inline-block px-2 py-0.5 rounded-full text-[8.5px] uppercase tracking-wider font-bold bg-[#E6F4EA] text-[#137333] mb-1">
-              The Groom
+            <span className="inv-pill inline-block px-2 py-0.5 rounded-full text-[8.5px] uppercase tracking-wider font-bold border mb-1">
+              {design.meetBadgeGroom || 'The Groom'}
             </span>
-            <h4 className="font-serif text-sm sm:text-base font-bold text-[#2B1E17] leading-tight group-hover:text-amber-800 transition-colors">
+            <h4 className="font-royal text-sm sm:text-base font-bold inv-heading leading-tight transition-colors">
               {groom}
             </h4>
-            <p className="text-[10px] text-stone-600 italic mt-1 leading-snug px-0.5 flex-1">
+            <p className="text-[10px] inv-muted italic mt-1 leading-snug px-0.5 flex-1">
               "{groomBio || 'Foodie, photography enthusiast, and the architect of their happiest memories.'}"
             </p>
-            <p className="text-[8.5px] text-stone-400 mt-1.5 font-sans border-t border-stone-100 pt-1 w-full">
+            <p className="text-[8.5px] inv-subtle mt-1.5 border-t pt-1 w-full" style={{ borderColor: 'var(--pal-card-border)' }}>
               {groomLineage || 'S/o Mr. Ramesh & Mrs. Sunita Sharma'}
             </p>
-            <span className="text-[8.5px] text-amber-700 font-semibold mt-1 flex items-center gap-0.5 opacity-80 group-hover:opacity-100">
+            <span className="text-[8.5px] inv-accent font-semibold mt-1 flex items-center gap-0.5 opacity-85 group-hover:opacity-100">
               🔍 Tap to view
             </span>
           </div>
@@ -849,13 +871,13 @@ export function PastelPolaroidCouple({
         <ScrollReveal variant="tilt-right" delay={150} className="h-full">
           <div 
             onClick={() => setActiveModal('bride')}
-            className="relative bg-white/95 backdrop-blur-xs p-2.5 pb-4 rounded-2xl shadow-md border border-white/80 hover:border-rose-300 transition-all duration-300 flex flex-col items-center text-center group h-full cursor-pointer"
+            className="inv-card relative p-2.5 pb-4 shadow-md flex flex-col items-center text-center group h-full cursor-pointer"
           >
-            {/* Yellow Washi Tape */}
-            <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FDE68A]/85 rounded shadow-xs -rotate-1 border border-[#FCD34D]" />
+            {/* Washi Tape */}
+            <div className="inv-pill absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 rounded shadow-xs -rotate-1 border" />
             
             {/* Circular Icon for Photo */}
-            <div className="w-20 h-20 rounded-full overflow-hidden bg-stone-100 mt-1 mb-2 border-2 border-stone-200 ring-4 ring-[#FCE8E6] shadow-inner shrink-0 group-hover:ring-rose-300 transition-all">
+            <div className="w-20 h-20 rounded-full overflow-hidden mt-1 mb-2 border-2 shadow-inner shrink-0 transition-all" style={{ borderColor: 'var(--pal-card-border)', backgroundColor: 'var(--pal-card-surface)' }}>
               <img 
                 src={bridePhoto || './images/bride.webp'} 
                 alt={bride}
@@ -863,19 +885,19 @@ export function PastelPolaroidCouple({
               />
             </div>
 
-            <span className="inline-block px-2 py-0.5 rounded-full text-[8.5px] uppercase tracking-wider font-bold bg-[#FCE8E6] text-[#C5221F] mb-1">
-              The Bride
+            <span className="inv-pill inline-block px-2 py-0.5 rounded-full text-[8.5px] uppercase tracking-wider font-bold border mb-1">
+              {design.meetBadgeBride || 'The Bride'}
             </span>
-            <h4 className="font-serif text-sm sm:text-base font-bold text-[#2B1E17] leading-tight group-hover:text-rose-800 transition-colors">
+            <h4 className="font-royal text-sm sm:text-base font-bold inv-heading leading-tight transition-colors">
               {bride}
             </h4>
-            <p className="text-[10px] text-stone-600 italic mt-1 leading-snug px-0.5 flex-1">
+            <p className="text-[10px] inv-muted italic mt-1 leading-snug px-0.5 flex-1">
               "{brideBio || 'Loves classic poetry, morning chai, and spontaneous mountain hikes.'}"
             </p>
-            <p className="text-[8.5px] text-stone-400 mt-1.5 font-sans border-t border-stone-100 pt-1 w-full">
+            <p className="text-[8.5px] inv-subtle mt-1.5 border-t pt-1 w-full" style={{ borderColor: 'var(--pal-card-border)' }}>
               {brideLineage || 'D/o Mr. Vijay & Mrs. Rekha Malhotra'}
             </p>
-            <span className="text-[8.5px] text-rose-700 font-semibold mt-1 flex items-center gap-0.5 opacity-80 group-hover:opacity-100">
+            <span className="text-[8.5px] inv-accent font-semibold mt-1 flex items-center gap-0.5 opacity-85 group-hover:opacity-100">
               🔍 Tap to view
             </span>
           </div>
@@ -889,29 +911,27 @@ export function PastelPolaroidCouple({
           onClick={() => setActiveModal(null)}
         >
           <div 
-            className="relative w-full max-w-[330px] bg-[#FFFDF9] rounded-3xl p-5 border-2 border-[#FDE68A] shadow-2xl text-center space-y-3 animate-scaleUp"
+            className="inv-modal relative w-full max-w-[330px] rounded-3xl p-5 border-2 shadow-2xl text-center space-y-3 animate-scaleUp"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Top Washi Tape */}
             <div 
-              className={`absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-5 rounded shadow-xs ${
-                activeModal === 'groom' 
-                  ? 'bg-[#A7F3D0] border border-[#6EE7B7] rotate-1' 
-                  : 'bg-[#FDE68A] border border-[#FCD34D] -rotate-1'
+              className={`inv-pill absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-5 rounded border shadow-xs ${
+                activeModal === 'groom' ? 'rotate-1' : '-rotate-1'
               }`} 
             />
 
             {/* Close Button */}
             <button 
               onClick={() => setActiveModal(null)}
-              className="absolute top-3 right-3 w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center text-sm font-bold shadow-xs cursor-pointer z-10 transition-colors"
+              className="inv-surface absolute top-3 right-3 w-8 h-8 rounded-full border flex items-center justify-center text-sm font-bold shadow-xs cursor-pointer z-10 transition-colors"
               aria-label="Close"
             >
               ✕
             </button>
 
             {/* Full Portrait Photo Inside Card */}
-            <div className="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-stone-100 border-2 border-stone-200 shadow-inner mt-2">
+            <div className="w-full aspect-[4/5] rounded-2xl overflow-hidden border-2 shadow-inner mt-2" style={{ borderColor: 'var(--pal-card-border)', backgroundColor: 'var(--pal-card-surface)' }}>
               <img 
                 src={activeModal === 'groom' ? (groomPhoto || './images/groom.webp') : (bridePhoto || './images/bride.webp')} 
                 alt={activeModal === 'groom' ? groom : bride} 
@@ -920,20 +940,18 @@ export function PastelPolaroidCouple({
             </div>
 
             <div className="space-y-1 pt-1">
-              <span className={`inline-block px-3 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-bold ${
-                activeModal === 'groom' ? 'bg-[#E6F4EA] text-[#137333]' : 'bg-[#FCE8E6] text-[#C5221F]'
-              }`}>
-                {activeModal === 'groom' ? 'The Groom' : 'The Bride'}
+              <span className="inv-pill inline-block px-3 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-bold border">
+                {activeModal === 'groom' ? (design.meetBadgeGroom || 'The Groom') : (design.meetBadgeBride || 'The Bride')}
               </span>
-              <h3 className="font-serif text-2xl font-bold text-[#2B1E17]">
+              <h3 className="font-royal text-2xl font-bold inv-heading">
                 {activeModal === 'groom' ? groom : bride}
               </h3>
-              <p className="text-xs text-stone-600 italic px-2">
+              <p className="text-xs inv-muted italic px-2">
                 "{activeModal === 'groom' 
                   ? (groomBio || 'Foodie, photography enthusiast, and the architect of their happiest memories.') 
                   : (brideBio || 'Loves classic poetry, morning chai, and spontaneous mountain hikes.')}"
               </p>
-              <p className="text-[10px] text-stone-400 font-sans border-t border-stone-200/60 pt-2 mt-2">
+              <p className="text-[10px] inv-subtle border-t pt-2 mt-2" style={{ borderColor: 'var(--pal-card-border)' }}>
                 {activeModal === 'groom' 
                   ? (groomLineage || 'S/o Mr. Ramesh & Mrs. Sunita Sharma') 
                   : (brideLineage || 'D/o Mr. Vijay & Mrs. Rekha Malhotra')}
@@ -943,7 +961,7 @@ export function PastelPolaroidCouple({
             <div className="pt-1">
               <button 
                 onClick={() => setActiveModal(null)}
-                className="text-[11px] uppercase tracking-widest text-stone-400 font-semibold hover:text-stone-700 cursor-pointer"
+                className="text-[11px] uppercase tracking-widest inv-muted font-semibold hover:opacity-100 cursor-pointer"
               >
                 Tap to close ✕
               </button>
@@ -959,7 +977,8 @@ export function PastelPolaroidCouple({
  * 12. HANGING WALL CALENDAR & COUNTDOWN (from Wishlys video frame 025 - 027)
  * Ring-bound calendar card with hand-drawn heart circled around wedding date.
  */
-export function PastelHangingCalendar({ date = '2026-12-09', timeLeft }) {
+export function PastelHangingCalendar({ date = '2026-12-09', timeLeft, templateId = 'caricature', isDark = false }) {
+  const design = getThemeDesign(templateId);
   const d = new Date(date || '2026-12-09');
   const valid = !isNaN(d.getTime());
   const monthName = valid ? d.toLocaleString('en-US', { month: 'long' }) : 'December';
@@ -1010,30 +1029,30 @@ export function PastelHangingCalendar({ date = '2026-12-09', timeLeft }) {
     <section className="py-6 px-2 w-full max-w-[390px] mx-auto select-none">
       <ScrollReveal variant="fade-up">
         <div className="text-center space-y-1 mb-5">
-          <span className="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">
+          <span className="text-[11px] font-cursive tracking-wider inv-eyebrow block font-semibold">
             Mark your calendar
           </span>
-          <h3 className="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">
+          <h3 className="font-royal text-2xl sm:text-3xl font-light inv-heading">
             {monthName} {year}
           </h3>
-          <div className="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1" />
+          <div className="w-20 h-0.5 inv-rule mx-auto rounded-full mt-1" />
         </div>
       </ScrollReveal>
 
       {/* Hanging Wall Calendar Card */}
       <ScrollReveal variant="calendar-drop" delay={100}>
-        <div ref={calendarCardRef} className="relative bg-white/95 backdrop-blur-xs rounded-2xl p-4 sm:p-5 border-2 border-stone-200/80 shadow-md">
+        <div ref={calendarCardRef} className="inv-card relative p-4 sm:p-5 shadow-md">
           {/* Binder Ring Loops */}
-          <div className="absolute -top-3 left-1/3 -translate-x-1/2 w-3.5 h-6 rounded-full border-2 border-stone-400 bg-stone-100 shadow-inner" />
-          <div className="absolute -top-3 right-1/3 translate-x-1/2 w-3.5 h-6 rounded-full border-2 border-stone-400 bg-stone-100 shadow-inner" />
+          <div className="inv-surface absolute -top-3 left-1/3 -translate-x-1/2 w-3.5 h-6 rounded-full border-2 shadow-inner" />
+          <div className="inv-surface absolute -top-3 right-1/3 translate-x-1/2 w-3.5 h-6 rounded-full border-2 shadow-inner" />
 
           {/* Days of week */}
-          <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-[#DB2777] pb-2 border-b border-stone-100 mb-2">
+          <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold inv-eyebrow pb-2 border-b mb-2" style={{ borderColor: 'var(--pal-card-border)' }}>
             <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
           </div>
 
           {/* Days grid */}
-          <div className="grid grid-cols-7 gap-1 text-center text-xs text-stone-700">
+          <div className="grid grid-cols-7 gap-1 text-center text-xs inv-text">
             {Array.from({ length: firstDayIndex }).map((_, i) => (
               <span key={`empty-${i}`} />
             ))}
@@ -1043,7 +1062,7 @@ export function PastelHangingCalendar({ date = '2026-12-09', timeLeft }) {
               return (
                 <div key={day} className="h-7 sm:h-8 flex items-center justify-center relative">
                   {isWeddingDay ? (
-                    <div className="relative w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center font-bold text-rose-600 select-none">
+                    <div className="relative w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center font-bold select-none" style={{ color: 'var(--pal-eyebrow)' }}>
                       {/* Animated SVG Hand-Drawn Marking Heart */}
                       <svg 
                         viewBox="0 0 36 36" 
@@ -1051,7 +1070,7 @@ export function PastelHangingCalendar({ date = '2026-12-09', timeLeft }) {
                       >
                         <path
                           d="M18,31 C10,23 3.5,17 3.5,10.5 C3.5,5.5 7.5,2 12.5,2 C15.5,2 17.5,3.5 18,5 C18.5,3.5 20.5,2 23.5,2 C28.5,2 32.5,5.5 32.5,10.5 C32.5,17 26,23 18,31 Z"
-                          fill={isMarked ? 'rgba(244, 63, 94, 0.18)' : 'transparent'}
+                          fill={isMarked ? 'rgba(244, 63, 94, 0.22)' : 'transparent'}
                           stroke="#E11D48"
                           strokeWidth="2.8"
                           strokeLinecap="round"
@@ -1066,7 +1085,7 @@ export function PastelHangingCalendar({ date = '2026-12-09', timeLeft }) {
                           className={isMarked ? 'animate-mark-heart' : 'opacity-0'}
                         />
                       </svg>
-                      <span className="relative z-10 text-rose-700 font-extrabold text-sm">{day}</span>
+                      <span className="relative z-10 font-extrabold text-sm" style={{ color: isDark ? '#FFE4E6' : '#BE123C' }}>{day}</span>
                     </div>
                   ) : (
                     <span>{day}</span>
@@ -1081,43 +1100,46 @@ export function PastelHangingCalendar({ date = '2026-12-09', timeLeft }) {
       {/* Countdown Bar Directly Below */}
       <div className="mt-6 text-center">
         <ScrollReveal variant="fade-up" delay={180}>
-          <span className="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold mb-2.5">
-            Counting down to the shaadi
+          <span className="text-[11px] font-cursive tracking-wider inv-eyebrow block font-semibold mb-2.5">
+            {design.isCaricature ? 'Counting down to the shaadi' : 'Counting down to the celebration'}
           </span>
         </ScrollReveal>
-        <PastelCountdownBar timeLeft={timeLeft} />
+        <PastelCountdownBar timeLeft={timeLeft} isDark={isDark} isCaricature={design.isCaricature} />
       </div>
     </section>
   );
 }
 
-export function PastelCountdownBar({ timeLeft }) {
+export function PastelCountdownBar({ timeLeft, isDark = false, isCaricature = true }) {
+  const units = [
+    { key: 'days', label: 'Days', val: timeLeft?.days || '00', bg: '#FCE7F3', border: '#F472B6', text: '#9D174D', sub: '#BE185D', delay: 50 },
+    { key: 'hours', label: 'Hours', val: timeLeft?.hours || '00', bg: '#D1FAE5', border: '#34D399', text: '#065F46', sub: '#047857', delay: 140 },
+    { key: 'mins', label: 'Mins', val: timeLeft?.mins || '00', bg: '#FEF3C7', border: '#FBBF24', text: '#92400E', sub: '#B45309', delay: 230 },
+    { key: 'secs', label: 'Secs', val: timeLeft?.secs || '00', bg: '#EDE9FE', border: '#A78BFA', text: '#5B21B6', sub: '#6D28D9', delay: 320 },
+  ];
+
+  const usePastelCircles = isCaricature && !isDark;
+
   return (
     <div className="flex justify-center items-center gap-2 sm:gap-3">
-      <ScrollReveal variant="bounce-in" delay={50}>
-        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#FCE7F3] border-2 border-[#F472B6] shadow-xs flex flex-col items-center justify-center p-1">
-          <span className="font-serif text-lg sm:text-xl font-bold text-[#9D174D] leading-none">{timeLeft?.days || '00'}</span>
-          <span className="text-[7.5px] uppercase tracking-wider text-[#BE185D] font-bold mt-0.5">Days</span>
-        </div>
-      </ScrollReveal>
-      <ScrollReveal variant="bounce-in" delay={140}>
-        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#D1FAE5] border-2 border-[#34D399] shadow-xs flex flex-col items-center justify-center p-1">
-          <span className="font-serif text-lg sm:text-xl font-bold text-[#065F46] leading-none">{timeLeft?.hours || '00'}</span>
-          <span className="text-[7.5px] uppercase tracking-wider text-[#047857] font-bold mt-0.5">Hours</span>
-        </div>
-      </ScrollReveal>
-      <ScrollReveal variant="bounce-in" delay={230}>
-        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#FEF3C7] border-2 border-[#FBBF24] shadow-xs flex flex-col items-center justify-center p-1">
-          <span className="font-serif text-lg sm:text-xl font-bold text-[#92400E] leading-none">{timeLeft?.mins || '00'}</span>
-          <span className="text-[7.5px] uppercase tracking-wider text-[#B45309] font-bold mt-0.5">Mins</span>
-        </div>
-      </ScrollReveal>
-      <ScrollReveal variant="bounce-in" delay={320}>
-        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#EDE9FE] border-2 border-[#A78BFA] shadow-xs flex flex-col items-center justify-center p-1">
-          <span className="font-serif text-lg sm:text-xl font-bold text-[#5B21B6] leading-none">{timeLeft?.secs || '00'}</span>
-          <span className="text-[7.5px] uppercase tracking-wider text-[#6D28D9] font-bold mt-0.5">Secs</span>
-        </div>
-      </ScrollReveal>
+      {units.map(u => (
+        <ScrollReveal key={u.key} variant="bounce-in" delay={u.delay}>
+          {usePastelCircles ? (
+            <div
+              className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 shadow-xs flex flex-col items-center justify-center p-1"
+              style={{ backgroundColor: u.bg, borderColor: u.border }}
+            >
+              <span className="font-royal text-lg sm:text-xl font-bold leading-none" style={{ color: u.text }}>{u.val}</span>
+              <span className="text-[7.5px] uppercase tracking-wider font-bold mt-0.5" style={{ color: u.sub }}>{u.label}</span>
+            </div>
+          ) : (
+            <div className="inv-card w-14 h-14 sm:w-16 sm:h-16 shadow-xs flex flex-col items-center justify-center p-1">
+              <span className="font-royal text-lg sm:text-xl font-bold inv-heading leading-none">{u.val}</span>
+              <span className="text-[7.5px] uppercase tracking-wider inv-eyebrow font-bold mt-0.5">{u.label}</span>
+            </div>
+          )}
+        </ScrollReveal>
+      ))}
     </div>
   );
 }
@@ -1126,20 +1148,21 @@ export function PastelCountdownBar({ timeLeft }) {
  * 13. PASTEL OUR STORY NOTEBOOK (from Wishlys video frame 030)
  * Ruled notebook sheet with red vertical margin and yellow sticky note.
  */
-export function PastelOurStory({ story = [], quote, bride = 'Bride', groom = 'Groom', palette }) {
+export function PastelOurStory({ story = [], quote, bride = 'Bride', groom = 'Groom', palette, templateId = 'caricature' }) {
   const milestoneList = Array.isArray(story) && story.length > 0 ? story : null;
+  const design = getThemeDesign(templateId);
 
   return (
     <section className="py-6 px-2 w-full max-w-[390px] mx-auto select-none">
       <ScrollReveal variant="fade-up">
         <div className="text-center mb-5">
-          <span className="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">
-            Dear diary
+          <span className="text-[11px] font-cursive tracking-wider inv-eyebrow block font-semibold">
+            {design.storyLabel || 'Dear diary'}
           </span>
-          <h3 className="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17] flex items-center justify-center gap-2">
+          <h3 className="font-royal text-2xl sm:text-3xl font-light inv-heading flex items-center justify-center gap-2">
             <span>Our Story</span>
           </h3>
-          <div className="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1" />
+          <div className="w-20 h-0.5 inv-rule mx-auto rounded-full mt-1" />
         </div>
       </ScrollReveal>
 
@@ -1148,25 +1171,24 @@ export function PastelOurStory({ story = [], quote, bride = 'Bride', groom = 'Gr
         <div className="space-y-4">
           {milestoneList.map((chapter, idx) => (
             <ScrollReveal key={chapter.id || idx} variant={idx % 2 === 0 ? 'tilt-left' : 'tilt-right'} delay={idx * 100}>
-              <div className="relative bg-white rounded-2xl p-4 sm:p-5 pl-8 sm:pl-9 border-2 border-stone-200 shadow-md transform hover:rotate-0 transition-all duration-300 overflow-hidden">
-                {/* Red Vertical Margin Line */}
-                <div className="absolute inset-y-0 left-6 w-0.5 bg-rose-300" />
+              <div className="inv-card relative p-4 sm:p-5 pl-8 sm:pl-9 shadow-md transform hover:rotate-0 transition-all duration-300 overflow-hidden">
+                <div className="absolute inset-y-0 left-6 w-0.5" style={{ backgroundColor: 'var(--pal-accent)', opacity: 0.45 }} />
                 
                 {/* Year Pill Header */}
                 <div className="flex items-center justify-between gap-2 mb-2">
-                  <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-[#FCE7F3] text-[#BE185D] border border-[#F472B6]/40">
+                  <span className="inv-pill inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border">
                     {chapter.year || `Chapter ${idx + 1}`}
                   </span>
-                  <span className="text-xs text-rose-300">♥</span>
+                  <span className="text-xs inv-eyebrow">♥</span>
                 </div>
 
-                <h4 className="font-serif text-base sm:text-lg font-bold text-[#2B1E17] mb-1">
+                <h4 className="font-royal text-base sm:text-lg font-bold inv-heading mb-1">
                   {chapter.title}
                 </h4>
 
                 {/* Milestone Image if present */}
                 {chapter.image && (
-                  <div className="w-full aspect-video rounded-xl overflow-hidden bg-stone-100 my-2.5 border border-stone-200 shadow-xs">
+                  <div className="w-full aspect-video rounded-xl overflow-hidden my-2.5 border shadow-xs" style={{ borderColor: 'var(--pal-card-border)', backgroundColor: 'var(--pal-card-surface)' }}>
                     <img 
                       src={chapter.image} 
                       alt={chapter.title} 
@@ -1175,7 +1197,7 @@ export function PastelOurStory({ story = [], quote, bride = 'Bride', groom = 'Gr
                   </div>
                 )}
 
-                <p className="font-serif text-xs text-stone-700 italic leading-relaxed">
+                <p className="text-xs inv-muted italic leading-relaxed">
                   "{chapter.desc}"
                 </p>
               </div>
@@ -1185,13 +1207,10 @@ export function PastelOurStory({ story = [], quote, bride = 'Bride', groom = 'Gr
       ) : (
         /* Fallback single lined notebook sheet */
         <ScrollReveal variant="fade-up" delay={100}>
-          <div className="relative bg-white rounded-2xl p-4 sm:p-5 pl-9 sm:pl-10 border-2 border-stone-200 shadow-md transform -rotate-1 overflow-hidden">
-            {/* Red Vertical Margin Line */}
-            <div className="absolute inset-y-0 left-7 sm:left-8 w-0.5 bg-rose-300" />
-            
-            {/* Story Text */}
+          <div className="inv-card relative p-4 sm:p-5 pl-9 sm:pl-10 shadow-md transform -rotate-1 overflow-hidden">
+            <div className="absolute inset-y-0 left-7 sm:left-8 w-0.5" style={{ backgroundColor: 'var(--pal-accent)', opacity: 0.45 }} />
             <div className="space-y-3">
-              <p className="font-serif text-xs sm:text-sm text-stone-700 italic leading-relaxed">
+              <p className="text-xs sm:text-sm inv-muted italic leading-relaxed">
                 "{quote || 'Met during a winter afternoon in London, bonded over chai and shared conversations, and eventually realized that their paths were meant to run side-by-side forever.'}"
               </p>
             </div>
@@ -1201,9 +1220,9 @@ export function PastelOurStory({ story = [], quote, bride = 'Bride', groom = 'Gr
 
       {/* Yellow Sticky Note Overlapping Below */}
       <ScrollReveal variant="pop-up" delay={220}>
-        <div className="relative mt-3 ml-auto mr-1 w-56 sm:w-60 bg-[#FEF08A] rounded-xl p-3 shadow-md border border-[#FDE047] transform rotate-2">
-          <div className="absolute -top-2 left-5 w-10 h-3.5 bg-pink-300/80 rounded shadow-2xs rotate-1" />
-          <p className="font-script text-base text-amber-950 text-center leading-snug">
+        <div className="inv-sticky relative mt-3 ml-auto mr-1 w-56 sm:w-60 rounded-xl p-3 shadow-md border transform rotate-2">
+          <div className="inv-pill absolute -top-2 left-5 w-10 h-3.5 rounded shadow-2xs border rotate-1" />
+          <p className="font-script text-base text-center leading-snug">
             "{quote || 'A celebration of love, culture, and the beginning of forever.'}"
           </p>
         </div>
@@ -1240,7 +1259,7 @@ export function PastelScooterDivider() {
 
           <div className="absolute top-1 left-1/2 -translate-x-1/2 flex items-center gap-1.5 animate-float">
             <span className="text-2xl drop-shadow-md transform -rotate-3">🛵</span>
-            <span className="text-xs text-stone-400">💨</span>
+            <span className="text-xs inv-muted">💨</span>
           </div>
         </div>
       </ScrollReveal>
@@ -1249,8 +1268,18 @@ export function PastelScooterDivider() {
 }
 
 /**
- * 15. PASTEL CARICATURE EVENT POP-UP (from Wishlys video frame 035 - 062)
- * Authentic illustrated scalloped arches for Mehndi, Sangeet, Wedding, Reception!
+ * 14b. THEME-ADAPTIVE EVENT DIVIDER
+ */
+export function ThemeDivider({ templateId = 'caricature' }) {
+  const design = getThemeDesign(templateId);
+  if (design.isCaricature) {
+    return <PastelScooterDivider />;
+  }
+  return <div dangerouslySetInnerHTML={{ __html: renderThemeDividerHtml(templateId) }} />;
+}
+
+/**
+ * 15. PASTEL / THEME-ADAPTIVE EVENT POP-UP
  */
 export function PastelEventCard({ event, index, templateId = 'caricature' }) {
   const nameLower = (event.name || '').toLowerCase();
@@ -1279,7 +1308,7 @@ export function PastelEventCard({ event, index, templateId = 'caricature' }) {
       {archImg && (
         <ScrollReveal variant="pop-up">
           <div className="w-full flex justify-center -mb-2">
-            <div className="w-full max-w-[350px] aspect-[9/16] rounded-t-[44px] rounded-b-2xl overflow-hidden flex items-center justify-center p-0 drop-shadow-md bg-[#FFFDF7]/95 backdrop-blur-xs border-2 border-amber-100/80">
+            <div className="inv-arch-card inv-hero-img-wrap w-full max-w-[350px] aspect-[9/16] overflow-hidden flex items-center justify-center p-0 drop-shadow-md">
               <img 
                 src={archImg} 
                 alt={event.name} 
@@ -1300,36 +1329,36 @@ export function PastelEventCard({ event, index, templateId = 'caricature' }) {
       {/* Event Title */}
       <ScrollReveal variant="fade-up" delay={80}>
         <div className="text-center">
-          <h3 className="font-serif text-2xl font-bold text-[#2B1E17]">
+          <h3 className="font-royal text-2xl font-bold inv-heading">
             {event.name}
           </h3>
         </div>
       </ScrollReveal>
 
-      {/* Hand-Drawn Event Details Card */}
+      {/* Theme-Styled Event Details Card */}
       <ScrollReveal variant="fade-up" delay={160}>
-        <div className="relative bg-[#FFFDF9]/95 backdrop-blur-xs rounded-2xl p-4 sm:p-5 border-2 border-stone-200/80 shadow-md space-y-2.5">
-          <div className="space-y-1.5 text-xs text-stone-700">
+        <div className="inv-card relative p-4 sm:p-5 shadow-md space-y-2.5">
+          <div className="space-y-1.5 text-xs inv-text">
             <p className="flex items-center gap-2">
               <span>📅</span>
-              <strong className="text-stone-900">{event.date}</strong> · ⏰ {event.time}
+              <strong className="inv-heading">{event.date}</strong> · ⏰ {event.time}
             </p>
             <p className="flex items-center gap-2">
               <span>📍</span>
-              <span><strong className="text-stone-900">{event.venue}</strong> — {event.address}</span>
+              <span><strong className="inv-heading">{event.venue}</strong> — <span className="inv-muted">{event.address}</span></span>
             </p>
             {event.dressCode && (
               <p className="flex items-center gap-2">
                 <span>👔</span>
-                <span className="text-[#8B6F47] font-semibold">{event.dressCode}</span>
+                <span className="inv-accent font-semibold">{event.dressCode}</span>
               </p>
             )}
           </div>
 
           {event.desc && (
             <>
-              <div className="border-b border-dashed border-stone-200 pt-0.5" />
-              <p className="text-[11px] text-stone-600 italic leading-relaxed">
+              <div className="border-b border-dashed pt-0.5" style={{ borderColor: 'var(--pal-card-border)' }} />
+              <p className="text-[11px] inv-muted italic leading-relaxed">
                 "{event.desc}"
               </p>
             </>
@@ -1340,7 +1369,7 @@ export function PastelEventCard({ event, index, templateId = 'caricature' }) {
               href={event.mapsUrl || `https://maps.google.com/?q=${encodeURIComponent((event.venue || '') + ' ' + (event.address || ''))}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 py-2.5 rounded-full flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider bg-[#FCE7F3] text-[#BE185D] hover:bg-[#FBCFE8] transition-all shadow-xs cursor-pointer"
+              className="inv-pill border flex-1 py-2.5 rounded-full flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-all shadow-xs cursor-pointer"
             >
               <Send className="w-3.5 h-3.5" />
               <span>Get directions</span>
@@ -1349,7 +1378,7 @@ export function PastelEventCard({ event, index, templateId = 'caricature' }) {
               href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.name || 'Celebration')}&details=${encodeURIComponent((event.desc ? event.desc + '\n' : '') + 'Venue: ' + (event.venue || '') + ' ' + (event.address || ''))}&location=${encodeURIComponent((event.venue || '') + ' ' + (event.address || ''))}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3.5 py-2.5 rounded-full flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider bg-[#FFFDF7] border border-[#FDE68A] text-[#B45309] hover:bg-[#FEF3C7] transition-all shadow-xs cursor-pointer"
+              className="inv-btn-secondary px-3.5 py-2.5 rounded-full flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-all shadow-xs cursor-pointer"
               title="Add to Calendar"
             >
               <Calendar className="w-3.5 h-3.5" />
@@ -1364,7 +1393,6 @@ export function PastelEventCard({ event, index, templateId = 'caricature' }) {
 
 /**
  * 16. PASTEL POLAROID PHOTO GALLERY (from Wishlys video frame 063 - 065)
- * 4 Polaroid cards with white margins and colorful washi tapes.
  */
 export function PastelPolaroidGallery({ photos = [] }) {
   const defaultGallery = [
@@ -1383,24 +1411,18 @@ export function PastelPolaroidGallery({ photos = [] }) {
   ];
 
   const list = photos.length > 0 ? photos : defaultGallery;
-  const tapeStyles = [
-    'bg-[#FEF08A]/80 border-[#FDE047]',
-    'bg-[#EDE9FE]/80 border-[#DDD6FE]',
-    'bg-[#FCE7F3]/80 border-[#F472B6]',
-    'bg-[#D1FAE5]/80 border-[#34D399]',
-  ];
 
   return (
     <section className="py-6 px-2 w-full max-w-[390px] mx-auto select-none">
       <ScrollReveal variant="fade-up">
         <div className="text-center space-y-1 mb-6">
-          <span className="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">
+          <span className="text-[11px] font-cursive tracking-wider inv-eyebrow block font-semibold">
             Moments to cherish
           </span>
-          <h3 className="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">
+          <h3 className="font-royal text-2xl sm:text-3xl font-light inv-heading">
             Memories Gallery
           </h3>
-          <div className="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1" />
+          <div className="w-20 h-0.5 inv-rule mx-auto rounded-full mt-1" />
         </div>
       </ScrollReveal>
 
@@ -1412,12 +1434,12 @@ export function PastelPolaroidGallery({ photos = [] }) {
             delay={Math.min(360, (idx % 4) * 120)}
           >
             <div 
-              className={`relative bg-white p-2 pb-3.5 rounded-lg shadow-md border border-stone-200 transform ${idx % 2 === 0 ? '-rotate-1 hover:rotate-0' : 'rotate-1 hover:rotate-0'} transition-transform duration-300 group`}
+              className={`inv-polaroid relative p-2 pb-3.5 shadow-md transform ${idx % 2 === 0 ? '-rotate-1 hover:rotate-0' : 'rotate-1 hover:rotate-0'} transition-transform duration-300 group`}
             >
               {/* Washi Tape */}
-              <div className={`absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 ${tapeStyles[idx % tapeStyles.length]} rounded shadow-2xs border rotate-1`} />
+              <div className="inv-pill absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 rounded shadow-2xs border rotate-1" />
               
-              <div className="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
+              <div className="w-full aspect-square rounded overflow-hidden mb-1.5 border" style={{ borderColor: 'var(--pal-card-border)', backgroundColor: 'var(--pal-card-surface)' }}>
                 <img 
                   src={item.img || item.url} 
                   alt={item.title || item.caption || `Memory ${idx + 1}`} 
@@ -1425,7 +1447,7 @@ export function PastelPolaroidGallery({ photos = [] }) {
                 />
               </div>
               <div className="text-center">
-                <span className="text-[9px] uppercase font-bold tracking-wider text-stone-500">
+                <span className="text-[9px] uppercase font-bold tracking-wider inv-muted">
                   ✦ {item.title || item.caption || `Moment 0${idx + 1}`} ✦
                 </span>
               </div>
@@ -1445,18 +1467,18 @@ export function PastelVenueMap({ venue = 'Umaid Bhawan Palace', city = 'Udaipur,
     <section className="py-6 px-2 w-full max-w-[390px] mx-auto select-none">
       <ScrollReveal variant="fade-up">
         <div className="text-center space-y-1 mb-5">
-          <span className="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">
+          <span className="text-[11px] font-cursive tracking-wider inv-eyebrow block font-semibold">
             Where it's all happening
           </span>
-          <h3 className="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">
+          <h3 className="font-royal text-2xl sm:text-3xl font-light inv-heading">
             The Venue
           </h3>
-          <div className="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1" />
+          <div className="w-20 h-0.5 inv-rule mx-auto rounded-full mt-1" />
         </div>
       </ScrollReveal>
 
       <ScrollReveal variant="pop-up" delay={120}>
-        <div className="bg-[#FFFDF9]/95 backdrop-blur-xs rounded-2xl p-4 border-2 border-stone-200/80 shadow-md space-y-3">
+        <div className="inv-card p-4 shadow-md space-y-3">
           {/* Illustrated Route Map Card */}
           <div className="w-full h-40 rounded-xl bg-gradient-to-b from-[#E6F4EA] to-[#FEF3C7] border border-[#A7F3D0] relative overflow-hidden flex flex-col justify-between p-3">
             <div className="flex justify-between items-start text-lg opacity-80">
@@ -1474,9 +1496,9 @@ export function PastelVenueMap({ venue = 'Umaid Bhawan Palace', city = 'Udaipur,
               </div>
             </div>
 
-            <div className="bg-white/90 backdrop-blur-xs rounded-lg p-2 text-center border border-stone-200 shadow-2xs">
-              <h4 className="font-serif text-sm font-bold text-[#2B1E17]">{venue}</h4>
-              <p className="text-[10px] text-stone-500">{city} · {address}</p>
+            <div className="inv-surface rounded-lg p-2 text-center border shadow-2xs">
+              <h4 className="font-royal text-sm font-bold inv-heading">{venue}</h4>
+              <p className="text-[10px] inv-muted">{city} · {address}</p>
             </div>
           </div>
 
@@ -1484,7 +1506,7 @@ export function PastelVenueMap({ venue = 'Umaid Bhawan Palace', city = 'Udaipur,
             href={`https://maps.google.com/?q=${encodeURIComponent(venue + ' ' + address)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full py-2.5 rounded-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#881337] text-white hover:bg-[#9F1239] transition-all shadow-sm cursor-pointer"
+            className="inv-btn-primary w-full py-2.5 rounded-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider hover:opacity-95 transition-all shadow-sm cursor-pointer"
           >
             <Compass className="w-4 h-4" />
             <span>Open in Google Maps</span>
@@ -1606,20 +1628,20 @@ export function PastelHashtagBanner({ hashtag = '#Wedding' }) {
   return (
     <section className="py-6 px-2 w-full max-w-[390px] mx-auto text-center select-none space-y-2">
       <ScrollReveal variant="pop-up">
-        <span className="text-[10px] uppercase tracking-[0.25em] font-bold text-stone-500 block">
+        <span className="text-[10px] uppercase tracking-[0.25em] font-bold inv-muted block">
           SHARE THE MOMENTS
         </span>
-        <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#2B1E17] mt-1">
+        <h3 className="font-royal text-2xl sm:text-3xl font-bold inv-heading mt-1">
           {hashtag}
         </h3>
-        <p className="text-xs text-stone-600 font-light mt-1">
+        <p className="text-xs inv-muted font-light mt-1">
           Tag your photos and stories so we can relive every moment.
         </p>
         <div className="pt-3">
           <button
             type="button"
             onClick={handleCopy}
-            className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-[#881337] hover:bg-[#9F1239] text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md cursor-pointer active:scale-95"
+            className="inv-btn-primary inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all shadow-md cursor-pointer active:scale-95 hover:opacity-95"
           >
             {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
             <span>{copied ? 'Copied to Clipboard!' : 'Copy Hashtag'}</span>
@@ -1858,46 +1880,47 @@ export function PastelMultiStepRsvp({ events = [] }) {
  * 21. PASTEL FOOTER WITH SCOOTER & HEARTS (from Wishlys video frame 080)
  * "See you at the shaadi!", 4 floating hearts, and yellow scooter driving across
  */
-export function PastelFooter({ bride = 'Bride', groom = 'Groom' }) {
+export function PastelFooter({ bride = 'Bride', groom = 'Groom', templateId = 'caricature' }) {
+  const design = getThemeDesign(templateId);
   return (
-    <footer className="py-10 px-2 w-full max-w-[390px] mx-auto text-center space-y-3.5 border-t-2 border-dashed border-[#F5D0C5] select-none">
+    <footer className="py-10 px-2 w-full max-w-[390px] mx-auto text-center space-y-3.5 border-t-2 border-dashed select-none" style={{ borderColor: 'var(--pal-card-border)' }}>
       <ScrollReveal variant="fade-up">
-        <h3 className="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">
-          See you at the shaadi!
+        <h3 className="font-royal text-2xl sm:text-3xl font-light inv-heading">
+          {design.footerTitle || 'See you at the shaadi!'}
         </h3>
         
-        <p className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#8B6F47] mt-1">
+        <p className="text-[10px] tracking-[0.3em] uppercase font-bold inv-accent mt-1">
           WITH LOVE, {groom} & {bride}
         </p>
       </ScrollReveal>
 
-      {/* Row of 4 pastel floating hearts */}
+      {/* Row of 4 floating accent hearts */}
       <ScrollReveal variant="bounce-in" delay={150}>
         <div className="flex items-center justify-center gap-3">
-          <span className="w-6 h-6 rounded-full bg-[#FEF3C7] border border-[#FBBF24] flex items-center justify-center text-xs shadow-xs animate-bounce">
+          <span className="inv-pill w-6 h-6 rounded-full border flex items-center justify-center text-xs shadow-xs animate-bounce">
             💛
           </span>
-          <span className="w-6 h-6 rounded-full bg-[#D1FAE5] border border-[#34D399] flex items-center justify-center text-xs shadow-xs animate-bounce" style={{ animationDelay: '0.2s' }}>
+          <span className="inv-pill w-6 h-6 rounded-full border flex items-center justify-center text-xs shadow-xs animate-bounce" style={{ animationDelay: '0.2s' }}>
             💚
           </span>
-          <span className="w-6 h-6 rounded-full bg-[#EDE9FE] border border-[#A78BFA] flex items-center justify-center text-xs shadow-xs animate-bounce" style={{ animationDelay: '0.4s' }}>
+          <span className="inv-pill w-6 h-6 rounded-full border flex items-center justify-center text-xs shadow-xs animate-bounce" style={{ animationDelay: '0.4s' }}>
             💜
           </span>
-          <span className="w-6 h-6 rounded-full bg-[#FCE7F3] border border-[#F472B6] flex items-center justify-center text-xs shadow-xs animate-bounce" style={{ animationDelay: '0.6s' }}>
+          <span className="inv-pill w-6 h-6 rounded-full border flex items-center justify-center text-xs shadow-xs animate-bounce" style={{ animationDelay: '0.6s' }}>
             💖
           </span>
         </div>
       </ScrollReveal>
 
-      {/* Driving Cartoon Yellow Scooter */}
+      {/* Theme Closing Motif */}
       <ScrollReveal variant="scooter-drive" delay={250}>
         <div className="flex items-center justify-center gap-1 pt-2 animate-float">
-          <span className="text-3xl drop-shadow">🛵</span>
-          <span className="text-xs text-stone-400">💨</span>
+          <span className="text-3xl drop-shadow">{design.closingEmoji || '✨'}</span>
+          {design.isCaricature && <span className="text-xs inv-muted">💨</span>}
         </div>
       </ScrollReveal>
 
-      <p className="text-xs text-stone-500 font-light italic">
+      <p className="text-xs inv-muted font-light italic">
         We can't wait to celebrate with you
       </p>
     </footer>

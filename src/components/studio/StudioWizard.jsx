@@ -20,6 +20,16 @@ import { soundManager } from '../../utils/audio';
 import { triggerCelebration } from '../../utils/confetti';
 import { toBase64Optimized } from '../../utils/imageOptimizer';
 import { getThemeEventImage, getThemeHeroImage, THEMES_LIST, CEREMONY_FILES, ALL_THEME_ARTWORKS } from '../../utils/themeImages';
+import {
+  getThemeDesign,
+  resolvePaletteTheme,
+  resolveTypographyVars,
+  buildGoogleFontsUrl,
+  renderThemeTopHtml,
+  renderThemeSideHtml,
+  renderThemeDividerHtml,
+  SHARED_INVITATION_CSS
+} from '../../utils/themeDecorConfig';
 import { publishStandaloneToGitHub } from '../../utils/githubPublish';
 
 const REVEAL_ICON_MAP = {
@@ -674,6 +684,58 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       const isMela = selectedTmpl.id === 'mela';
       const isNewspaper = selectedTmpl.id === 'newspaper';
       const isBougain = selectedTmpl.id === 'bougain' || selectedTmpl.id === 'bougainvillea';
+      const palTheme = resolvePaletteTheme(selectedTmpl.id, data.palette || 'champagne');
+      const typoVars = resolveTypographyVars(data.typography);
+      const googleFontsUrl = buildGoogleFontsUrl(data.typography);
+      const themeDesign = getThemeDesign(selectedTmpl.id);
+      const themeTopHtml = renderThemeTopHtml(selectedTmpl.id);
+      const themeSideHtml = renderThemeSideHtml(selectedTmpl.id);
+      const themeDividerHtml = renderThemeDividerHtml(selectedTmpl.id);
+      const rootCssVarsString = Object.entries({ ...palTheme.cssVars, ...typoVars.cssVars })
+        .map(([k, v]) => `${k}: ${v};`)
+        .join(' ');
+      const paletteThemeMap = Object.fromEntries(
+        PALETTES.map(p => [p.id, resolvePaletteTheme(selectedTmpl.id, p.id)])
+      );
+      const paletteMapJson = JSON.stringify(paletteThemeMap).replace(/<\/script/gi, '<\\/script');
+      const templateCardMapJson = JSON.stringify(
+        Object.fromEntries(TEMPLATES.map(t => [t.id, getThemeDesign(t.id).cardClass]))
+      );
+      const safeVenueName = (data.events?.[0]?.venue || 'The Oberoi Udaivilas');
+      const safeCityName = (data.hosts?.city || 'Udaipur, Rajasthan');
+      const safeVenueAddr = (data.events?.[0]?.address || 'Haridas Ji Ki Magri');
+      const safeHashtag = (data.hosts?.hashtag || '#Wedding');
+      const venueSectionHtml = `
+      <!-- VENUE ROADMAP -->
+      <section class="py-6 px-2 w-full max-w-[390px] mx-auto select-none">
+        <div class="text-center space-y-1 mb-5 scroll-reveal">
+          <span class="text-[11px] font-script tracking-wider inv-eyebrow block font-semibold">Where it's all happening</span>
+          <h3 class="font-royal text-2xl sm:text-3xl font-light inv-heading">The Venue</h3>
+          <div class="w-20 h-0.5 inv-rule mx-auto rounded-full mt-1"></div>
+        </div>
+
+        <div class="inv-card p-4 shadow-md space-y-3 scroll-reveal reveal-pop-up" style="transition-delay: 120ms;">
+          <div class="w-full h-40 rounded-xl inv-surface border relative overflow-hidden flex flex-col justify-between p-3">
+            <div class="flex justify-between items-start text-lg opacity-80">
+              <span>🌳</span><span>🏰</span><span>🌳</span>
+            </div>
+            <div class="relative w-full flex items-center justify-center my-auto">
+              <svg viewBox="0 0 200 40" class="w-full h-10" fill="none">
+                <path d="M10,25 Q100,5 190,25" stroke="currentColor" class="inv-muted opacity-60" stroke-width="2.5" stroke-dasharray="5,4" />
+              </svg>
+              <div class="absolute right-4 top-1/2 -translate-y-1/2 text-rose-500 text-2xl animate-pin-drop">📍</div>
+            </div>
+            <div class="inv-modal rounded-lg p-2 text-center border shadow-2xs">
+              <h4 class="font-royal text-sm font-bold inv-heading">${safeVenueName}</h4>
+              <p class="text-[10px] inv-muted">${safeCityName} · ${safeVenueAddr}</p>
+            </div>
+          </div>
+
+          <a href="https://maps.google.com/?q=${encodeURIComponent(safeVenueName + ' ' + safeCityName)}" target="_blank" class="w-full py-2.5 rounded-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider inv-btn-primary hover:opacity-95 transition-all shadow-sm cursor-pointer">
+            <span>🧭 Open in Google Maps</span>
+          </a>
+        </div>
+      </section>`;
 
       // Convert local images to base64 DataURIs (high-fidelity Retina resolution)
     const [
@@ -832,6 +894,9 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       }, 400);
     };
 
+    var __PALETTE_THEMES__ = ${paletteMapJson};
+    var __TEMPLATE_CARDS__ = ${templateCardMapJson};
+
     // 3. High-speed Quota-Safe DOM Hydration from JSON (always succeeds)
     function hydrateSavedData() {
       try {
@@ -845,11 +910,68 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         var d = JSON.parse(raw);
         if (!d || !d.hosts) return;
 
+        // Apply saved Typography Fonts (headingFont, bodyFont, scriptFont)
+        if (d.typography) {
+          var rs = document.documentElement.style;
+          if (d.typography.headingFont) {
+            rs.setProperty('--font-heading', '"' + d.typography.headingFont + '", Georgia, serif');
+            rs.setProperty('--font-royal', '"' + d.typography.headingFont + '", Georgia, serif');
+          }
+          if (d.typography.bodyFont) {
+            rs.setProperty('--font-body', '"' + d.typography.bodyFont + '", Georgia, serif');
+            rs.setProperty('--font-serif', '"' + d.typography.bodyFont + '", Georgia, serif');
+          }
+          if (d.typography.scriptFont) {
+            rs.setProperty('--font-script', '"' + d.typography.scriptFont + '", cursive');
+          }
+          var customFonts = [d.typography.headingFont, d.typography.bodyFont, d.typography.scriptFont]
+            .filter(function(f) { return f && f.trim().length > 0; });
+          if (customFonts.length > 0) {
+            var gfId = 'wishlys-dynamic-gfonts';
+            var gfEl = document.getElementById(gfId);
+            var gfHref = 'https://fonts.googleapis.com/css2?' + customFonts.map(function(f) {
+              return 'family=' + encodeURIComponent(f) + ':wght@300;400;500;600;700';
+            }).join('&') + '&display=swap';
+            if (!gfEl) {
+              gfEl = document.createElement('link');
+              gfEl.id = gfId;
+              gfEl.rel = 'stylesheet';
+              gfEl.href = gfHref;
+              document.head.appendChild(gfEl);
+            } else {
+              gfEl.href = gfHref;
+            }
+          }
+        }
+
+        // Apply saved Palette Light/Dark tokens + Template card architecture
+        if (d.palette && typeof __PALETTE_THEMES__ !== 'undefined' && __PALETTE_THEMES__[d.palette]) {
+          var pTheme = __PALETTE_THEMES__[d.palette];
+          var rootEl = document.documentElement;
+          Object.keys(pTheme.cssVars || {}).forEach(function(k) {
+            rootEl.style.setProperty(k, pTheme.cssVars[k]);
+          });
+          if (document.body) {
+            document.body.classList.toggle('inv-dark', !!pTheme.isDark);
+            document.body.classList.toggle('inv-light', !pTheme.isDark);
+          }
+          var atmoEl = document.getElementById('atmosphere-canvas');
+          if (atmoEl) {
+            atmoEl.style.mixBlendMode = pTheme.isDark ? 'screen' : 'normal';
+          }
+        }
+        if (d.template && typeof __TEMPLATE_CARDS__ !== 'undefined' && __TEMPLATE_CARDS__[d.template] && document.body) {
+          Array.from(document.body.classList).forEach(function(cls) {
+            if (cls.indexOf('theme-card-') === 0) document.body.classList.remove(cls);
+          });
+          document.body.classList.add(__TEMPLATE_CARDS__[d.template]);
+        }
+
         var resolveAssetUrl = function(url) {
           if (!url) return '';
           if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://')) return url;
           var inPublished = window.location.pathname.indexOf('/published/') !== -1;
-          var clean = url.replace(/^\.?\//, '');
+          var clean = url.indexOf('./') === 0 ? url.slice(2) : (url.charAt(0) === '/' ? url.slice(1) : url);
           return inPublished ? ('../' + clean) : ('./' + clean);
         };
 
@@ -1039,13 +1161,13 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
               var delay = Math.min(360, (idx % 4) * 120);
               var rawUrl = item.url || item.img || item.b64 || './images/couple-potrait.webp';
               var imgUrl = resolveAssetUrl(rawUrl);
-              var cap = (item.caption || item.title || 'Wedding Memory').replace(/'/g, "\\'");
-              gHtml += '<div class="relative bg-white/95 backdrop-blur-xs p-2 pb-3.5 rounded-lg shadow-md border border-white/80 hover:border-amber-200 transform ' + tiltClass + ' hover:rotate-0 transition-all duration-300 scroll-reveal cursor-pointer" style="transition-delay: ' + delay + 'ms;" onclick="openMomentLightbox(\'' + imgUrl + '\', \'' + cap + '\')">'
-                + '<div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 ' + tapeClass + ' rounded shadow-2xs border rotate-1"></div>'
-                + '<div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">'
+              var cap = (item.caption || item.title || 'Wedding Memory').replace(/'/g, "\\\\'");
+              gHtml += '<div class="relative inv-polaroid p-2 pb-3.5 shadow-md transform ' + tiltClass + ' hover:rotate-0 transition-all duration-300 scroll-reveal cursor-pointer" style="transition-delay: ' + delay + 'ms;" onclick="openMomentLightbox(\\'' + imgUrl + '\\', \\'' + cap + '\\')">'
+                + '<div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 inv-sticky rounded shadow-2xs border rotate-1"></div>'
+                + '<div class="w-full aspect-square rounded overflow-hidden inv-surface mb-1.5 border">'
                 + '<img src="' + imgUrl + '" class="w-full h-full object-cover" />'
                 + '</div>'
-                + '<div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ ' + cap + ' ✦</span></div>'
+                + '<div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider inv-muted">✦ ' + cap + ' ✦</span></div>'
                 + '</div>';
             });
             momentsGrid.innerHTML = gHtml;
@@ -1083,11 +1205,34 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     }, true);
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    if (window.tailwind) {
+      window.tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              royal: ["${typoVars.headingFont}", "Georgia", "serif"],
+              serif: ["${typoVars.bodyFont}", "Georgia", "serif"],
+              sans: ["${typoVars.bodyFont}", "system-ui", "sans-serif"],
+              script: ["${typoVars.scriptFont}", "cursive"],
+              cursive: ["${typoVars.scriptFont}", "cursive"]
+            }
+          }
+        }
+      };
+    }
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Alex+Brush&family=Allura&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Great+Vibes&family=Italianno&family=Lora:ital,wght@0,400..700;1,400..700&family=Marcellus&family=Montserrat:wght@300;400;500;600;700&family=Parisienne&family=Philosopher:ital,wght@0,400;0,700;1,400&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400..800;1,400..800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Prata&family=Rozha+One&family=Satisfy&family=Tangerine:wght@700&display=swap" rel="stylesheet" />
+  <link href="${googleFontsUrl}" rel="stylesheet" />
   <style>
+    :root { ${rootCssVarsString} }
+    html, body {
+      font-family: var(--font-body, 'Cormorant Garamond', Georgia, serif);
+      background-color: var(--pal-bg, #FAF7F2);
+      color: var(--pal-text, #2B1E17);
+    }
     /* Frosted glass blur for cards */
     [class*="backdrop-blur"], .backdrop-blur-md {
       -webkit-backdrop-filter: blur(2.5px) !important;
@@ -1097,10 +1242,9 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       -webkit-backdrop-filter: blur(3.5px) !important;
       backdrop-filter: blur(3.5px) !important;
     }
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: ${isPichwai ? '#071A1E' : isZardozi ? '#FAF7F0' : isNewspaper ? '#F6F1E5' : isCaricature ? '#FAF7F2' : '#FDFBF7'}; color: ${isPichwai ? '#F4ECDE' : '#2B1E17'}; }
-    .font-serif { font-family: "${data.typography?.bodyFont || 'Cormorant Garamond'}", Georgia, serif; }
-    .font-royal { font-family: "${data.typography?.headingFont || 'Cinzel'}", serif; }
-    .font-script { font-family: "${data.typography?.scriptFont || 'Great Vibes'}", cursive; }
+    ${SHARED_INVITATION_CSS}
+    @keyframes floatGentle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+    .animate-float-gentle { animation: floatGentle 4.2s ease-in-out infinite; }
 
     @keyframes swayGentle { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
     @keyframes swayToran { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(2px) rotate(1deg); } }
@@ -1214,65 +1358,26 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     .animate-scaleUp { animation: scaleUpModal 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   </style>
 </head>
-<body class="selection:bg-[#C5A880]/30 min-h-screen relative overflow-x-hidden">
+<body class="inv-theme-root ${palTheme.isDark ? 'inv-dark' : 'inv-light'} ${themeDesign.cardClass} selection:bg-[#C5A880]/30 min-h-screen relative overflow-x-hidden">
 
   <!-- FULL-PAGE CONTINUOUS ANIMATED ATMOSPHERE (Canvas 60fps) -->
-  <canvas id="atmosphere-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-10" style="mix-blend-mode: ${isPichwai ? 'screen' : 'normal'};"></canvas>
+  <canvas id="atmosphere-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-10" style="mix-blend-mode: ${palTheme.isDark ? 'screen' : 'normal'};"></canvas>
 
   <!-- FLOATING AUDIO CONTROL -->
   <div class="fixed top-4 right-4 z-50">
-    <button id="audio-toggle-btn" class="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-stone-200/90 shadow-lg text-xs font-semibold text-stone-700 hover:text-stone-900 cursor-pointer">
+    <button id="audio-toggle-btn" class="flex items-center gap-2 inv-surface inv-text backdrop-blur-md px-3.5 py-1.5 rounded-full border shadow-lg text-xs font-semibold cursor-pointer">
       <span id="audio-eq" class="hidden gap-0.5 items-end h-3.5">
-        <span class="w-1 bg-[#8B6F47] rounded-full animate-pulse h-3"></span>
-        <span class="w-1 bg-[#C5A880] rounded-full animate-pulse h-2"></span>
-        <span class="w-1 bg-[#8B6F47] rounded-full animate-pulse h-3.5"></span>
+        <span class="w-1 rounded-full animate-pulse h-3" style="background-color: var(--pal-accent);"></span>
+        <span class="w-1 rounded-full animate-pulse h-2 opacity-75" style="background-color: var(--pal-accent);"></span>
+        <span class="w-1 rounded-full animate-pulse h-3.5" style="background-color: var(--pal-accent);"></span>
       </span>
       <span id="audio-btn-text">🎵 Play Music</span>
     </button>
   </div>
 
-  <!-- THEME TOP ORNAMENTS -->
-  ${isZardozi ? `
-  <div class="w-full flex justify-center overflow-hidden pointer-events-none absolute top-0 left-0 right-0 z-30 opacity-95">
-    <svg viewBox="0 0 800 65" class="w-full max-w-2xl h-auto animate-toran" fill="none">
-      <path d="M0,0 L800,0 L800,20 C700,45 600,10 500,35 C400,10 300,45 200,20 C100,45 0,15 0,0 Z" fill="#D4AF37" fillOpacity="0.4" />
-      <path d="M0,0 C100,30 200,15 300,35 C400,15 500,35 600,20 C700,35 800,15 800,0" stroke="#B8860B" strokeWidth="3" />
-      <g>
-        <circle cx="200" cy="45" r="4" fill="#FFFDF0" stroke="#B8860B" />
-        <circle cx="400" cy="45" r="4" fill="#FFFDF0" stroke="#B8860B" />
-        <circle cx="600" cy="45" r="4" fill="#FFFDF0" stroke="#B8860B" />
-      </g>
-    </svg>
-  </div>
-  <div class="pointer-events-none absolute top-3 left-3 w-16 h-16 border-t-2 border-l-2 border-[#D4AF37] z-20"></div>
-  <div class="pointer-events-none absolute top-3 right-3 w-16 h-16 border-t-2 border-r-2 border-[#D4AF37] z-20"></div>` : ''}
-
-  ${isMela ? `
-  <div class="w-full pointer-events-none absolute top-0 left-0 right-0 z-30">
-    <div class="w-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 h-6 flex justify-around items-end">
-      <div class="w-7 h-4 bg-amber-400 rounded-b-full border-b border-orange-600"></div>
-      <div class="w-7 h-4 bg-amber-400 rounded-b-full border-b border-orange-600"></div>
-      <div class="w-7 h-4 bg-amber-400 rounded-b-full border-b border-orange-600"></div>
-      <div class="w-7 h-4 bg-amber-400 rounded-b-full border-b border-orange-600"></div>
-    </div>
-    <div class="flex justify-between px-4 pt-1 text-xl animate-sway">
-      <div class="flex flex-col gap-1"><span>🌼</span><span>🏵️</span><span>🌼</span></div>
-      <div class="flex flex-col gap-1"><span>🏵️</span><span>🌼</span><span>🏵️</span></div>
-    </div>
-  </div>` : ''}
-
-  ${isPichwai ? `
-  <div class="w-full flex justify-center pointer-events-none absolute top-0 left-0 right-0 z-30">
-    <div class="flex flex-col items-center animate-sway">
-      <div class="w-0.5 h-12 bg-gradient-to-b from-[#C5A880] to-[#E8D5B5]"></div>
-      <div class="w-9 h-9 rounded-full bg-[#0D282E] border-2 border-[#C5A880] flex items-center justify-center shadow-lg -mt-1 text-base">
-        🪷
-      </div>
-    </div>
-  </div>` : ''}
-
-  <!-- REVEAL SCREEN 1: 3D FOLDING CARD DOORS FOR CARICATURE -->
-  <div id="reveal-screen-folding" onclick="unlockCaricatureDoors()" class="fixed inset-0 z-40 bg-[#FAF7F2] flex flex-col items-center justify-center p-4 transition-opacity duration-700 select-none cursor-pointer ${(data.revealStyle === 'scratch-date') ? 'hidden' : ''}">
+  <!-- REVEAL SCREEN 1: 3D FOLDING CARD DOORS -->
+  <div id="reveal-screen-folding" onclick="unlockCaricatureDoors()" class="fixed inset-0 z-40 flex flex-col items-center justify-center p-4 transition-opacity duration-700 select-none cursor-pointer ${(data.revealStyle === 'scratch-date') ? 'hidden' : ''}" style="background-color: var(--pal-bg);">
+    ${isCaricature ? `
     <!-- Top Hanging Marigold Garland -->
     <div class="w-full max-w-sm flex justify-center -mb-2 pointer-events-none">
       <svg viewBox="0 0 320 30" class="w-full h-auto text-amber-500">
@@ -1282,101 +1387,102 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         <circle cx="180" cy="12" r="4.5" fill="#F59E0B" /><circle cx="220" cy="18" r="4.5" fill="#EA580C" />
         <circle cx="260" cy="16" r="4.5" fill="#F59E0B" /><circle cx="300" cy="8" r="4.5" fill="#EA580C" />
       </svg>
-    </div>
+    </div>` : `
+    <div class="text-base inv-accent tracking-[0.4em] mb-1 opacity-85">${themeDesign.closingEmoji} ✦ ${themeDesign.closingEmoji}</div>`}
 
     <!-- Header Text -->
     <div class="text-center space-y-1 mb-5">
-      <span class="text-[10px] tracking-[0.3em] uppercase font-bold text-[#8B6F47]">You Are Cordially Invited</span>
-      <h2 class="font-serif text-3xl sm:text-4xl font-light text-[#2B1E17] flex items-center justify-center gap-2">
+      <span class="text-[10px] tracking-[0.3em] uppercase font-bold inv-accent">You Are Cordially Invited</span>
+      <h2 class="font-royal text-3xl sm:text-4xl font-light inv-heading flex items-center justify-center gap-2">
         <span id="doors-bride-name">${data.hosts?.bride || 'Preeti'}</span>
         <span class="text-rose-400 font-sans text-xl animate-pulse">&#9825;</span>
         <span id="doors-groom-name">${data.hosts?.groom || 'Ashish'}</span>
       </h2>
-      <div class="w-24 h-1 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full"></div>
+      <div class="w-24 h-1 inv-rule mx-auto rounded-full"></div>
     </div>
 
     <!-- 3D Folding Card Container - Full 9:16 Aspect Ratio -->
     <div id="door-card-container" onclick="unlockCaricatureDoors(event)" class="relative w-[85vw] max-w-[300px] aspect-[9/16] max-h-[58vh] sm:max-h-[66vh] cursor-pointer group select-none" style="perspective: 1200px;">
       <!-- Inside Couple Artwork -->
-      <div class="absolute inset-0 rounded-2xl bg-[#FFFDF7] border-2 border-[#FDE68A] shadow-inner overflow-hidden flex flex-col items-center justify-center p-0">
+      <div class="absolute inset-0 inv-hero-card inv-hero-img-wrap shadow-inner overflow-hidden flex flex-col items-center justify-center p-0">
         <img id="doors-cover-img" src="${b64Cover || b64Scooter || selectedTmpl?.image}" alt="${data.hosts?.groom || 'Ashish'} & ${data.hosts?.bride || 'Preeti'}" class="w-full h-full object-contain object-center" />
       </div>
 
       <!-- Left Folding Door -->
-      <div id="door-left" class="absolute inset-y-0 left-0 w-1/2 bg-[#FCE7F3] border-y-2 border-l-2 border-[#F472B6] rounded-l-2xl shadow-md overflow-hidden group-hover:-rotate-y-6" style="transform-origin: left center; transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1); will-change: transform;">
+      <div id="door-left" class="absolute inset-y-0 left-0 w-1/2 border-y-2 border-l-2 rounded-l-2xl shadow-md overflow-hidden group-hover:-rotate-y-6" style="background-color: var(--pal-door-left); border-color: var(--pal-card-border); transform-origin: left center; transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1); will-change: transform;">
         <div class="w-full h-full p-2 relative flex flex-col justify-between pointer-events-none">
           <div class="flex gap-1.5 pt-1">
-            <span class="w-2 h-2 rounded-full bg-[#F59E0B]/80 inline-block"></span>
-            <span class="w-2 h-2 rounded-full bg-[#F59E0B]/80 inline-block"></span>
-            <span class="w-2 h-2 rounded-full bg-[#F59E0B]/80 inline-block"></span>
-            <span class="w-2 h-2 rounded-full bg-[#F59E0B]/80 inline-block"></span>
+            <span class="w-2 h-2 rounded-full inline-block opacity-75" style="background-color: var(--pal-accent);"></span>
+            <span class="w-2 h-2 rounded-full inline-block opacity-75" style="background-color: var(--pal-accent);"></span>
+            <span class="w-2 h-2 rounded-full inline-block opacity-75" style="background-color: var(--pal-accent);"></span>
+            <span class="w-2 h-2 rounded-full inline-block opacity-75" style="background-color: var(--pal-accent);"></span>
           </div>
-          <div class="w-full h-[72%] rounded-tl-[40px] border-r-0 border-2 border-[#FDE68A] bg-[#FEF3C7]/40 flex items-center justify-end">
-            <div class="w-6 h-6 rounded-l-full bg-[#FDE68A]/70"></div>
+          <div class="w-full h-[72%] rounded-tl-[40px] border-r-0 border-2 flex items-center justify-end" style="border-color: var(--pal-card-border); background-color: var(--pal-pill-bg);">
+            <div class="w-6 h-6 rounded-l-full opacity-75" style="background-color: var(--pal-accent);"></div>
           </div>
           <div class="h-4"></div>
         </div>
       </div>
 
       <!-- Right Folding Door -->
-      <div id="door-right" class="absolute inset-y-0 right-0 w-1/2 bg-[#FCE7F3] border-y-2 border-r-2 border-[#F472B6] rounded-r-2xl shadow-md overflow-hidden group-hover:rotate-y-6" style="transform-origin: right center; transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1); will-change: transform;">
+      <div id="door-right" class="absolute inset-y-0 right-0 w-1/2 border-y-2 border-r-2 rounded-r-2xl shadow-md overflow-hidden group-hover:rotate-y-6" style="background-color: var(--pal-door-right); border-color: var(--pal-card-border); transform-origin: right center; transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1); will-change: transform;">
         <div class="w-full h-full p-2 relative flex flex-col justify-between items-end pointer-events-none">
           <div class="flex gap-1.5 pt-1">
-            <span class="w-2 h-2 rounded-full bg-[#F59E0B]/80 inline-block"></span>
-            <span class="w-2 h-2 rounded-full bg-[#F59E0B]/80 inline-block"></span>
-            <span class="w-2 h-2 rounded-full bg-[#F59E0B]/80 inline-block"></span>
-            <span class="w-2 h-2 rounded-full bg-[#F59E0B]/80 inline-block"></span>
+            <span class="w-2 h-2 rounded-full inline-block opacity-75" style="background-color: var(--pal-accent);"></span>
+            <span class="w-2 h-2 rounded-full inline-block opacity-75" style="background-color: var(--pal-accent);"></span>
+            <span class="w-2 h-2 rounded-full inline-block opacity-75" style="background-color: var(--pal-accent);"></span>
+            <span class="w-2 h-2 rounded-full inline-block opacity-75" style="background-color: var(--pal-accent);"></span>
           </div>
-          <div class="w-full h-[72%] rounded-tr-[40px] border-l-0 border-2 border-[#FDE68A] bg-[#FEF3C7]/40 flex items-center justify-start">
-            <div class="w-6 h-6 rounded-r-full bg-[#FDE68A]/70"></div>
+          <div class="w-full h-[72%] rounded-tr-[40px] border-l-0 border-2 flex items-center justify-start" style="border-color: var(--pal-card-border); background-color: var(--pal-pill-bg);">
+            <div class="w-6 h-6 rounded-r-full opacity-75" style="background-color: var(--pal-accent);"></div>
           </div>
           <div class="h-4"></div>
         </div>
       </div>
 
       <!-- Center Heart Seal Button -->
-      <div id="door-heart-seal" onclick="unlockCaricatureDoors(event)" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-[#FEF08A] border-2 border-[#F59E0B] shadow-lg flex items-center justify-center cursor-pointer group-hover:scale-110 animate-pulse" style="transition: transform 0.5s ease, opacity 0.5s ease; will-change: transform, opacity;">
-        <span class="text-rose-600 text-lg pointer-events-none">❤️</span>
+      <div id="door-heart-seal" onclick="unlockCaricatureDoors(event)" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full inv-sticky border-2 shadow-lg flex items-center justify-center cursor-pointer group-hover:scale-110 animate-pulse" style="transition: transform 0.5s ease, opacity 0.5s ease; will-change: transform, opacity;">
+        <span class="text-rose-500 text-lg pointer-events-none">❤️</span>
       </div>
 
-      <!-- Parked Yellow Scooter at Bottom -->
+      <!-- Theme Closing Motif at Bottom -->
       <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 z-10 select-none pointer-events-none">
-        <span class="text-3xl drop-shadow-md">🛵</span>
+        <span class="text-3xl drop-shadow-md">${themeDesign.closingEmoji}</span>
       </div>
     </div>
 
     <!-- Tap to Open Footer -->
     <div class="mt-4 sm:mt-5 text-center">
-      <div class="w-28 border-b-2 border-dashed border-[#F5D0C5] mx-auto mb-2"></div>
-      <button id="tap-to-open-btn" type="button" onclick="unlockCaricatureDoors(event)" class="text-xs font-bold text-[#8B6F47] tracking-widest uppercase animate-bounce inline-block hover:underline cursor-pointer py-1 px-3 rounded-full hover:bg-amber-100/50 transition-colors">
+      <div class="w-28 border-b-2 border-dashed border-current/30 inv-muted mx-auto mb-2"></div>
+      <button id="tap-to-open-btn" type="button" onclick="unlockCaricatureDoors(event)" class="text-xs font-bold inv-accent tracking-widest uppercase animate-bounce inline-block hover:underline cursor-pointer py-1 px-3 rounded-full transition-colors">
         👆 Tap to Open
       </button>
     </div>
   </div>
 
   <!-- REVEAL SCREEN 2: SCRATCH THE DATE TO REVEAL -->
-  <div id="reveal-screen-scratch" class="fixed inset-0 z-40 bg-gradient-to-b from-[#FAF8F5]/95 via-[#F5EFE6]/95 to-[#FAF8F5]/95 backdrop-blur-md flex flex-col items-center justify-center p-4 transition-opacity duration-700 ${(data.revealStyle === 'scratch-date') ? '' : 'hidden'}">
+  <div id="reveal-screen-scratch" class="fixed inset-0 z-40 backdrop-blur-md flex flex-col items-center justify-center p-4 transition-opacity duration-700 ${(data.revealStyle === 'scratch-date') ? '' : 'hidden'}" style="background-color: var(--pal-bg);">
     <div class="text-center space-y-2 mb-6 max-w-md">
-      <span class="text-[10px] tracking-[0.3em] uppercase font-bold text-[#8B6F47] border border-[#C5A880]/50 bg-[#FAF5ED] px-3.5 py-1 rounded-full shadow-xs">
+      <span class="text-[10px] tracking-[0.3em] uppercase font-bold inv-pill border px-3.5 py-1 rounded-full shadow-xs">
         Exclusive Invitation
       </span>
-      <h2 id="scratch-title-names" class="font-serif text-3xl sm:text-4xl font-light text-[#2B1E17]">
+      <h2 id="scratch-title-names" class="font-royal text-3xl sm:text-4xl font-light inv-heading">
         ${data.hosts?.bride || 'Preeti'} & ${data.hosts?.groom || 'Ashish'}
       </h2>
-      <p class="text-xs text-stone-500">Scratch the gold card below to reveal our celebration date 💫</p>
+      <p class="text-xs inv-muted">Scratch the gold card below to reveal our celebration date 💫</p>
     </div>
 
     <!-- Scratch Canvas Container -->
-    <div class="relative w-80 h-56 rounded-2xl overflow-hidden shadow-2xl border-4 border-[#C5A880] bg-white select-none">
+    <div class="relative w-80 h-56 rounded-2xl overflow-hidden shadow-2xl inv-modal border-4 select-none" style="border-color: var(--pal-accent);">
       <!-- Underlying Date Card -->
-      <div class="absolute inset-0 flex flex-col items-center justify-center p-4 text-center bg-gradient-to-br from-[#FAF5ED] to-white">
-        <div id="scratch-card-monogram" class="w-10 h-10 rounded-full border border-[#C5A880] flex items-center justify-center font-royal text-sm font-bold text-[#8B6F47] mb-1">
+      <div class="absolute inset-0 flex flex-col items-center justify-center p-4 text-center inv-surface">
+        <div id="scratch-card-monogram" class="w-10 h-10 rounded-full border flex items-center justify-center font-royal text-sm font-bold inv-accent mb-1" style="border-color: var(--pal-accent);">
           ${monogramInitials}
         </div>
-        <span class="text-[9px] uppercase tracking-widest font-bold text-[#8B6F47]">Wedding Date</span>
-        <h3 id="scratch-card-date" class="font-serif text-2xl font-bold text-[#2B1E17] leading-tight my-1">${displayWeddingDate}</h3>
-        <p id="scratch-card-city" class="text-xs text-stone-600">${data.hosts?.city || 'Meerut'}</p>
-        <p id="scratch-card-names" class="font-script text-xl text-[#8B6F47] mt-1">${data.hosts?.bride || 'Preeti'} & ${data.hosts?.groom || 'Ashish'}</p>
+        <span class="text-[9px] uppercase tracking-widest font-bold inv-accent">Wedding Date</span>
+        <h3 id="scratch-card-date" class="font-royal text-2xl font-bold inv-heading leading-tight my-1">${displayWeddingDate}</h3>
+        <p id="scratch-card-city" class="text-xs inv-muted">${data.hosts?.city || 'Meerut'}</p>
+        <p id="scratch-card-names" class="font-script text-xl inv-accent mt-1">${data.hosts?.bride || 'Preeti'} & ${data.hosts?.groom || 'Ashish'}</p>
       </div>
 
       <!-- Scratch Overlay Canvas -->
@@ -1384,8 +1490,8 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     </div>
 
     <div class="mt-5 text-center space-y-2">
-      <p id="scratch-hint" class="text-xs text-stone-500 font-medium">Scrub across the foil to reveal (0% cleared)</p>
-      <button id="skip-reveal-btn" class="mt-2 px-6 py-2.5 rounded-full bg-[#8B6F47] hover:bg-[#725a38] text-white text-[11px] tracking-widest uppercase font-bold shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer inline-flex items-center gap-1.5">
+      <p id="scratch-hint" class="text-xs inv-muted font-medium">Scrub across the foil to reveal (0% cleared)</p>
+      <button id="skip-reveal-btn" class="mt-2 px-6 py-2.5 rounded-full inv-btn-primary text-[11px] tracking-widest uppercase font-bold shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer inline-flex items-center gap-1.5">
         <span>Open Full Invitation</span>
         <span>↓</span>
       </button>
@@ -1481,13 +1587,13 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       <div class="parallax-petal absolute" data-speed="0.35" data-rotspeed="-0.22" data-initrot="-45" style="top: 2200px; right: 6%;">
         <svg viewBox="0 0 30 35" width="18" height="21" fill="none"><path d="M15,2 C25,2 29,15 26,26 C23,34 7,34 4,26 C1,15 5,2 15,2 Z" fill="#FB7185" fill-opacity="0.85" /></svg>
       </div>
-    </div>` : ''}
+    </div>` : `${themeTopHtml}${themeSideHtml}`}
 
     ${isNewspaper ? `
-    <header class="border-b-4 border-double border-stone-800 text-center py-6 px-4 bg-[#F6F1E5]">
-      <p class="text-[10px] tracking-[0.3em] uppercase font-bold text-stone-600">EST. 2027 · SPECIAL WEDDING CHRONICLE · NO. 1</p>
-      <h1 class="font-serif text-4xl sm:text-6xl font-black uppercase tracking-tight text-stone-900 my-1">THE SHAADI TIMES</h1>
-      <div class="flex justify-between items-center text-[10px] uppercase font-semibold text-stone-600 border-t border-b border-stone-800 py-1 max-w-xl mx-auto">
+    <header class="border-b-4 border-double inv-surface text-center py-6 px-4" style="border-color: var(--pal-heading);">
+      <p class="text-[10px] tracking-[0.3em] uppercase font-bold inv-muted">EST. 2027 · SPECIAL WEDDING CHRONICLE · NO. 1</p>
+      <h1 class="font-royal text-4xl sm:text-6xl font-black uppercase tracking-tight inv-heading my-1">THE SHAADI TIMES</h1>
+      <div class="flex justify-between items-center text-[10px] uppercase font-semibold inv-muted border-t border-b py-1 max-w-xl mx-auto" style="border-color: var(--pal-heading);">
         <span>VOL. I · SPECIAL EDITION</span>
         <span>${data.hosts?.city || 'Meerut, Uttar Pradesh'}</span>
         <span>${data.hosts?.date || 'FEBRUARY 14, 2027'}</span>
@@ -1504,7 +1610,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       </div>` : ''}
 
       ${isCaricature ? `
-      <!-- PASTEL CARICATURE HERO POP-UP (MATCHING export-1793962607603.mp4) -->
+      <!-- PASTEL CARICATURE HERO POP-UP -->
       <div class="relative my-2 flex flex-col items-center select-none w-full max-w-[390px] mx-auto px-2 scroll-reveal reveal-pop-up">
         <!-- Top Draped Marigold Floral Swags -->
         <div class="w-full flex justify-around items-start -mb-2 px-6 pointer-events-none">
@@ -1520,158 +1626,139 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         </div>
 
         <!-- Cusped Scalloped Arch Frame -->
-        <div class="relative w-full bg-[#FFFDF9]/95 backdrop-blur-xs rounded-t-[60px] rounded-b-3xl p-3 border-[3px] border-[#FDE68A]/80 shadow-xl overflow-hidden text-center">
+        <div class="relative w-full inv-hero-card p-3 shadow-xl overflow-hidden text-center">
           <!-- Sacred Sanskrit Invocation -->
           <div class="pt-2 pb-0.5">
-            <span class="text-[11px] font-serif text-[#B45309] font-medium tracking-wide">
+            <span class="text-[11px] font-serif inv-accent font-medium tracking-wide">
               ॥ श्री गणेशाय नमः ॥
             </span>
-            <p class="text-[10px] uppercase tracking-widest font-bold text-stone-500 mt-0.5">
+            <p class="text-[10px] uppercase tracking-widest font-bold inv-muted mt-0.5">
               Together With Their Families
             </p>
           </div>
 
           <!-- Main Couple Names -->
-          <h1 id="hero-couple-names" class="font-serif text-3xl sm:text-4xl text-[#2B1E17] font-light flex items-center justify-center gap-1.5 mt-0.5 mb-1">
+          <h1 id="hero-couple-names" class="font-royal text-3xl sm:text-4xl inv-heading font-light flex items-center justify-center gap-1.5 mt-0.5 mb-1">
             <span id="hero-groom-name">${data.hosts?.groom || 'Ashish'}</span>
             <span class="text-rose-400 font-sans text-lg animate-pulse">♡</span>
             <span id="hero-bride-name">${data.hosts?.bride || 'Preeti'}</span>
           </h1>
-          <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mb-2"></div>
+          <div class="w-20 h-0.5 inv-rule mx-auto rounded-full mb-2"></div>
 
           <!-- Scooter Couple Illustration Artwork Filled in Card - Full 9:16 Aspect Ratio -->
-          <div class="w-full aspect-[9/16] rounded-2xl overflow-hidden relative flex items-center justify-center group bg-[#FFFDF7] shadow-inner">
+          <div class="w-full aspect-[9/16] rounded-2xl overflow-hidden relative flex items-center justify-center group inv-hero-img-wrap shadow-inner">
             <img id="hero-cover-img" src="${b64Cover || b64Tmpl || (typeof selectedTmpl !== 'undefined' ? selectedTmpl?.image : '')}" alt="${data.hosts?.groom} & ${data.hosts?.bride}" class="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-700" />
           </div>
 
           <!-- Request Honour Flanked by Marigolds -->
           <div class="py-3 flex items-center justify-center gap-2">
             <span class="text-amber-500 text-sm">🌼</span>
-            <span class="font-serif text-xs text-stone-700 font-medium tracking-wide italic">
+            <span class="font-serif text-xs inv-text font-medium tracking-wide italic">
               Request the honour of your presence
             </span>
             <span class="text-amber-500 text-sm">🌼</span>
           </div>
         </div>
       </div>` : `
-      <!-- CUSPED SCALLOPED ARCH HERO (ALL THEMES) -->
-      <div class="relative my-2 flex flex-col items-center select-none w-full max-w-[390px] mx-auto px-2 scroll-reveal reveal-pop-up">
-        <!-- Top Draped Marigold Floral Swags -->
-        <div class="w-full flex justify-around items-start -mb-2 px-6 pointer-events-none">
-          <svg viewBox="0 0 400 40" class="w-full h-auto text-amber-500 animate-sway" fill="none">
-            <path d="M0,5 Q100,35 200,5 Q300,35 400,5" stroke="#F59E0B" stroke-width="4" stroke-dasharray="6,4" />
-            <path d="M0,8 Q100,38 200,8 Q300,38 400,8" stroke="#EA580C" stroke-width="3" />
-            <circle cx="20" cy="12" r="5" fill="#F59E0B" /><circle cx="60" cy="20" r="5" fill="#EA580C" />
-            <circle cx="100" cy="24" r="5" fill="#F59E0B" /><circle cx="140" cy="20" r="5" fill="#EA580C" />
-            <circle cx="180" cy="12" r="5" fill="#F59E0B" /><circle cx="220" cy="20" r="5" fill="#EA580C" />
-            <circle cx="260" cy="24" r="5" fill="#F59E0B" /><circle cx="300" cy="20" r="5" fill="#EA580C" />
-            <circle cx="340" cy="12" r="5" fill="#F59E0B" /><circle cx="380" cy="20" r="5" fill="#EA580C" />
-          </svg>
-        </div>
-
-        <!-- Cusped Scalloped Arch Frame -->
-        <div class="relative w-full bg-[#FFFDF9]/95 backdrop-blur-xs rounded-t-[60px] rounded-b-3xl p-3 border-[3px] border-[#FDE68A]/80 shadow-xl overflow-hidden text-center">
-          <!-- Sacred Sanskrit Invocation -->
+      <!-- THEME-AUTHENTIC HERO CARD -->
+      <div class="relative my-2 flex flex-col items-center select-none w-full max-w-[390px] mx-auto px-2 pt-8 scroll-reveal reveal-pop-up">
+        <div class="relative w-full inv-hero-card p-3 shadow-xl overflow-hidden text-center">
           <div class="pt-2 pb-0.5">
-            <span class="text-[11px] font-serif text-[#B45309] font-medium tracking-wide">
-              ॥ श्री गणेशाय नमः ॥
+            <span class="text-[11px] font-royal inv-accent font-medium tracking-wide">
+              ${themeDesign.invocation}
             </span>
-            <p class="text-[10px] uppercase tracking-widest font-bold text-stone-500 mt-0.5">
+            <p class="text-[10px] uppercase tracking-widest font-bold inv-muted mt-0.5">
               Together With Their Families
             </p>
           </div>
 
-          <!-- Main Couple Names -->
-          <h1 id="hero-couple-names" class="font-serif text-3xl sm:text-4xl text-[#2B1E17] font-light flex items-center justify-center gap-1.5 mt-0.5 mb-1">
+          <h1 id="hero-couple-names" class="font-royal text-3xl sm:text-4xl inv-heading font-light flex items-center justify-center gap-1.5 mt-0.5 mb-1">
             <span id="hero-groom-name">${data.hosts?.groom || 'Ashish'}</span>
             <span class="text-rose-400 font-sans text-lg animate-pulse">♡</span>
             <span id="hero-bride-name">${data.hosts?.bride || 'Preeti'}</span>
           </h1>
-          <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mb-2"></div>
+          <div class="w-20 h-0.5 inv-rule mx-auto rounded-full mb-2"></div>
 
-          <!-- Couple Illustration Artwork Filled in Card - Full 9:16 Aspect Ratio -->
-          <div class="w-full aspect-[9/16] rounded-2xl overflow-hidden relative flex items-center justify-center group bg-[#FFFDF7] shadow-inner">
+          <div class="w-full aspect-[9/16] rounded-2xl overflow-hidden relative flex items-center justify-center group inv-hero-img-wrap shadow-inner">
             <img id="hero-cover-img" src="${b64Cover || b64Tmpl || (typeof selectedTmpl !== 'undefined' ? selectedTmpl?.image : '')}" alt="${data.hosts?.groom} & ${data.hosts?.bride}" class="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-700" />
           </div>
 
-          <!-- Request Honour Flanked by Marigolds -->
           <div class="py-3 flex items-center justify-center gap-2">
-            <span class="text-amber-500 text-sm">🌼</span>
-            <span class="font-serif text-xs text-stone-700 font-medium tracking-wide italic">
+            <span class="text-sm">${themeDesign.closingEmoji}</span>
+            <span class="font-serif text-xs inv-text font-medium tracking-wide italic">
               Request the honour of your presence
             </span>
-            <span class="text-amber-500 text-sm">🌼</span>
+            <span class="text-sm">${themeDesign.closingEmoji}</span>
           </div>
         </div>
       </div>`}
     </section>
 
-    ${isCaricature ? `
-    <!-- PASTEL CARICATURE COMPLETE EXPERIENCE (MATCHING export-1793962607603.mp4) -->
+    <!-- THEME-ADAPTIVE FULL EXPERIENCE -->
     <div class="space-y-6">
-      <!-- 1. MEET THE TWO OF US (frame 023 - 025) -->
+      <!-- 1. MEET THE TWO OF US -->
       <section class="py-6 px-2 w-full max-w-[390px] mx-auto select-none">
         <div class="text-center space-y-1 mb-5 scroll-reveal">
-          <span class="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">Meet the two of us</span>
-          <h3 id="meet-couple-heading" class="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">${data.hosts?.groom || 'Ashish'} & ${data.hosts?.bride || 'Preeti'}</h3>
-          <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1"></div>
+          <span class="text-[11px] font-script tracking-wider inv-eyebrow block font-semibold">Meet the two of us</span>
+          <h3 id="meet-couple-heading" class="font-royal text-2xl sm:text-3xl font-light inv-heading">${data.hosts?.groom || 'Ashish'} & ${data.hosts?.bride || 'Preeti'}</h3>
+          <div class="w-20 h-0.5 inv-rule mx-auto rounded-full mt-1"></div>
         </div>
 
         <div class="grid grid-cols-2 gap-2 relative items-stretch">
-          <!-- Left Card: Groom (Clickable Modal) -->
-          <div onclick="openPersonModal('groom')" class="relative bg-white/95 backdrop-blur-xs p-2.5 pb-4 rounded-2xl shadow-md border border-white/80 hover:border-amber-300 transform -rotate-2 hover:rotate-0 hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-left cursor-pointer group">
-            <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#A7F3D0]/85 rounded shadow-xs rotate-1 border border-[#6EE7B7]"></div>
-            <div class="w-20 h-20 rounded-full overflow-hidden bg-stone-100 mt-1 mb-2 border-2 border-stone-200 ring-4 ring-[#E6F4EA] shadow-inner shrink-0 group-hover:ring-emerald-300 transition-all">
+          <!-- Left Card: Groom -->
+          <div onclick="openPersonModal('groom')" class="relative inv-card p-2.5 pb-4 shadow-md transform -rotate-2 hover:rotate-0 hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-left cursor-pointer group">
+            <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 inv-sticky rounded shadow-xs rotate-1 border"></div>
+            <div class="w-20 h-20 rounded-full overflow-hidden inv-surface mt-1 mb-2 border-2 shadow-inner shrink-0 transition-all">
               <img id="meet-groom-img" src="${b64Groom || './images/ashish_groom.jpg' || './images/groom.webp'}" alt="${data.hosts?.groom || 'Ashish'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
             </div>
-            <span class="inline-block px-2 py-0.5 rounded-full text-[8.5px] uppercase tracking-wider font-bold bg-[#E6F4EA] text-[#137333] mb-1">The Groom</span>
-            <h4 id="meet-groom-name" class="font-serif text-sm sm:text-base font-bold text-[#2B1E17] leading-tight group-hover:text-amber-800 transition-colors">${data.hosts?.groom || 'Ashish'}</h4>
-            <p id="meet-groom-bio" class="text-[10px] text-stone-600 italic mt-1 leading-snug px-0.5 flex-1">"${data.photos?.groomBio || 'Foodie, photography enthusiast, and the architect of their happiest memories.'}"</p>
-            <p id="meet-groom-parents" class="text-[8.5px] text-stone-400 mt-1.5 font-sans border-t border-stone-100 pt-1 w-full">${data.hosts?.groomParents || 'S/o Mr. Ramesh & Mrs. Sunita Sharma'}</p>
-            <span class="text-[8.5px] text-amber-700 font-semibold mt-1 flex items-center gap-0.5 opacity-80 group-hover:opacity-100">🔍 Tap to view</span>
+            <span class="inline-block px-2 py-0.5 rounded-full text-[8.5px] uppercase tracking-wider font-bold inv-pill border mb-1">${themeDesign.meetBadgeGroom}</span>
+            <h4 id="meet-groom-name" class="font-royal text-sm sm:text-base font-bold inv-heading leading-tight transition-colors">${data.hosts?.groom || 'Ashish'}</h4>
+            <p id="meet-groom-bio" class="text-[10px] inv-muted italic mt-1 leading-snug px-0.5 flex-1">"${data.photos?.groomBio || 'Foodie, photography enthusiast, and the architect of their happiest memories.'}"</p>
+            <p id="meet-groom-parents" class="text-[8.5px] inv-subtle mt-1.5 border-t border-current/15 pt-1 w-full">${data.hosts?.groomParents || 'S/o Mr. Ramesh & Mrs. Sunita Sharma'}</p>
+            <span class="text-[8.5px] inv-accent font-semibold mt-1 flex items-center gap-0.5 opacity-85 group-hover:opacity-100">🔍 Tap to view</span>
           </div>
 
-          <!-- Connected Pink Heart -->
+          <!-- Connected Heart -->
           <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none text-rose-400 text-2xl animate-pulse drop-shadow scroll-reveal reveal-bounce" style="transition-delay: 250ms;">♡</div>
 
-          <!-- Right Card: Bride (Clickable Modal) -->
-          <div onclick="openPersonModal('bride')" class="relative bg-white/95 backdrop-blur-xs p-2.5 pb-4 rounded-2xl shadow-md border border-white/80 hover:border-rose-300 transform rotate-2 hover:rotate-0 hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-right cursor-pointer group" style="transition-delay: 150ms;">
-            <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FDE68A]/85 rounded shadow-xs -rotate-1 border border-[#FCD34D]"></div>
-            <div class="w-20 h-20 rounded-full overflow-hidden bg-stone-100 mt-1 mb-2 border-2 border-stone-200 ring-4 ring-[#FCE8E6] shadow-inner shrink-0 group-hover:ring-rose-300 transition-all">
+          <!-- Right Card: Bride -->
+          <div onclick="openPersonModal('bride')" class="relative inv-card p-2.5 pb-4 shadow-md transform rotate-2 hover:rotate-0 hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-right cursor-pointer group" style="transition-delay: 150ms;">
+            <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 inv-sticky rounded shadow-xs -rotate-1 border"></div>
+            <div class="w-20 h-20 rounded-full overflow-hidden inv-surface mt-1 mb-2 border-2 shadow-inner shrink-0 transition-all">
               <img id="meet-bride-img" src="${b64Bride || './images/preeti_bride.jpg' || './images/bride.webp'}" alt="${data.hosts?.bride || 'Preeti'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
             </div>
-            <span class="inline-block px-2 py-0.5 rounded-full text-[8.5px] uppercase tracking-wider font-bold bg-[#FCE8E6] text-[#C5221F] mb-1">The Bride</span>
-            <h4 id="meet-bride-name" class="font-serif text-sm sm:text-base font-bold text-[#2B1E17] leading-tight group-hover:text-rose-800 transition-colors">${data.hosts?.bride || 'Preeti'}</h4>
-            <p id="meet-bride-bio" class="text-[10px] text-stone-600 italic mt-1 leading-snug px-0.5 flex-1">"${data.photos?.brideBio || 'Loves classic poetry, morning chai, and spontaneous mountain hikes.'}"</p>
-            <p id="meet-bride-parents" class="text-[8.5px] text-stone-400 mt-1.5 font-sans border-t border-stone-100 pt-1 w-full">${data.hosts?.brideParents || 'D/o Mr. Vijay & Mrs. Rekha Malhotra'}</p>
-            <span class="text-[8.5px] text-rose-700 font-semibold mt-1 flex items-center gap-0.5 opacity-80 group-hover:opacity-100">🔍 Tap to view</span>
+            <span class="inline-block px-2 py-0.5 rounded-full text-[8.5px] uppercase tracking-wider font-bold inv-pill border mb-1">${themeDesign.meetBadgeBride}</span>
+            <h4 id="meet-bride-name" class="font-royal text-sm sm:text-base font-bold inv-heading leading-tight transition-colors">${data.hosts?.bride || 'Preeti'}</h4>
+            <p id="meet-bride-bio" class="text-[10px] inv-muted italic mt-1 leading-snug px-0.5 flex-1">"${data.photos?.brideBio || 'Loves classic poetry, morning chai, and spontaneous mountain hikes.'}"</p>
+            <p id="meet-bride-parents" class="text-[8.5px] inv-subtle mt-1.5 border-t border-current/15 pt-1 w-full">${data.hosts?.brideParents || 'D/o Mr. Vijay & Mrs. Rekha Malhotra'}</p>
+            <span class="text-[8.5px] inv-accent font-semibold mt-1 flex items-center gap-0.5 opacity-85 group-hover:opacity-100">🔍 Tap to view</span>
           </div>
         </div>
       </section>
 
-      <!-- 2. HANGING WALL CALENDAR & LIVE COUNTDOWN (frame 025 - 027) -->
+      <!-- 2. HANGING WALL CALENDAR & LIVE COUNTDOWN -->
       <section class="py-6 px-2 w-full max-w-[390px] mx-auto select-none">
         <div class="text-center space-y-1 mb-5 scroll-reveal">
-          <span class="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">Mark your calendar</span>
-          <h3 id="calendar-month-year" class="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">${calMonthName} ${calYear}</h3>
-          <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1"></div>
+          <span class="text-[11px] font-script tracking-wider inv-eyebrow block font-semibold">Mark your calendar</span>
+          <h3 id="calendar-month-year" class="font-royal text-2xl sm:text-3xl font-light inv-heading">${calMonthName} ${calYear}</h3>
+          <div class="w-20 h-0.5 inv-rule mx-auto rounded-full mt-1"></div>
         </div>
 
-        <div class="relative bg-white/95 backdrop-blur-xs rounded-2xl p-4 sm:p-5 border-2 border-stone-200/80 shadow-md scroll-reveal reveal-calendar">
-          <div class="absolute -top-3 left-1/3 -translate-x-1/2 w-3.5 h-6 rounded-full border-2 border-stone-400 bg-stone-100 shadow-inner"></div>
-          <div class="absolute -top-3 right-1/3 translate-x-1/2 w-3.5 h-6 rounded-full border-2 border-stone-400 bg-stone-100 shadow-inner"></div>
+        <div class="relative inv-card p-4 sm:p-5 shadow-md scroll-reveal reveal-calendar">
+          <div class="absolute -top-3 left-1/3 -translate-x-1/2 w-3.5 h-6 rounded-full border-2 inv-surface shadow-inner"></div>
+          <div class="absolute -top-3 right-1/3 translate-x-1/2 w-3.5 h-6 rounded-full border-2 inv-surface shadow-inner"></div>
 
-          <div class="grid grid-cols-7 gap-1 text-center text-xs font-bold text-[#DB2777] pb-2 border-b border-stone-100 mb-2">
+          <div class="grid grid-cols-7 gap-1 text-center text-xs font-bold inv-eyebrow pb-2 border-b border-current/15 mb-2">
             <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
           </div>
 
-          <div id="calendar-grid-days" class="grid grid-cols-7 gap-1 text-center text-xs text-stone-700">
+          <div id="calendar-grid-days" class="grid grid-cols-7 gap-1 text-center text-xs inv-text">
             ${Array.from({ length: firstDayIndex }).map(() => '<span></span>').join('')}
             ${Array.from({ length: daysInMonth }).map((_, i) => {
               const day = i + 1;
               const isWeddingDay = day === calDayNum;
               return isWeddingDay 
-                ? `<div class="relative w-8 h-8 sm:w-9 sm:h-9 mx-auto flex items-center justify-center font-bold text-rose-600 select-none">
+                ? `<div class="relative w-8 h-8 sm:w-9 sm:h-9 mx-auto flex items-center justify-center font-bold text-rose-500 select-none">
                     <svg viewBox="0 0 36 36" class="absolute -inset-1 w-9 h-9 sm:w-10 sm:h-10 pointer-events-none overflow-visible">
                       <path
                         d="M18,31 C10,23 3.5,17 3.5,10.5 C3.5,5.5 7.5,2 12.5,2 C15.5,2 17.5,3.5 18,5 C18.5,3.5 20.5,2 23.5,2 C28.5,2 32.5,5.5 32.5,10.5 C32.5,17 26,23 18,31 Z"
@@ -1683,7 +1770,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                         class="calendar-heart-path"
                       />
                     </svg>
-                    <span class="relative z-10 text-rose-700 font-extrabold text-sm">${day}</span>
+                    <span class="relative z-10 text-rose-500 font-extrabold text-sm">${day}</span>
                   </div>`
                 : `<div class="h-7 sm:h-8 flex items-center justify-center"><span>${day}</span></div>`;
             }).join('')}
@@ -1691,34 +1778,53 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         </div>
 
         <div class="mt-6 text-center scroll-reveal reveal-pop-up" style="transition-delay: 150ms;">
-          <span class="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold mb-2.5">Counting down to the shaadi</span>
+          <span class="text-[11px] font-script tracking-wider inv-eyebrow block font-semibold mb-2.5">Counting down to the shaadi</span>
+          ${(isCaricature && !palTheme.isDark) ? `
           <div class="flex justify-center items-center gap-2 sm:gap-3">
             <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#FCE7F3] border-2 border-[#F472B6] shadow-2xs flex flex-col items-center justify-center p-1">
-              <span id="pastel-days" class="font-serif text-lg sm:text-xl font-bold text-[#9D174D] leading-none">00</span>
+              <span id="pastel-days" class="font-royal text-lg sm:text-xl font-bold text-[#9D174D] leading-none">00</span>
               <span class="text-[7.5px] uppercase tracking-wider text-[#BE185D] font-bold mt-0.5">Days</span>
             </div>
             <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#D1FAE5] border-2 border-[#34D399] shadow-2xs flex flex-col items-center justify-center p-1">
-              <span id="pastel-hours" class="font-serif text-lg sm:text-xl font-bold text-[#065F46] leading-none">00</span>
+              <span id="pastel-hours" class="font-royal text-lg sm:text-xl font-bold text-[#065F46] leading-none">00</span>
               <span class="text-[7.5px] uppercase tracking-wider text-[#047857] font-bold mt-0.5">Hours</span>
             </div>
             <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#FEF3C7] border-2 border-[#FBBF24] shadow-2xs flex flex-col items-center justify-center p-1">
-              <span id="pastel-mins" class="font-serif text-lg sm:text-xl font-bold text-[#92400E] leading-none">00</span>
+              <span id="pastel-mins" class="font-royal text-lg sm:text-xl font-bold text-[#92400E] leading-none">00</span>
               <span class="text-[7.5px] uppercase tracking-wider text-[#B45309] font-bold mt-0.5">Mins</span>
             </div>
             <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#EDE9FE] border-2 border-[#A78BFA] shadow-2xs flex flex-col items-center justify-center p-1">
-              <span id="pastel-secs" class="font-serif text-lg sm:text-xl font-bold text-[#5B21B6] leading-none">00</span>
+              <span id="pastel-secs" class="font-royal text-lg sm:text-xl font-bold text-[#5B21B6] leading-none">00</span>
               <span class="text-[7.5px] uppercase tracking-wider text-[#6D28D9] font-bold mt-0.5">Secs</span>
             </div>
-          </div>
+          </div>` : `
+          <div class="flex justify-center items-center gap-2 sm:gap-3">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full inv-surface border-2 shadow-2xs flex flex-col items-center justify-center p-1">
+              <span id="pastel-days" class="font-royal text-lg sm:text-xl font-bold inv-heading leading-none">00</span>
+              <span class="text-[7.5px] uppercase tracking-wider inv-eyebrow font-bold mt-0.5">Days</span>
+            </div>
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full inv-surface border-2 shadow-2xs flex flex-col items-center justify-center p-1">
+              <span id="pastel-hours" class="font-royal text-lg sm:text-xl font-bold inv-heading leading-none">00</span>
+              <span class="text-[7.5px] uppercase tracking-wider inv-eyebrow font-bold mt-0.5">Hours</span>
+            </div>
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full inv-surface border-2 shadow-2xs flex flex-col items-center justify-center p-1">
+              <span id="pastel-mins" class="font-royal text-lg sm:text-xl font-bold inv-heading leading-none">00</span>
+              <span class="text-[7.5px] uppercase tracking-wider inv-eyebrow font-bold mt-0.5">Mins</span>
+            </div>
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full inv-surface border-2 shadow-2xs flex flex-col items-center justify-center p-1">
+              <span id="pastel-secs" class="font-royal text-lg sm:text-xl font-bold inv-heading leading-none">00</span>
+              <span class="text-[7.5px] uppercase tracking-wider inv-eyebrow font-bold mt-0.5">Secs</span>
+            </div>
+          </div>`}
         </div>
       </section>
 
-      <!-- 4. CELEBRATIONS WITH AUTHENTIC ARCHES & SCOOTER DIVIDERS (frame 035 - 062) -->
+      <!-- 3. CELEBRATIONS WITH THEME ARCHES & DIVIDERS -->
       <section class="py-8 px-1 w-full max-w-[390px] mx-auto select-none space-y-5">
         <div class="text-center space-y-1 mb-6 scroll-reveal">
-          <span class="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">Programme</span>
-          <h2 class="font-serif text-3xl font-light text-[#2B1E17]">The Celebrations</h2>
-          <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1"></div>
+          <span class="text-[11px] font-script tracking-wider inv-eyebrow block font-semibold">Programme</span>
+          <h2 class="font-royal text-3xl font-light inv-heading">The Celebrations</h2>
+          <div class="w-20 h-0.5 inv-rule mx-auto rounded-full mt-1"></div>
         </div>
 
         ${(data.events || []).map((evt, idx) => {
@@ -1729,331 +1835,54 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
           const isWedding = evt.id === 'evt-pheras' || nameLower.includes('wedding') || nameLower.includes('phera') || nameLower.includes('shaadi');
           const isReception = nameLower.includes('reception') || nameLower.includes('party');
 
-          const defaultArch = isHaldi ? (b64Haldi || b64Scooter)
-            : isMehndi ? (b64Mehndi || b64Scooter)
-            : isSangeet ? (b64Sangeet || b64Scooter)
-            : isWedding ? (b64Pheras || b64Scooter)
-            : isReception ? (b64Reception || b64Scooter)
-            : (b64Scooter);
+          const defaultArch = isCaricature
+            ? (isHaldi ? (b64Haldi || b64Scooter)
+              : isMehndi ? (b64Mehndi || b64Scooter)
+              : isSangeet ? (b64Sangeet || b64Scooter)
+              : isWedding ? (b64Pheras || b64Scooter)
+              : isReception ? (b64Reception || b64Scooter)
+              : b64Scooter)
+            : (b64Cover || b64Scooter);
 
           const archB64 = (typeof b64Events !== 'undefined' && b64Events && b64Events[idx] && b64Events[idx].customB64) || evt.image || evt.img || defaultArch;
 
           return `
           <div class="relative w-full select-none space-y-3">
             <div class="w-full flex justify-center -mb-2 scroll-reveal reveal-pop-up">
-              <div class="w-full max-w-[350px] aspect-[9/16] rounded-t-[44px] rounded-b-2xl overflow-hidden flex items-center justify-center p-0 drop-shadow-md bg-[#FFFDF7]/95 backdrop-blur-xs border-2 border-amber-100/80">
+              <div class="w-full max-w-[350px] aspect-[9/16] inv-arch-card overflow-hidden flex items-center justify-center p-0 drop-shadow-md inv-hero-img-wrap">
                 <img id="event-img-${evt.id || idx}" src="${archB64}" alt="${evt.name}" class="w-full h-full object-contain object-center" />
               </div>
             </div>
 
             <div class="text-center scroll-reveal" style="transition-delay: 80ms;">
-              <h3 class="font-serif text-2xl font-bold text-[#2B1E17]">${evt.name}</h3>
+              <h3 class="font-royal text-2xl font-bold inv-heading">${evt.name}</h3>
             </div>
 
-            <div class="relative bg-[#FFFDF9]/95 backdrop-blur-xs rounded-2xl p-4 sm:p-5 border-2 border-stone-200/80 shadow-md space-y-2.5 scroll-reveal" style="transition-delay: 160ms;">
-              <div class="space-y-1.5 text-xs text-stone-700">
-                <p class="flex items-center gap-2"><span>📅</span><strong class="text-stone-900">${evt.date}</strong> · ⏰ ${evt.time}</p>
-                <p class="flex items-center gap-2"><span>📍</span><span><strong class="text-stone-900">${evt.venue}</strong> — ${evt.address}</span></p>
-                ${evt.dressCode ? `<p class="flex items-center gap-2"><span>👔</span><span class="text-[#8B6F47] font-semibold">${evt.dressCode}</span></p>` : ''}
+            <div class="relative inv-card p-4 sm:p-5 shadow-md space-y-2.5 scroll-reveal" style="transition-delay: 160ms;">
+              <div class="space-y-1.5 text-xs inv-text">
+                <p class="flex items-center gap-2"><span>📅</span><strong class="inv-heading">${evt.date}</strong> · ⏰ ${evt.time}</p>
+                <p class="flex items-center gap-2"><span>📍</span><span><strong class="inv-heading">${evt.venue}</strong> — ${evt.address}</span></p>
+                ${evt.dressCode ? `<p class="flex items-center gap-2"><span>👔</span><span class="inv-accent font-semibold">${evt.dressCode}</span></p>` : ''}
               </div>
               <div class="pt-1.5">
-                <a href="https://maps.google.com/?q=${encodeURIComponent(evt.venue + ' ' + evt.address)}" target="_blank" class="w-full py-2.5 rounded-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#FCE7F3] text-[#BE185D] hover:bg-[#FBCFE8] transition-all shadow-2xs cursor-pointer">
+                <a href="https://maps.google.com/?q=${encodeURIComponent(evt.venue + ' ' + evt.address)}" target="_blank" class="w-full py-2.5 rounded-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider inv-btn-primary hover:opacity-95 transition-all shadow-2xs cursor-pointer">
                   <span>🧭 Get directions</span>
                 </a>
               </div>
             </div>
           </div>
 
-          <!-- Animated Yellow Scooter Divider with Roadside Foliage -->
-          <div class="w-full flex flex-col items-center my-6 overflow-hidden pointer-events-none select-none scroll-reveal reveal-scooter">
-            <div class="relative w-72 h-16 flex items-center justify-center">
-              <svg viewBox="0 0 280 60" class="w-full h-full text-stone-300" fill="none">
-                <path d="M15,48 Q140,-8 265,48" stroke="#CBD5E1" stroke-width="2.5" stroke-dasharray="6,5" class="animate-road-dash" />
-                <g transform="translate(10, 34) scale(0.65)">
-                  <path d="M10,25 C10,12 18,5 20,0 C22,5 30,12 30,25 Z" fill="#16A34A" />
-                  <path d="M5,22 C12,12 18,8 20,0" stroke="#15803D" stroke-width="1.5" />
-                  <circle cx="20" cy="22" r="3.5" fill="#F59E0B" />
-                </g>
-                <g transform="translate(252, 32) scale(0.6)">
-                  <path d="M5,24 L25,24 L25,12 C25,4 15,0 15,0 C15,0 5,4 5,12 Z" fill="#FDE68A" stroke="#D97706" stroke-width="1.2" />
-                  <circle cx="15" cy="0" r="2.5" fill="#EA580C" />
-                </g>
-              </svg>
-              <div class="absolute top-1 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
-                <span class="text-2xl drop-shadow-md transform -rotate-3">🛵</span>
-                <span class="text-xs text-stone-400">💨</span>
-              </div>
-            </div>
-          </div>`;
-        }).join('')}
-      </section>
-
-      <!-- 5. MOMENTS & MEMORIES PHOTO GALLERY & GUEST UPLOAD -->
-      <section class="py-6 px-2 w-full max-w-[390px] mx-auto select-none" id="moments-section">
-        <div class="text-center space-y-1 mb-4 scroll-reveal">
-          <span class="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">Moments to cherish</span>
-          <h3 class="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">Moments & Memories</h3>
-          <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1"></div>
-          <p class="text-[11px] text-stone-500 font-light max-w-xs mx-auto pt-1 leading-relaxed">
-            A glimpse into our sweetest celebrations & unforgettable memories.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-2 gap-2.5" id="moments-grid">
-          ${b64Gallery.map((item, idx) => {
-            const isLeft = idx % 2 === 0;
-            const tapeClass = isLeft 
-              ? 'bg-[#FEF08A]/80 border-[#FDE047]' 
-              : 'bg-[#EDE9FE]/80 border-[#DDD6FE]';
-            const tiltClass = isLeft ? 'reveal-tilt-left -rotate-1' : 'reveal-tilt-right rotate-1';
-            const delay = Math.min(360, (idx % 4) * 120);
-            return `
-            <div class="relative bg-white/95 backdrop-blur-xs p-2 pb-3.5 rounded-lg shadow-md border border-white/80 hover:border-amber-200 transform ${tiltClass} hover:rotate-0 transition-all duration-300 scroll-reveal cursor-pointer" style="transition-delay: ${delay}ms;" onclick="openMomentLightbox('${item.b64 || './images/couple-potrait.webp'}', '${item.caption}')">
-              <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 ${tapeClass} rounded shadow-2xs border rotate-1"></div>
-              <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
-                <img src="${item.b64 || './images/couple-potrait.webp'}" class="w-full h-full object-cover" />
-              </div>
-              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ ${item.caption} ✦</span></div>
-            </div>`;
-          }).join('')}
-        </div>
-      </section>
-
-      <!-- 6. THE VENUE ROADMAP (frame 065 - 068) -->
-      <section class="py-6 px-2 w-full max-w-[390px] mx-auto select-none">
-        <div class="text-center space-y-1 mb-5 scroll-reveal">
-          <span class="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">Where it's all happening</span>
-          <h3 class="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">The Venue</h3>
-          <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1"></div>
-        </div>
-
-        <div class="bg-[#FFFDF9]/95 backdrop-blur-xs rounded-2xl p-4 border-2 border-stone-200/80 shadow-md space-y-3 scroll-reveal reveal-pop-up" style="transition-delay: 120ms;">
-          <div class="w-full h-40 rounded-xl bg-gradient-to-b from-[#E6F4EA] to-[#FEF3C7] border border-[#A7F3D0] relative overflow-hidden flex flex-col justify-between p-3">
-            <div class="flex justify-between items-start text-lg opacity-80">
-              <span>🌳</span><span>🏰</span><span>🌳</span>
-            </div>
-            <div class="relative w-full flex items-center justify-center my-auto">
-              <svg viewBox="0 0 200 40" class="w-full h-10" fill="none">
-                <path d="M10,25 Q100,5 190,25" stroke="#94A3B8" stroke-width="2.5" stroke-dasharray="5,4" />
-              </svg>
-              <div class="absolute right-4 top-1/2 -translate-y-1/2 text-rose-600 text-2xl animate-pin-drop">📍</div>
-            </div>
-            <div class="bg-white/90 backdrop-blur-xs rounded-lg p-2 text-center border border-stone-200 shadow-2xs">
-              <h4 class="font-serif text-sm font-bold text-[#2B1E17]">${data.events?.[0]?.venue || 'The Oberoi Udaivilas'}</h4>
-              <p class="text-[10px] text-stone-500">${data.hosts?.city || 'Udaipur, Rajasthan'} · ${data.events?.[0]?.address || 'Haridas Ji Ki Magri'}</p>
-            </div>
-          </div>
-
-          <a href="https://maps.google.com/?q=${encodeURIComponent((data.events?.[0]?.venue || 'The Oberoi Udaivilas') + ' ' + (data.hosts?.city || 'Udaipur'))}" target="_blank" class="w-full py-2.5 rounded-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#881337] text-white hover:bg-[#9F1239] transition-all shadow-sm cursor-pointer">
-            <span>🧭 Open in Google Maps</span>
-          </a>
-        </div>
-      </section>
-
-      <!-- 7. HASHTAG BANNER (frame 072) -->
-      <section class="py-6 px-2 w-full max-w-[390px] mx-auto text-center select-none space-y-2 scroll-reveal reveal-pop-up">
-        <span class="text-[10px] uppercase tracking-[0.25em] font-bold text-stone-500 block">SHARE THE MOMENTS</span>
-        <h3 class="font-serif text-2xl sm:text-3xl font-bold text-[#2B1E17]">${data.hosts?.hashtag || '#Wedding'}</h3>
-        <p class="text-xs text-stone-600 font-light">Tag your photos and stories so we can relive every moment.</p>
-        <div class="pt-1.5">
-          <button id="hashtag-btn" onclick="copyHashtag('${data.hosts?.hashtag || '#Wedding'}')" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-[#881337] hover:bg-[#9F1239] text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md cursor-pointer active:scale-95">
-            <span>📋 Copy Hashtag</span>
-          </button>
-        </div>
-      </section>
-
-      <!-- 8. PASTEL FOOTER (frame 080) -->
-      <footer class="py-10 px-2 w-full max-w-[390px] mx-auto text-center space-y-3.5 border-t-2 border-dashed border-[#F5D0C5] select-none scroll-reveal">
-        <h3 class="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">See you at the shaadi!</h3>
-        <p class="text-[10px] tracking-[0.3em] uppercase font-bold text-[#8B6F47]">WITH LOVE, ${(data.hosts?.groom || 'Groom').toUpperCase()} & ${(data.hosts?.bride || 'Bride').toUpperCase()}</p>
-        <div class="flex items-center justify-center gap-3">
-          <span class="w-6 h-6 rounded-full bg-[#FEF3C7] border border-[#FBBF24] flex items-center justify-center text-xs shadow-xs animate-bounce">💛</span>
-          <span class="w-6 h-6 rounded-full bg-[#D1FAE5] border border-[#34D399] flex items-center justify-center text-xs shadow-xs animate-bounce" style="animation-delay: 0.2s;">💚</span>
-          <span class="w-6 h-6 rounded-full bg-[#EDE9FE] border border-[#A78BFA] flex items-center justify-center text-xs shadow-xs animate-bounce" style="animation-delay: 0.4s;">💜</span>
-          <span class="w-6 h-6 rounded-full bg-[#FCE7F3] border border-[#F472B6] flex items-center justify-center text-xs shadow-xs animate-bounce" style="animation-delay: 0.6s;">💖</span>
-        </div>
-        <div class="flex items-center justify-center gap-1 pt-1.5">
-          <span class="text-3xl drop-shadow">🛵</span>
-          <span class="text-xs text-stone-400">💨</span>
-        </div>
-        <p class="text-xs text-stone-500 font-light italic">We can't wait to celebrate with you</p>
-      </footer>
-    </div>` : `
-    <!-- COMPLETE LUXURY EXPERIENCE MIRRORED FOR ALL THEMES -->
-    <div class="space-y-6">
-      <!-- 1. MEET THE TWO OF US -->
-      <section class="py-6 px-2 w-full max-w-[390px] mx-auto select-none">
-        <div class="text-center space-y-1 mb-5 scroll-reveal">
-          <span class="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">Meet the two of us</span>
-          <h3 id="meet-couple-heading" class="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">${data.hosts?.groom || 'Ashish'} & ${data.hosts?.bride || 'Preeti'}</h3>
-          <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1"></div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-2 relative items-stretch">
-          <!-- Left Card: Groom (Clickable Modal) -->
-          <div onclick="openPersonModal('groom')" class="relative bg-white/95 backdrop-blur-xs p-2.5 pb-4 rounded-2xl shadow-md border border-white/80 hover:border-amber-300 transform -rotate-2 hover:rotate-0 hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-left cursor-pointer group">
-            <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#A7F3D0]/85 rounded shadow-xs rotate-1 border border-[#6EE7B7]"></div>
-            <div class="w-20 h-20 rounded-full overflow-hidden bg-stone-100 mt-1 mb-2 border-2 border-stone-200 ring-4 ring-[#E6F4EA] shadow-inner shrink-0 group-hover:ring-emerald-300 transition-all">
-              <img id="meet-groom-img" src="${b64Groom || './images/ashish_groom.jpg' || './images/groom.webp'}" alt="${data.hosts?.groom || 'Ashish'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-            </div>
-            <span class="inline-block px-2 py-0.5 rounded-full text-[8.5px] uppercase tracking-wider font-bold bg-[#E6F4EA] text-[#137333] mb-1">The Groom</span>
-            <h4 id="meet-groom-name" class="font-serif text-sm sm:text-base font-bold text-[#2B1E17] leading-tight group-hover:text-amber-800 transition-colors">${data.hosts?.groom || 'Ashish'}</h4>
-            <p id="meet-groom-bio" class="text-[10px] text-stone-600 italic mt-1 leading-snug px-0.5 flex-1">"${data.photos?.groomBio || 'Foodie, photography enthusiast, and the architect of their happiest memories.'}"</p>
-            <p id="meet-groom-parents" class="text-[8.5px] text-stone-400 mt-1.5 font-sans border-t border-stone-100 pt-1 w-full">${data.hosts?.groomParents || 'S/o Mr. Ramesh & Mrs. Sunita Sharma'}</p>
-            <span class="text-[8.5px] text-amber-700 font-semibold mt-1 flex items-center gap-0.5 opacity-80 group-hover:opacity-100">🔍 Tap to view</span>
-          </div>
-
-          <!-- Connected Pink Heart -->
-          <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none text-rose-400 text-2xl animate-pulse drop-shadow scroll-reveal reveal-bounce" style="transition-delay: 250ms;">♡</div>
-
-          <!-- Right Card: Bride (Clickable Modal) -->
-          <div onclick="openPersonModal('bride')" class="relative bg-white/95 backdrop-blur-xs p-2.5 pb-4 rounded-2xl shadow-md border border-white/80 hover:border-rose-300 transform rotate-2 hover:rotate-0 hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center scroll-reveal reveal-tilt-right cursor-pointer group" style="transition-delay: 150ms;">
-            <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FDE68A]/85 rounded shadow-xs -rotate-1 border border-[#FCD34D]"></div>
-            <div class="w-20 h-20 rounded-full overflow-hidden bg-stone-100 mt-1 mb-2 border-2 border-stone-200 ring-4 ring-[#FCE8E6] shadow-inner shrink-0 group-hover:ring-rose-300 transition-all">
-              <img id="meet-bride-img" src="${b64Bride || './images/preeti_bride.jpg' || './images/bride.webp'}" alt="${data.hosts?.bride || 'Preeti'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-            </div>
-            <span class="inline-block px-2 py-0.5 rounded-full text-[8.5px] uppercase tracking-wider font-bold bg-[#FCE8E6] text-[#C5221F] mb-1">The Bride</span>
-            <h4 id="meet-bride-name" class="font-serif text-sm sm:text-base font-bold text-[#2B1E17] leading-tight group-hover:text-rose-800 transition-colors">${data.hosts?.bride || 'Preeti'}</h4>
-            <p id="meet-bride-bio" class="text-[10px] text-stone-600 italic mt-1 leading-snug px-0.5 flex-1">"${data.photos?.brideBio || 'Loves classic poetry, morning chai, and spontaneous mountain hikes.'}"</p>
-            <p id="meet-bride-parents" class="text-[8.5px] text-stone-400 mt-1.5 font-sans border-t border-stone-100 pt-1 w-full">${data.hosts?.brideParents || 'D/o Mr. Vijay & Mrs. Rekha Malhotra'}</p>
-            <span class="text-[8.5px] text-rose-700 font-semibold mt-1 flex items-center gap-0.5 opacity-80 group-hover:opacity-100">🔍 Tap to view</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- 2. HANGING WALL CALENDAR & LIVE COUNTDOWN -->
-      <section class="py-6 px-2 w-full max-w-[390px] mx-auto select-none">
-        <div class="text-center space-y-1 mb-5 scroll-reveal">
-          <span class="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">Mark your calendar</span>
-          <h3 id="calendar-month-year" class="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">${calMonthName} ${calYear}</h3>
-          <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1"></div>
-        </div>
-
-        <div class="relative bg-white/95 backdrop-blur-xs rounded-2xl p-4 sm:p-5 border-2 border-stone-200/80 shadow-md scroll-reveal reveal-calendar">
-          <div class="absolute -top-3 left-1/3 -translate-x-1/2 w-3.5 h-6 rounded-full border-2 border-stone-400 bg-stone-100 shadow-inner"></div>
-          <div class="absolute -top-3 right-1/3 translate-x-1/2 w-3.5 h-6 rounded-full border-2 border-stone-400 bg-stone-100 shadow-inner"></div>
-
-          <div class="grid grid-cols-7 gap-1 text-center text-xs font-bold text-[#DB2777] pb-2 border-b border-stone-100 mb-2">
-            <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
-          </div>
-
-          <div id="calendar-grid-days" class="grid grid-cols-7 gap-1 text-center text-xs text-stone-700">
-            ${Array.from({ length: firstDayIndex }).map(() => '<span></span>').join('')}
-            ${Array.from({ length: daysInMonth }).map((_, i) => {
-              const day = i + 1;
-              const isWeddingDay = day === calDayNum;
-              return isWeddingDay 
-                ? `<div class="relative w-8 h-8 sm:w-9 sm:h-9 mx-auto flex items-center justify-center font-bold text-rose-600 select-none">
-                    <svg viewBox="0 0 36 36" class="absolute -inset-1 w-9 h-9 sm:w-10 sm:h-10 pointer-events-none overflow-visible">
-                      <path
-                        d="M18,31 C10,23 3.5,17 3.5,10.5 C3.5,5.5 7.5,2 12.5,2 C15.5,2 17.5,3.5 18,5 C18.5,3.5 20.5,2 23.5,2 C28.5,2 32.5,5.5 32.5,10.5 C32.5,17 26,23 18,31 Z"
-                        fill="rgba(244, 63, 94, 0.16)"
-                        stroke="#E11D48"
-                        stroke-width="2.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        class="calendar-heart-path"
-                      />
-                    </svg>
-                    <span class="relative z-10 text-rose-700 font-extrabold text-sm">${day}</span>
-                  </div>`
-                : `<div class="h-7 sm:h-8 flex items-center justify-center"><span>${day}</span></div>`;
-            }).join('')}
-          </div>
-        </div>
-
-        <div class="mt-6 text-center scroll-reveal reveal-pop-up" style="transition-delay: 150ms;">
-          <span class="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold mb-2.5">Counting down to the shaadi</span>
-          <div class="flex justify-center items-center gap-2 sm:gap-3">
-            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#FCE7F3] border-2 border-[#F472B6] shadow-2xs flex flex-col items-center justify-center p-1">
-              <span id="pastel-days" class="font-serif text-lg sm:text-xl font-bold text-[#9D174D] leading-none">00</span>
-              <span class="text-[7.5px] uppercase tracking-wider text-[#BE185D] font-bold mt-0.5">Days</span>
-            </div>
-            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#D1FAE5] border-2 border-[#34D399] shadow-2xs flex flex-col items-center justify-center p-1">
-              <span id="pastel-hours" class="font-serif text-lg sm:text-xl font-bold text-[#065F46] leading-none">00</span>
-              <span class="text-[7.5px] uppercase tracking-wider text-[#047857] font-bold mt-0.5">Hours</span>
-            </div>
-            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#FEF3C7] border-2 border-[#FBBF24] shadow-2xs flex flex-col items-center justify-center p-1">
-              <span id="pastel-mins" class="font-serif text-lg sm:text-xl font-bold text-[#92400E] leading-none">00</span>
-              <span class="text-[7.5px] uppercase tracking-wider text-[#B45309] font-bold mt-0.5">Mins</span>
-            </div>
-            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#EDE9FE] border-2 border-[#A78BFA] shadow-2xs flex flex-col items-center justify-center p-1">
-              <span id="pastel-secs" class="font-serif text-lg sm:text-xl font-bold text-[#5B21B6] leading-none">00</span>
-              <span class="text-[7.5px] uppercase tracking-wider text-[#6D28D9] font-bold mt-0.5">Secs</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 3. CELEBRATIONS WITH AUTHENTIC ARCHES & SCOOTER DIVIDERS -->
-      <section class="py-8 px-1 w-full max-w-[390px] mx-auto select-none space-y-5">
-        <div class="text-center space-y-1 mb-6 scroll-reveal">
-          <span class="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">Programme</span>
-          <h2 class="font-serif text-3xl font-light text-[#2B1E17]">The Celebrations</h2>
-          <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1"></div>
-        </div>
-
-        ${(data.events || []).map((evt, idx) => {
-          const archB64 = (typeof b64Events !== 'undefined' && b64Events && b64Events[idx] && b64Events[idx].customB64) 
-            || evt.image || evt.img || b64Cover || b64Scooter;
-
-          return `
-          <div class="relative w-full select-none space-y-3">
-            <div class="w-full flex justify-center -mb-2 scroll-reveal reveal-pop-up">
-              <div class="w-full max-w-[350px] aspect-[9/16] rounded-t-[44px] rounded-b-2xl overflow-hidden flex items-center justify-center p-0 drop-shadow-md bg-[#FFFDF7]/95 backdrop-blur-xs border-2 border-amber-100/80">
-                <img id="event-img-${evt.id || idx}" src="${archB64}" alt="${evt.name}" class="w-full h-full object-contain object-center" />
-              </div>
-            </div>
-
-            <div class="text-center scroll-reveal" style="transition-delay: 80ms;">
-              <h3 class="font-serif text-2xl font-bold text-[#2B1E17]">${evt.name}</h3>
-            </div>
-
-            <div class="relative bg-[#FFFDF9]/95 backdrop-blur-xs rounded-2xl p-4 sm:p-5 border-2 border-stone-200/80 shadow-md space-y-2.5 scroll-reveal" style="transition-delay: 160ms;">
-              <div class="space-y-1.5 text-xs text-stone-700">
-                <p class="flex items-center gap-2"><span>📅</span><strong class="text-stone-900">${evt.date}</strong> · ⏰ ${evt.time}</p>
-                <p class="flex items-center gap-2"><span>📍</span><span><strong class="text-stone-900">${evt.venue}</strong> — ${evt.address}</span></p>
-                ${evt.dressCode ? `<p class="flex items-center gap-2"><span>👔</span><span class="text-[#8B6F47] font-semibold">${evt.dressCode}</span></p>` : ''}
-              </div>
-              <div class="pt-1.5">
-                <a href="https://maps.google.com/?q=${encodeURIComponent(evt.venue + ' ' + evt.address)}" target="_blank" class="w-full py-2.5 rounded-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#FCE7F3] text-[#BE185D] hover:bg-[#FBCFE8] transition-all shadow-2xs cursor-pointer">
-                  <span>🧭 Get directions</span>
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <!-- Animated Yellow Scooter Divider with Roadside Foliage -->
-          <div class="w-full flex flex-col items-center my-6 overflow-hidden pointer-events-none select-none scroll-reveal reveal-scooter">
-            <div class="relative w-72 h-16 flex items-center justify-center">
-              <svg viewBox="0 0 280 60" class="w-full h-full text-stone-300" fill="none">
-                <path d="M15,48 Q140,-8 265,48" stroke="#CBD5E1" stroke-width="2.5" stroke-dasharray="6,5" class="animate-road-dash" />
-                <g transform="translate(10, 34) scale(0.65)">
-                  <path d="M10,25 C10,12 18,5 20,0 C22,5 30,12 30,25 Z" fill="#16A34A" />
-                  <path d="M5,22 C12,12 18,8 20,0" stroke="#15803D" stroke-width="1.5" />
-                  <circle cx="20" cy="22" r="3.5" fill="#F59E0B" />
-                </g>
-                <g transform="translate(252, 32) scale(0.6)">
-                  <path d="M5,24 L25,24 L25,12 C25,4 15,0 15,0 C15,0 5,4 5,12 Z" fill="#FDE68A" stroke="#D97706" stroke-width="1.2" />
-                  <circle cx="15" cy="0" r="2.5" fill="#EA580C" />
-                </g>
-              </svg>
-              <div class="absolute top-1 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
-                <span class="text-2xl drop-shadow-md transform -rotate-3">🛵</span>
-                <span class="text-xs text-stone-400">💨</span>
-              </div>
-            </div>
-          </div>`;
+          ${idx < (data.events || []).length - 1 ? themeDividerHtml : ''}`;
         }).join('')}
       </section>
 
       <!-- 4. MOMENTS & MEMORIES PHOTO GALLERY -->
       <section class="py-6 px-2 w-full max-w-[390px] mx-auto select-none" id="moments-section">
         <div class="text-center space-y-1 mb-4 scroll-reveal">
-          <span class="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">Moments to cherish</span>
-          <h3 class="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">Moments & Memories</h3>
-          <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1"></div>
-          <p class="text-[11px] text-stone-500 font-light max-w-xs mx-auto pt-1 leading-relaxed">
+          <span class="text-[11px] font-script tracking-wider inv-eyebrow block font-semibold">Moments to cherish</span>
+          <h3 class="font-royal text-2xl sm:text-3xl font-light inv-heading">Moments & Memories</h3>
+          <div class="w-20 h-0.5 inv-rule mx-auto rounded-full mt-1"></div>
+          <p class="text-[11px] inv-muted font-light max-w-xs mx-auto pt-1 leading-relaxed">
             A glimpse into our sweetest celebrations & unforgettable memories.
           </p>
         </div>
@@ -2061,73 +1890,77 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         <div class="grid grid-cols-2 gap-2.5" id="moments-grid">
           ${(b64Gallery || []).map((item, idx) => {
             const isLeft = idx % 2 === 0;
-            const tapeClass = isLeft 
-              ? 'bg-[#FEF08A]/80 border-[#FDE047]' 
-              : 'bg-[#EDE9FE]/80 border-[#DDD6FE]';
             const tiltClass = isLeft ? 'reveal-tilt-left -rotate-1' : 'reveal-tilt-right rotate-1';
             const delay = Math.min(360, (idx % 4) * 120);
+            const escapedCap = String(item.caption || '').replace(/'/g, "\\'");
             return `
-            <div class="relative bg-white/95 backdrop-blur-xs p-2 pb-3.5 rounded-lg shadow-md border border-white/80 hover:border-amber-200 transform ${tiltClass} hover:rotate-0 transition-all duration-300 scroll-reveal cursor-pointer" style="transition-delay: ${delay}ms;" onclick="openMomentLightbox('${item.b64 || './images/couple-potrait.webp'}', '${item.caption}')">
-              <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 ${tapeClass} rounded shadow-2xs border rotate-1"></div>
-              <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
+            <div class="relative inv-polaroid p-2 pb-3.5 shadow-md transform ${tiltClass} hover:rotate-0 transition-all duration-300 scroll-reveal cursor-pointer" style="transition-delay: ${delay}ms;" onclick="openMomentLightbox('${item.b64 || './images/couple-potrait.webp'}', '${escapedCap}')">
+              <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 inv-sticky rounded shadow-2xs border rotate-1"></div>
+              <div class="w-full aspect-square rounded overflow-hidden inv-surface mb-1.5 border">
                 <img src="${item.b64 || './images/couple-potrait.webp'}" class="w-full h-full object-cover" />
               </div>
-              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider text-stone-500">✦ ${item.caption} ✦</span></div>
+              <div class="text-center"><span class="text-[9px] uppercase font-bold tracking-wider inv-muted">✦ ${item.caption} ✦</span></div>
             </div>`;
           }).join('')}
         </div>
       </section>
 
-      <!-- 5. THE VENUE ROADMAP -->
-      
+      ${venueSectionHtml}
 
-      <!-- 7. SHARE THE MOMENTS -->
+      <!-- SHARE THE MOMENTS -->
       <section class="py-6 px-2 w-full max-w-[390px] mx-auto text-center select-none space-y-2 scroll-reveal reveal-pop-up">
-        <span class="text-[10px] uppercase tracking-[0.25em] font-bold text-stone-500 block">SHARE THE MOMENTS</span>
-        <h3 class="font-serif text-2xl sm:text-3xl font-bold text-[#2B1E17]">${data.hosts?.hashtag || '#Wedding'}</h3>
-        <p class="text-xs text-stone-600 font-light">Tag your photos and stories so we can relive every moment.</p>
+        <span class="text-[10px] uppercase tracking-[0.25em] font-bold inv-muted block">SHARE THE MOMENTS</span>
+        <h3 class="font-royal text-2xl sm:text-3xl font-bold inv-heading">${safeHashtag}</h3>
+        <p class="text-xs inv-muted font-light">Tag your photos and stories so we can relive every moment.</p>
         <div class="pt-1.5">
-          <button id="theme-hashtag-btn" onclick="copyHashtag('${data.hosts?.hashtag || '#Wedding'}')" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-[#881337] hover:bg-[#9F1239] text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md cursor-pointer active:scale-95">
+          <button id="hashtag-btn" onclick="copyHashtag('${safeHashtag}')" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full inv-btn-primary hover:opacity-95 text-xs font-bold uppercase tracking-wider transition-all shadow-md cursor-pointer active:scale-95">
             <span>📋 Copy Hashtag</span>
           </button>
         </div>
       </section>
 
-      <!-- 8. PASTEL FOOTER -->
-      <footer class="py-10 px-2 w-full max-w-[390px] mx-auto text-center space-y-3.5 border-t-2 border-dashed border-[#F5D0C5] select-none scroll-reveal">
-        <h3 class="font-serif text-2xl sm:text-3xl font-light text-[#2B1E17]">See you at the shaadi!</h3>
-        <p class="text-[10px] tracking-[0.3em] uppercase font-bold text-[#8B6F47]">WITH LOVE, ${(data.hosts?.groom || 'Groom').toUpperCase()} & ${(data.hosts?.bride || 'Bride').toUpperCase()}</p>
+      <!-- THEME FOOTER -->
+      <footer class="py-10 px-2 w-full max-w-[390px] mx-auto text-center space-y-3.5 border-t-2 border-dashed border-current/25 inv-muted select-none scroll-reveal">
+        <h3 class="font-royal text-2xl sm:text-3xl font-light inv-heading">${themeDesign.footerTitle}</h3>
+        <p class="text-[10px] tracking-[0.3em] uppercase font-bold inv-accent">WITH LOVE, ${(data.hosts?.groom || 'Groom').toUpperCase()} & ${(data.hosts?.bride || 'Bride').toUpperCase()}</p>
+        ${(isCaricature && !palTheme.isDark) ? `
         <div class="flex items-center justify-center gap-3">
           <span class="w-6 h-6 rounded-full bg-[#FEF3C7] border border-[#FBBF24] flex items-center justify-center text-xs shadow-xs animate-bounce">💛</span>
           <span class="w-6 h-6 rounded-full bg-[#D1FAE5] border border-[#34D399] flex items-center justify-center text-xs shadow-xs animate-bounce" style="animation-delay: 0.2s;">💚</span>
           <span class="w-6 h-6 rounded-full bg-[#EDE9FE] border border-[#A78BFA] flex items-center justify-center text-xs shadow-xs animate-bounce" style="animation-delay: 0.4s;">💜</span>
           <span class="w-6 h-6 rounded-full bg-[#FCE7F3] border border-[#F472B6] flex items-center justify-center text-xs shadow-xs animate-bounce" style="animation-delay: 0.6s;">💖</span>
-        </div>
+        </div>` : `
+        <div class="flex items-center justify-center gap-3">
+          <span class="w-6 h-6 rounded-full inv-surface border flex items-center justify-center text-xs shadow-xs animate-bounce">✦</span>
+          <span class="w-6 h-6 rounded-full inv-surface border flex items-center justify-center text-xs shadow-xs animate-bounce" style="animation-delay: 0.2s;">${themeDesign.closingEmoji}</span>
+          <span class="w-6 h-6 rounded-full inv-surface border flex items-center justify-center text-xs shadow-xs animate-bounce" style="animation-delay: 0.4s;">❀</span>
+          <span class="w-6 h-6 rounded-full inv-surface border flex items-center justify-center text-xs shadow-xs animate-bounce" style="animation-delay: 0.6s;">✦</span>
+        </div>`}
         <div class="flex items-center justify-center gap-1 pt-1.5">
-          <span class="text-3xl drop-shadow">🛵</span>
-          <span class="text-xs text-stone-400">💨</span>
+          <span class="text-3xl drop-shadow">${themeDesign.closingEmoji}</span>
+          ${isCaricature ? '<span class="text-xs inv-muted">💨</span>' : ''}
         </div>
-        <p class="text-xs text-stone-500 font-light italic">We can't wait to celebrate with you</p>
+        <p class="text-xs inv-muted font-light italic">We can't wait to celebrate with you</p>
       </footer>
-    </div>`}
+    </div>
   </main>
 
   <!-- GROOM & BRIDE ENLARGED PORTRAIT CARD MODAL (BLURRED BACKDROP) -->
   <div id="person-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/65 backdrop-blur-md transition-all animate-fadeIn" onclick="closePersonModal()">
-    <div class="relative w-full max-w-[330px] bg-[#FFFDF9]/95 backdrop-blur-xs rounded-3xl p-5 border-2 border-[#FDE68A]/80 shadow-2xl text-center space-y-3 animate-scaleUp" onclick="event.stopPropagation()">
-      <div id="modal-washi" class="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-5 rounded shadow-xs bg-[#A7F3D0] border border-[#6EE7B7] rotate-1"></div>
-      <button onclick="closePersonModal()" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center text-sm font-bold shadow-xs cursor-pointer z-10 transition-colors" aria-label="Close">✕</button>
-      <div class="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-stone-100 border-2 border-stone-200 shadow-inner mt-2">
+    <div class="relative w-full max-w-[330px] inv-modal backdrop-blur-xs rounded-3xl p-5 border-2 shadow-2xl text-center space-y-3 animate-scaleUp" onclick="event.stopPropagation()">
+      <div id="modal-washi" class="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-5 rounded shadow-xs inv-sticky border rotate-1"></div>
+      <button onclick="closePersonModal()" class="absolute top-3 right-3 w-8 h-8 rounded-full inv-surface inv-text flex items-center justify-center text-sm font-bold shadow-xs cursor-pointer z-10 transition-colors" aria-label="Close">✕</button>
+      <div class="w-full aspect-[4/5] rounded-2xl overflow-hidden inv-surface border-2 shadow-inner mt-2">
         <img id="modal-person-img" src="" alt="Person" class="w-full h-full object-cover object-top" />
       </div>
       <div class="space-y-1 pt-1">
-        <span id="modal-person-role" class="inline-block px-3 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-bold bg-[#E6F4EA] text-[#137333]">The Groom</span>
-        <h3 id="modal-person-name" class="font-serif text-2xl font-bold text-[#2B1E17]"></h3>
-        <p id="modal-person-bio" class="text-xs text-stone-600 italic px-2"></p>
-        <p id="modal-person-lineage" class="text-[10px] text-stone-400 font-sans border-t border-stone-200/60 pt-2 mt-2"></p>
+        <span id="modal-person-role" class="inline-block px-3 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-bold inv-pill border">${themeDesign.meetBadgeGroom}</span>
+        <h3 id="modal-person-name" class="font-royal text-2xl font-bold inv-heading"></h3>
+        <p id="modal-person-bio" class="text-xs inv-muted italic px-2"></p>
+        <p id="modal-person-lineage" class="text-[10px] inv-subtle border-t border-current/20 pt-2 mt-2"></p>
       </div>
       <div class="pt-1">
-        <button onclick="closePersonModal()" class="text-[11px] uppercase tracking-widest text-stone-400 font-semibold hover:text-stone-700 cursor-pointer">Tap to close ✕</button>
+        <button onclick="closePersonModal()" class="text-[11px] uppercase tracking-widest inv-muted font-semibold hover:underline cursor-pointer">Tap to close ✕</button>
       </div>
     </div>
   </div>
@@ -2475,7 +2308,7 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
                  + '<svg viewBox="0 0 36 36" class="absolute -inset-1 w-9 h-9 sm:w-10 sm:h-10 pointer-events-none overflow-visible">'
                  + '<path d="M18,31 C10,23 3.5,17 3.5,10.5 C3.5,5.5 7.5,2 12.5,2 C15.5,2 17.5,3.5 18,5 C18.5,3.5 20.5,2 23.5,2 C28.5,2 32.5,5.5 32.5,10.5 C32.5,17 26,23 18,31 Z" fill="rgba(244, 63, 94, 0.16)" stroke="#E11D48" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="calendar-heart-path" />'
                  + '</svg>'
-                 + '<span class="relative z-10 text-rose-700 font-extrabold text-sm">' + day + '</span>'
+                 + '<span class="relative z-10 text-rose-500 font-extrabold text-sm">' + day + '</span>'
                  + '</div>';
           } else {
             html += '<div class="h-7 sm:h-8 flex items-center justify-center"><span>' + day + '</span></div>';
@@ -2609,13 +2442,13 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       var bridePhoto = window.__hydratedBridePhoto || '${b64Bride || './images/preeti_bride.jpg' || './images/bride.webp'}';
       if (img) img.src = isGroom ? groomPhoto : bridePhoto;
       if (roleEl) {
-        roleEl.innerText = isGroom ? 'The Groom' : 'The Bride';
-        roleEl.className = 'inline-block px-3 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-bold ' + (isGroom ? 'bg-[#E6F4EA] text-[#137333]' : 'bg-[#FCE8E6] text-[#C5221F]');
+        roleEl.innerText = isGroom ? '${themeDesign.meetBadgeGroom}' : '${themeDesign.meetBadgeBride}';
+        roleEl.className = 'inline-block px-3 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-bold inv-pill border';
       }
       if (nameEl) nameEl.innerText = isGroom ? '${data.hosts?.groom || 'Groom'}' : '${data.hosts?.bride || 'Bride'}';
       if (bioEl) bioEl.innerText = '"' + (isGroom ? '${data.photos?.groomBio || 'Foodie, photography enthusiast, and the architect of their happiest memories.'}' : '${data.photos?.brideBio || 'Loves classic poetry, morning chai, and spontaneous mountain hikes.'}') + '"';
       if (linEl) linEl.innerText = isGroom ? '${data.hosts?.groomParents || 'S/o Mr. Ramesh & Mrs. Sunita Sharma'}' : '${data.hosts?.brideParents || 'D/o Mr. Vijay & Mrs. Rekha Malhotra'}';
-      if (washi) washi.className = 'absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-5 rounded shadow-xs ' + (isGroom ? 'bg-[#A7F3D0] border border-[#6EE7B7] rotate-1' : 'bg-[#FDE68A] border border-[#FCD34D] -rotate-1');
+      if (washi) washi.className = 'absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-5 rounded shadow-xs inv-sticky border ' + (isGroom ? 'rotate-1' : '-rotate-1');
       modal.classList.remove('hidden');
       modal.classList.add('flex');
     };
@@ -2840,17 +2673,17 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
       const grid = document.getElementById('moments-grid');
       if (!grid) return;
       const card = document.createElement('div');
-      card.className = 'relative bg-white p-2 pb-3.5 rounded-lg shadow-md border-2 border-pink-200 transform hover:rotate-0 transition-transform duration-300 cursor-pointer';
+      card.className = 'relative inv-polaroid p-2 pb-3.5 shadow-md transform hover:rotate-0 transition-transform duration-300 cursor-pointer';
       card.onclick = function() { openMomentLightbox(mem.url, mem.caption + ' (By ' + mem.uploader + ')'); };
       card.innerHTML = \`
-        <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FCE7F3]/90 border border-[#F472B6] rounded shadow-2xs rotate-1"></div>
-        <div class="absolute top-1 right-1 z-10 bg-[#BE185D] text-white text-[7.5px] uppercase font-bold px-1.5 py-0.5 rounded-full">Guest</div>
-        <div class="w-full aspect-square rounded overflow-hidden bg-stone-100 mb-1.5 border border-stone-200">
+        <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-4 inv-sticky border rounded shadow-2xs rotate-1"></div>
+        <div class="absolute top-1 right-1 z-10 inv-btn-primary text-[7.5px] uppercase font-bold px-1.5 py-0.5 rounded-full">Guest</div>
+        <div class="w-full aspect-square rounded overflow-hidden inv-surface mb-1.5 border">
           <img src="\${mem.url}" class="w-full h-full object-cover" />
         </div>
         <div class="text-left px-0.5">
-          <p class="text-[10px] font-bold text-stone-800 line-clamp-1">"\${mem.caption}"</p>
-          <span class="text-[8.5px] text-[#BE185D] font-semibold block mt-0.5">By \${mem.uploader}</span>
+          <p class="text-[10px] font-bold inv-heading line-clamp-1">"\${mem.caption}"</p>
+          <span class="text-[8.5px] inv-accent font-semibold block mt-0.5">By \${mem.uploader}</span>
         </div>
       \`;
       if (prepend && grid.firstChild) {
@@ -2888,41 +2721,41 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
 
   <!-- MOMENTS & MEMORIES UPLOAD MODAL -->
   <div id="moments-upload-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/70 backdrop-blur-md" onclick="closeMomentsModal()">
-    <div class="relative w-full max-w-[340px] bg-[#FFFDF9] rounded-3xl p-5 border-2 border-[#FDE68A] shadow-2xl space-y-3.5" onclick="event.stopPropagation()">
-      <button type="button" onclick="closeMomentsModal()" class="absolute top-3 right-3 w-7 h-7 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center font-bold text-xs cursor-pointer">✕</button>
+    <div class="relative w-full max-w-[340px] inv-modal rounded-3xl p-5 border-2 shadow-2xl space-y-3.5" onclick="event.stopPropagation()">
+      <button type="button" onclick="closeMomentsModal()" class="absolute top-3 right-3 w-7 h-7 rounded-full inv-surface inv-text flex items-center justify-center font-bold text-xs cursor-pointer">✕</button>
       
       <div class="text-center space-y-0.5">
-        <span class="text-[9.5px] uppercase font-bold text-[#DB2777] tracking-wider">Live Wedding Album</span>
-        <h3 class="font-serif text-xl text-[#2B1E17]">Share Your Memory</h3>
-        <p class="text-[10px] text-stone-500">Upload a selfie or photo with ${data.hosts?.bride || 'Bride'} & ${data.hosts?.groom || 'Groom'}.</p>
+        <span class="text-[9.5px] uppercase font-bold inv-eyebrow tracking-wider">Live Wedding Album</span>
+        <h3 class="font-royal text-xl inv-heading">Share Your Memory</h3>
+        <p class="text-[10px] inv-muted">Upload a selfie or photo with ${data.hosts?.bride || 'Bride'} & ${data.hosts?.groom || 'Groom'}.</p>
       </div>
 
       <input type="file" id="moment-file-input" accept="image/*" class="hidden" onchange="handleMomentFileSelected(event)" />
 
       <!-- Placeholder Dropzone -->
-      <div id="moment-placeholder" onclick="document.getElementById('moment-file-input').click()" class="w-full aspect-[4/3] rounded-2xl border-2 border-dashed border-[#FBBF24] bg-[#FFFDF7] flex flex-col items-center justify-center p-3 text-center cursor-pointer hover:bg-amber-50/50">
+      <div id="moment-placeholder" onclick="document.getElementById('moment-file-input').click()" class="w-full aspect-[4/3] rounded-2xl border-2 border-dashed inv-surface flex flex-col items-center justify-center p-3 text-center cursor-pointer hover:opacity-90">
         <span class="text-3xl mb-1">📸</span>
-        <span class="text-xs font-bold text-stone-800">Tap to Choose / Take Photo</span>
-        <span class="text-[9.5px] text-stone-400">Supports phone gallery & camera</span>
+        <span class="text-xs font-bold inv-heading">Tap to Choose / Take Photo</span>
+        <span class="text-[9.5px] inv-subtle">Supports phone gallery & camera</span>
       </div>
 
       <!-- Preview Box -->
-      <div id="moment-preview-box" class="hidden relative w-full aspect-square rounded-2xl overflow-hidden border-2 border-[#FBBF24] bg-stone-100">
+      <div id="moment-preview-box" class="hidden relative w-full aspect-square rounded-2xl overflow-hidden border-2 inv-surface">
         <img id="moment-preview-img" src="" class="w-full h-full object-cover" />
         <button type="button" onclick="clearMomentPreview()" class="absolute top-2 right-2 px-2.5 py-1 rounded-full bg-rose-600 text-white text-[10px] font-bold shadow-md cursor-pointer">✕ Remove</button>
       </div>
 
       <div class="space-y-1">
-        <label class="text-[9.5px] uppercase font-bold text-stone-600">Your Name *</label>
-        <input type="text" id="moment-uploader-name" placeholder="e.g. Priya & Rohan" class="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs bg-white focus:outline-none" />
+        <label class="text-[9.5px] uppercase font-bold inv-muted">Your Name *</label>
+        <input type="text" id="moment-uploader-name" placeholder="e.g. Priya & Rohan" class="w-full px-3 py-2 rounded-xl border inv-surface inv-heading text-xs focus:outline-none" />
       </div>
 
       <div class="space-y-1">
-        <label class="text-[9.5px] uppercase font-bold text-stone-600">Caption / Wish</label>
-        <input type="text" id="moment-caption-input" placeholder="e.g. Sangeet dance night! 🎉" class="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs bg-white focus:outline-none" />
+        <label class="text-[9.5px] uppercase font-bold inv-muted">Caption / Wish</label>
+        <input type="text" id="moment-caption-input" placeholder="e.g. Sangeet dance night! 🎉" class="w-full px-3 py-2 rounded-xl border inv-surface inv-heading text-xs focus:outline-none" />
       </div>
 
-      <button type="button" onclick="submitMomentUpload(event)" class="w-full py-2.5 rounded-full bg-gradient-to-r from-[#F472B6] via-[#EC4899] to-[#DB2777] text-white font-bold text-xs uppercase tracking-wider shadow-md hover:scale-101 cursor-pointer">
+      <button type="button" onclick="submitMomentUpload(event)" class="w-full py-2.5 rounded-full inv-btn-primary font-bold text-xs uppercase tracking-wider shadow-md hover:opacity-95 cursor-pointer">
         Post Memory to Album ✨
       </button>
     </div>
@@ -2930,12 +2763,12 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
 
   <!-- MOMENTS LIGHTBOX MODAL -->
   <div id="moment-lightbox-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/85 backdrop-blur-md" onclick="closeMomentLightbox()">
-    <div class="relative w-full max-w-[350px] bg-white rounded-3xl p-4 shadow-2xl space-y-2.5 text-center" onclick="event.stopPropagation()">
-      <button type="button" onclick="closeMomentLightbox()" class="absolute top-2 right-2 w-7 h-7 rounded-full bg-stone-100 text-stone-600 font-bold text-xs cursor-pointer">✕</button>
-      <div class="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-stone-900 border border-stone-200">
+    <div class="relative w-full max-w-[350px] inv-modal border rounded-3xl p-4 shadow-2xl space-y-2.5 text-center" onclick="event.stopPropagation()">
+      <button type="button" onclick="closeMomentLightbox()" class="absolute top-2 right-2 w-7 h-7 rounded-full inv-surface inv-text font-bold text-xs cursor-pointer">✕</button>
+      <div class="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-stone-900 border border-current/20">
         <img id="moment-lightbox-img" src="" class="w-full h-full object-contain" />
       </div>
-      <p id="moment-lightbox-cap" class="text-xs font-serif font-medium text-stone-800"></p>
+      <p id="moment-lightbox-cap" class="text-xs font-serif font-medium inv-heading"></p>
     </div>
   </div>
 </body>

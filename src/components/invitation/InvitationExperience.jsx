@@ -27,6 +27,7 @@ import {
   PastelCountdownBar,
   PastelOurStory,
   PastelScooterDivider,
+  ThemeDivider,
   PastelEventCard,
   PastelPolaroidGallery,
   PastelVenueMap,
@@ -41,6 +42,14 @@ import { soundManager } from '../../utils/audio';
 import { triggerCelebration } from '../../utils/confetti';
 import { PALETTES, TEMPLATES, MUSIC_TRACKS } from '../../data/presets';
 import { getThemeEventImage, getThemeHeroImage } from '../../utils/themeImages';
+import {
+  getThemeDesign,
+  resolvePaletteTheme,
+  resolveTypographyVars,
+  renderThemeTopHtml,
+  renderThemeSideHtml,
+  SHARED_INVITATION_CSS,
+} from '../../utils/themeDecorConfig';
 
 export default function InvitationExperience({ 
   data, 
@@ -164,126 +173,62 @@ export default function InvitationExperience({
     return evt.group === activeGroup || evt.group === 'all';
   });
 
-  // Specific Theme Flags (from Wishlys video)
+  // Specific Theme Flags & Shared Theme/Palette Config
+  const palTheme = resolvePaletteTheme(currentTemplate.id, data.palette);
+  const typoVars = resolveTypographyVars(data.typography);
+  const themeDesign = getThemeDesign(currentTemplate.id);
+  const topThemeHtml = !themeDesign.isCaricature ? renderThemeTopHtml(currentTemplate.id) : '';
+  const sideThemeHtml = !themeDesign.isCaricature ? renderThemeSideHtml(currentTemplate.id) : '';
+
   const isZardozi = currentTemplate.id === 'zardozi';
   const isPichwai = currentTemplate.id === 'pichwai';
   const isMela = currentTemplate.id === 'mela';
   const isRajwada = currentTemplate.id === 'rajwada';
-  const isNewspaper = currentTemplate.id === 'newspaper';
-  const isCaricature = currentTemplate.id === 'caricature';
+  const isNewspaper = themeDesign.isNewspaper;
+  const isCaricature = themeDesign.isCaricature;
   const isBougain = currentTemplate.id === 'bougain' || currentTemplate.id === 'bougainvillea';
 
   return (
     <div 
-      className={`min-h-screen relative font-sans overflow-x-hidden selection:bg-[#C5A880]/30 transition-colors duration-500 ${
-        isNewspaper ? 'bg-[#F6F1E5] text-[#1E1E1E]' : ''
-      }`}
+      className={`inv-theme-root ${palTheme.isDark ? 'inv-dark' : 'inv-light'} ${themeDesign.cardClass} min-h-screen relative overflow-x-hidden selection:bg-[#C5A880]/30 transition-colors duration-500`}
       style={{ 
-        backgroundColor: isPichwai ? '#071A1E' : isZardozi ? '#FAF7F0' : (palette?.colors?.[0] || '#FAF7F2'), 
-        color: isPichwai ? '#F4ECDE' : isNewspaper ? '#1E1E1E' : (palette?.colors?.[1] || '#2B1E17'),
-        '--font-serif': data.typography?.bodyFont ? `"${data.typography.bodyFont}", Georgia, serif` : undefined,
-        '--font-royal': data.typography?.headingFont ? `"${data.typography.headingFont}", serif` : undefined,
-        '--font-script': data.typography?.scriptFont ? `"${data.typography.scriptFont}", cursive` : undefined,
+        backgroundColor: palTheme.bg, 
+        color: palTheme.text,
+        ...palTheme.cssVars,
+        ...typoVars.cssVars,
       }}
     >
+      <style dangerouslySetInnerHTML={{ __html: SHARED_INVITATION_CSS }} />
+      {!isCaricature && (topThemeHtml || sideThemeHtml) && (
+        <div dangerouslySetInnerHTML={{ __html: topThemeHtml + sideThemeHtml }} />
+      )}
       {/* FULL-PAGE CONTINUOUS ANIMATED ATMOSPHERE (Canvas 60fps confined to invitation screen) */}
       <ThemeAtmosphere 
         themeId={currentTemplate.id} 
         atmosphere={data.atmosphere || { style: data.effect, intensity: 'medium' }} 
       />
 
-      {/* 1. LUXE HEIRLOOM ZARDOZI: Gold embroidered corner filigrees & toran */}
-      {isZardozi && (
-        <>
-          {/* Top Hanging Toran with Pearls & Silk Tassels */}
-          <div className="w-full flex justify-center overflow-hidden pointer-events-none absolute top-0 left-0 right-0 z-30 opacity-95">
-            <svg viewBox="0 0 800 65" className="w-full max-w-2xl h-auto animate-toran" fill="none">
-              <path d="M0,0 L800,0 L800,20 C700,45 600,10 500,35 C400,10 300,45 200,20 C100,45 0,15 0,0 Z" fill="#D4AF37" fillOpacity="0.4" />
-              <path d="M0,0 C100,30 200,15 300,35 C400,15 500,35 600,20 C700,35 800,15 800,0" stroke="#B8860B" strokeWidth="3" />
-              {/* Pearl drops */}
-              {[40, 120, 200, 280, 360, 440, 520, 600, 680, 760].map((x, i) => (
-                <g key={i}>
-                  <line x1={x} y1="15" x2={x} y2="40" stroke="#D4AF37" strokeWidth="1.5" strokeDasharray="2,2" />
-                  <circle cx={x} cy="43" r="4" fill="#FFFDF0" stroke="#B8860B" strokeWidth="1" />
-                  <circle cx={x} cy="53" r="3" fill="#D4AF37" />
-                </g>
-              ))}
-            </svg>
-          </div>
-          {/* 4 Corner Ornaments */}
-          <div className="pointer-events-none absolute top-3 left-3 w-16 h-16 border-t-2 border-l-2 border-[#D4AF37] z-20" />
-          <div className="pointer-events-none absolute top-3 right-3 w-16 h-16 border-t-2 border-r-2 border-[#D4AF37] z-20" />
-          <div className="pointer-events-none absolute bottom-3 left-3 w-16 h-16 border-b-2 border-l-2 border-[#D4AF37] z-20" />
-          <div className="pointer-events-none absolute bottom-3 right-3 w-16 h-16 border-b-2 border-r-2 border-[#D4AF37] z-20" />
-        </>
-      )}
-
-      {/* 2. LUXE MARIGOLD MELA: Festive tent awning canopy & hanging marigold garlands */}
-      {isMela && (
-        <div className="w-full pointer-events-none absolute top-0 left-0 right-0 z-30">
-          {/* Scalloped Marigold Tent Awning Canopy */}
-          <div className="w-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 h-6 flex justify-around items-end">
-            {Array.from({ length: 12 }).map((_, i) => (
-              <div key={i} className="w-7 h-4 bg-amber-400 rounded-b-full border-b border-orange-600 shadow-xs" />
-            ))}
-          </div>
-          {/* Hanging Marigold Garlands on both sides */}
-          <div className="flex justify-between px-3 pt-1">
-            <div className="flex flex-col gap-1 -mt-1 animate-sway">
-              <span className="text-xl">🌼</span>
-              <span className="text-xl">🏵️</span>
-              <span className="text-xl">🌼</span>
-              <span className="text-xl">🏵️</span>
-            </div>
-            <div className="flex flex-col gap-1 -mt-1 animate-sway" style={{ animationDelay: '1.5s' }}>
-              <span className="text-xl">🏵️</span>
-              <span className="text-xl">🌼</span>
-              <span className="text-xl">🏵️</span>
-              <span className="text-xl">🌼</span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 3. LUXE PICHWAI LOTUS: Hanging golden lotus & midnight teal theme */}
-      {isPichwai && (
-        <div className="w-full flex justify-center pointer-events-none absolute top-0 left-0 right-0 z-30">
-          {/* Hanging lotus suspended from golden cord */}
-          <div className="flex flex-col items-center animate-sway">
-            <div className="w-0.5 h-12 bg-gradient-to-b from-[#C5A880] to-[#E8D5B5]" />
-            <div className="w-9 h-9 rounded-full bg-[#0D282E] border-2 border-[#C5A880] flex items-center justify-center shadow-lg -mt-1">
-              <span className="text-base">🪷</span>
-            </div>
-          </div>
-        </div>
-      )}
-
-
-
-      {/* 5. BOUGAINVILLEA VINES CANOPY */}
-      {isBougain && <BougainvilleaCanopy />}
-
       {/* Floating Audio Controls */}
-      <div className="fixed top-4 right-4 z-50 flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-stone-200/90 shadow-lg">
+      <div className="inv-surface fixed top-4 right-4 z-50 flex items-center gap-2 backdrop-blur-md px-3.5 py-1.5 rounded-full border shadow-lg">
         <button
           type="button"
           onClick={toggleMusic}
-          className="flex items-center gap-2 text-xs font-semibold text-stone-700 hover:text-stone-900 cursor-pointer"
+          className="flex items-center gap-2 text-xs font-semibold inv-heading hover:opacity-85 cursor-pointer"
           title={isPlayingMusic ? 'Mute Music' : 'Play Background Music'}
         >
           {isPlayingMusic ? (
             <>
               <span className="flex gap-0.5 items-end h-3.5">
-                <span className="w-1 bg-[#8B6F47] rounded-full animate-pulse h-3" />
-                <span className="w-1 bg-[#C5A880] rounded-full animate-pulse h-2" />
-                <span className="w-1 bg-[#8B6F47] rounded-full animate-pulse h-3.5" />
+                <span className="w-1 rounded-full animate-pulse h-3" style={{ backgroundColor: 'var(--pal-accent)' }} />
+                <span className="w-1 rounded-full animate-pulse h-2" style={{ backgroundColor: 'var(--pal-eyebrow)' }} />
+                <span className="w-1 rounded-full animate-pulse h-3.5" style={{ backgroundColor: 'var(--pal-accent)' }} />
               </span>
-              <Volume2 className="w-4 h-4 text-[#8B6F47]" />
+              <Volume2 className="w-4 h-4 inv-accent" />
             </>
           ) : (
-            <VolumeX className="w-4 h-4 text-stone-400" />
+            <VolumeX className="w-4 h-4 inv-muted" />
           )}
-          <span className="text-[10px] tracking-wider uppercase font-bold text-[#8B6F47]">
+          <span className="text-[10px] tracking-wider uppercase font-bold inv-accent">
             {isPlayingMusic ? currentMusic.name : 'Play Music'}
           </span>
         </button>
@@ -291,24 +236,28 @@ export default function InvitationExperience({
 
       {/* REVEAL COVER MODAL (until unlocked) */}
       {!revealed && (
-        <div className="relative min-h-screen flex flex-col items-center justify-center px-4 py-12 z-40 bg-gradient-to-b from-[#FAF8F5]/95 via-[#F5EFE6]/95 to-[#FAF8F5]/95 backdrop-blur-sm">
+        <div
+          className="relative min-h-screen flex flex-col items-center justify-center px-4 py-12 z-40 backdrop-blur-sm"
+          style={{ backgroundColor: palTheme.bg }}
+        >
           {(data.revealStyle === 'folding-doors' || (isCaricature && (!data.revealStyle || data.revealStyle === 'folding-doors'))) ? (
             <PastelFoldingDoorsReveal 
               onReveal={handleReveal} 
               bride={data.hosts?.bride} 
               groom={data.hosts?.groom} 
               coverPhoto={data.photos?.cover}
+              templateId={currentTemplate.id}
             />
           ) : (
             <>
               <div className="text-center space-y-3 mb-6 max-w-md">
-                <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#8B6F47] border border-[#C5A880]/50 bg-[#FAF5ED] px-3.5 py-1 rounded-full shadow-sm">
+                <span className="inv-pill text-[10px] tracking-[0.3em] uppercase font-bold border px-3.5 py-1 rounded-full shadow-sm inline-block">
                   Exclusive Invitation
                 </span>
-                <h2 className="font-serif text-3xl sm:text-4xl font-light text-[#2B1E17]">
+                <h2 className="font-royal text-3xl sm:text-4xl font-light inv-heading">
                   {data.hosts?.bride} & {data.hosts?.groom}
                 </h2>
-                <p className="text-xs text-stone-500 font-light">
+                <p className="text-xs inv-muted font-light">
                   We invite you to unveil the celebration details below.
                 </p>
               </div>
@@ -361,11 +310,11 @@ export default function InvitationExperience({
                 {data.revealStyle === 'shaadi-story' && (
                   <div 
                     onClick={handleReveal}
-                    className="bg-white rounded-3xl p-6 border-2 border-[#E6D5BF] shadow-xl text-center space-y-4 cursor-pointer hover:shadow-2xl hover:scale-[1.01] transition-all"
+                    className="inv-modal rounded-3xl p-6 shadow-xl text-center space-y-4 cursor-pointer hover:shadow-2xl hover:scale-[1.01] transition-all"
                   >
                     <div className="relative inline-block mx-auto">
                       <div className="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 animate-spin-slow">
-                        <div className="w-full h-full rounded-full bg-white p-0.5 overflow-hidden">
+                        <div className="w-full h-full rounded-full inv-surface p-0.5 overflow-hidden">
                           <img 
                             src={data.photos?.story || data.photos?.cover || './images/templates/caricature.webp'} 
                             alt="Story" 
@@ -378,17 +327,17 @@ export default function InvitationExperience({
                       </span>
                     </div>
                     <div className="space-y-1">
-                      <span className="text-[10px] uppercase font-bold tracking-widest text-[#059669] bg-emerald-50 px-2.5 py-0.5 rounded-full inline-block">
+                      <span className="text-[10px] uppercase font-bold tracking-widest inv-pill px-2.5 py-0.5 rounded-full inline-block">
                         Close Friends Only
                       </span>
-                      <h3 className="font-serif text-2xl text-[#2B1E17] font-normal">Shaadi Story</h3>
-                      <p className="text-xs text-stone-500 font-light">
+                      <h3 className="font-royal text-2xl inv-heading font-normal">Shaadi Story</h3>
+                      <p className="text-xs inv-muted font-light">
                         Tap to watch the wedding story and unlock the celebration.
                       </p>
                     </div>
                     <button
                       type="button"
-                      className="w-full py-3 rounded-full bg-gradient-to-r from-[#8B6F47] to-[#A9825F] text-white font-medium text-xs tracking-wider uppercase shadow-md flex items-center justify-center gap-2 hover:opacity-95"
+                      className="w-full py-3 rounded-full inv-btn-primary font-medium text-xs tracking-wider uppercase shadow-md flex items-center justify-center gap-2 hover:opacity-95"
                     >
                       <span>Watch Shaadi Story</span>
                       <span>▶</span>
@@ -411,7 +360,7 @@ export default function InvitationExperience({
                           className="w-full h-full object-cover rounded-full"
                         />
                       </div>
-                      <h3 className="font-serif text-2xl text-white font-normal">{data.hosts?.bride} & {data.hosts?.groom}</h3>
+                      <h3 className="font-royal text-2xl text-white font-normal">{data.hosts?.bride} & {data.hosts?.groom}</h3>
                       <p className="text-xs text-stone-400">Wedding Celebration Invitation</p>
                     </div>
                     <div className="pt-2">
@@ -428,23 +377,23 @@ export default function InvitationExperience({
                 {data.revealStyle === 'quick-delivery' && (
                   <div 
                     onClick={handleReveal}
-                    className="bg-white rounded-3xl p-6 border-2 border-[#E6D5BF] shadow-xl text-center space-y-4 cursor-pointer hover:scale-[1.01] transition-all"
+                    className="inv-modal rounded-3xl p-6 shadow-xl text-center space-y-4 cursor-pointer hover:scale-[1.01] transition-all"
                   >
-                    <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center mx-auto text-2xl shadow-inner">
+                    <div className="w-16 h-16 rounded-2xl inv-surface flex items-center justify-center mx-auto text-2xl shadow-inner">
                       📦
                     </div>
                     <div className="space-y-1">
-                      <span className="text-[10px] uppercase font-bold tracking-widest text-amber-700 bg-amber-100/80 px-2.5 py-0.5 rounded-full inline-block">
+                      <span className="text-[10px] uppercase font-bold tracking-widest inv-pill px-2.5 py-0.5 rounded-full inline-block">
                         Arriving in 10 mins
                       </span>
-                      <h3 className="font-serif text-2xl text-[#2B1E17] font-normal">Express Wedding Delivery</h3>
-                      <p className="text-xs text-stone-500 font-light">
+                      <h3 className="font-royal text-2xl inv-heading font-normal">Express Wedding Delivery</h3>
+                      <p className="text-xs inv-muted font-light">
                         A special package containing your invitation has arrived.
                       </p>
                     </div>
                     <button
                       type="button"
-                      className="w-full py-3 rounded-full bg-[#8B6F47] text-white font-medium text-xs tracking-wider uppercase shadow-md flex items-center justify-center gap-2"
+                      className="w-full py-3 rounded-full inv-btn-primary font-medium text-xs tracking-wider uppercase shadow-md flex items-center justify-center gap-2"
                     >
                       <span>Tap to Open Package</span>
                       <span>✨</span>
@@ -454,25 +403,25 @@ export default function InvitationExperience({
                 {!['scratch-date', 'block-date', 'scratch', 'seal', 'drag', 'letter', 'envelope', 'ringbox', 'doorbell', 'shaadi-story', 'incoming-call', 'quick-delivery'].includes(data.revealStyle) && (
                   <div 
                     onClick={handleReveal}
-                    className="bg-white rounded-3xl p-6 border-2 border-[#E6D5BF] shadow-xl text-center space-y-4 cursor-pointer hover:scale-[1.01] transition-all"
+                    className="inv-modal rounded-3xl p-6 shadow-xl text-center space-y-4 cursor-pointer hover:scale-[1.01] transition-all"
                   >
-                    <div className="w-16 h-16 rounded-2xl bg-[#FAF5ED] border border-[#E6D5BF] text-[#8B6F47] flex items-center justify-center mx-auto text-2xl shadow-inner">
+                    <div className="w-16 h-16 rounded-2xl inv-surface flex items-center justify-center mx-auto text-2xl shadow-inner">
                       ✨
                     </div>
                     <div className="space-y-1">
-                      <span className="text-[10px] uppercase font-bold tracking-widest text-[#8B6F47] bg-[#FAF5ED] px-2.5 py-0.5 rounded-full inline-block">
+                      <span className="text-[10px] uppercase font-bold tracking-widest inv-pill px-2.5 py-0.5 rounded-full inline-block">
                         Wedding Invitation Reveal
                       </span>
-                      <h3 className="font-serif text-2xl text-[#2B1E17] font-normal">
+                      <h3 className="font-royal text-2xl inv-heading font-normal">
                         {data.hosts?.bride} & {data.hosts?.groom}
                       </h3>
-                      <p className="text-xs text-stone-500 font-light">
+                      <p className="text-xs inv-muted font-light">
                         Tap below to unveil the celebration itinerary and RSVP.
                       </p>
                     </div>
                     <button
                       type="button"
-                      className="w-full py-3 rounded-full bg-gradient-to-r from-[#8B6F47] to-[#A9825F] text-white font-medium text-xs tracking-wider uppercase shadow-md flex items-center justify-center gap-2"
+                      className="w-full py-3 rounded-full inv-btn-primary font-medium text-xs tracking-wider uppercase shadow-md flex items-center justify-center gap-2"
                     >
                       <span>Open Invitation</span>
                       <span>→</span>
@@ -487,7 +436,7 @@ export default function InvitationExperience({
             <button
               type="button"
               onClick={handleReveal}
-              className="text-[11px] tracking-widest uppercase font-semibold text-[#8B6F47] hover:underline cursor-pointer"
+              className="text-[11px] tracking-widest uppercase font-semibold inv-accent hover:underline cursor-pointer"
             >
               Skip reveal and view invitation →
             </button>
@@ -503,14 +452,14 @@ export default function InvitationExperience({
         
         {/* VINTAGE NEWSPAPER BANNER IF THEME IS NEWSPAPER */}
         {isNewspaper && (
-          <header className="border-b-4 border-double border-stone-800 text-center py-6 px-4 bg-[#F6F1E5]">
-            <p className="text-[10px] tracking-[0.3em] uppercase font-bold text-stone-600">
+          <header className="border-b-4 border-double inv-surface text-center py-6 px-4">
+            <p className="text-[10px] tracking-[0.3em] uppercase font-bold inv-muted">
               EST. 2027 · SPECIAL WEDDING CHRONICLE · NO. 1
             </p>
-            <h1 className="font-serif text-4xl sm:text-6xl font-black uppercase tracking-tight text-stone-900 my-1">
+            <h1 className="font-royal text-4xl sm:text-6xl font-black uppercase tracking-tight inv-heading my-1">
               THE SHAADI TIMES
             </h1>
-            <div className="flex justify-between items-center text-[10px] uppercase font-semibold text-stone-600 border-t border-b border-stone-800 py-1 max-w-xl mx-auto">
+            <div className="flex justify-between items-center text-[10px] uppercase font-semibold inv-muted border-t border-b border-current/40 py-1 max-w-xl mx-auto">
               <span>VOL. I · ISSUE 1</span>
               <span>{data.hosts?.city || 'Meerut, Uttar Pradesh'}</span>
               <span>{data.hosts?.date || 'DECEMBER 09, 2026'}</span>
@@ -533,7 +482,7 @@ export default function InvitationExperience({
             &
           </span>
 
-          {/* THEME HERO & COUPLE & CALENDAR (ALL THEMES SHARE THIS LUXURY STYLE) */}
+          {/* THEME HERO & COUPLE & CALENDAR */}
           <div className="relative z-10 w-full flex flex-col items-center">
             <PastelCaricatureHero 
               couplePhoto={(data.photos?.cover && !data.photos.cover.includes('caricature.webp') && !data.photos.cover.includes('scooter_couple.webp') && !data.photos.cover.includes('04-pheras.webp')) ? data.photos.cover : getThemeHeroImage(currentTemplate.id)} 
@@ -542,6 +491,7 @@ export default function InvitationExperience({
               date={data.hosts?.date}
               monogram={data.monogram}
               palette={palette}
+              templateId={currentTemplate.id}
             />
             <PastelPolaroidCouple 
               bride={data.hosts?.bride} 
@@ -552,32 +502,35 @@ export default function InvitationExperience({
               groomBio={data.photos?.groomBio}
               groomLineage={data.hosts?.groomParents}
               brideLineage={data.hosts?.brideParents}
+              templateId={currentTemplate.id}
             />
             <PastelHangingCalendar 
               date={data.hosts?.date}
               timeLeft={timeLeft}
+              templateId={currentTemplate.id}
+              isDark={palTheme.isDark}
             />
           </div>
         </section>
 
-        {/* CELEBRATIONS ITINERARY & MOMENTS & MAP & RSVP (ALL THEMES SHARE THIS LUXURY CARICATURE STYLE) */}
+        {/* CELEBRATIONS ITINERARY & MOMENTS & MAP */}
         <section className="py-8 px-2 w-full max-w-[390px] mx-auto space-y-5">
           <div className="text-center space-y-1 mb-8">
-            <span className="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold">
+            <span className="text-[11px] font-script tracking-wider inv-eyebrow block font-semibold">
               Programme
             </span>
-            <h2 className="font-serif text-3xl font-light text-[#2B1E17]">
+            <h2 className="font-royal text-3xl font-light inv-heading">
               The Celebrations
             </h2>
-            <div className="w-20 h-1 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1" />
+            <div className="w-20 h-1 inv-rule mx-auto rounded-full mt-1" />
           </div>
 
-          {/* Events with Authentic Theme Arches and Scooter Dividers */}
+          {/* Events with Authentic Theme Arches and Theme Dividers */}
           <div className="space-y-6">
             {visibleEvents.map((evt, eIdx) => (
               <React.Fragment key={evt.id || eIdx}>
                 <PastelEventCard event={evt} index={eIdx} templateId={currentTemplate.id} />
-                {eIdx < visibleEvents.length - 1 && <PastelScooterDivider />}
+                {eIdx < visibleEvents.length - 1 && <ThemeDivider templateId={currentTemplate.id} />}
               </React.Fragment>
             ))}
           </div>
@@ -593,13 +546,15 @@ export default function InvitationExperience({
           <PastelVenueMap 
             venue={data.events?.[0]?.venue || data.hosts?.city || 'Diaz Banquet'} 
             city={data.hosts?.city || 'Meerut, Uttar Pradesh'} 
-            address={data.events?.[0]?.address || '111, Delhi Road, Opposite Deewan International Public School, Rithani, Meerut'} 
+            address={data.events?.[0]?.address || '111, Delhi Road, Opposite Deewan International Public School, Rithani, Meerut'}
+            templateId={currentTemplate.id}
           />
 
-          
-
-          <PastelHashtagBanner hashtag={data.hosts?.hashtag || `#${(data.hosts?.bride || 'Bride').replace(/\s+/g, '')}Weds${(data.hosts?.groom || 'Groom').replace(/\s+/g, '')}`} />
-          <PastelFooter bride={data.hosts?.bride} groom={data.hosts?.groom} />
+          <PastelHashtagBanner 
+            hashtag={data.hosts?.hashtag || `#${(data.hosts?.bride || 'Bride').replace(/\s+/g, '')}Weds${(data.hosts?.groom || 'Groom').replace(/\s+/g, '')}`}
+            templateId={currentTemplate.id}
+          />
+          <PastelFooter bride={data.hosts?.bride} groom={data.hosts?.groom} templateId={currentTemplate.id} />
         </section>
       </div>
     </div>

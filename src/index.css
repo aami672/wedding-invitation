@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
 :root {
-  --font-serif: 'Cormorant Garamond', Georgia, serif;
-  --font-royal: 'Cinzel', serif;
+  --font-heading: 'Cinzel', Georgia, serif;
+  --font-body: 'Cormorant Garamond', Georgia, serif;
+  --font-serif: var(--font-body, 'Cormorant Garamond', Georgia, serif);
+  --font-royal: var(--font-heading, 'Cinzel', serif);
   --font-script: 'Great Vibes', cursive;
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
 }
@@ -15,7 +17,8 @@
   font-family: var(--font-royal, 'Cinzel', serif);
 }
 
-.font-script {
+.font-script,
+.font-cursive {
   font-family: var(--font-script, 'Great Vibes', cursive);
 }
 

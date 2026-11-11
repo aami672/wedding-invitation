@@ -220,32 +220,32 @@ export default function MomentsAndMemories({
       
       {/* SECTION HEADER */}
       <div className="text-center space-y-1.5 mb-6">
-        <span className="text-[11px] font-cursive tracking-wider text-[#DB2777] block font-semibold flex items-center justify-center gap-1">
+        <span className="text-[11px] font-cursive tracking-wider inv-eyebrow block font-semibold flex items-center justify-center gap-1">
           <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-spin-slow" />
           Moments to Cherish
           <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-spin-slow" />
         </span>
-        <h2 className="font-serif text-3xl sm:text-4xl font-light text-[#2B1E17] tracking-tight">
+        <h2 className="font-royal text-3xl sm:text-4xl font-light inv-heading tracking-tight">
           Moments & Memories
         </h2>
         <div className="w-24 h-1 bg-gradient-to-r from-transparent via-[#FBBF24] to-transparent mx-auto rounded-full mt-1" />
-        <p className="text-xs text-stone-600 font-light max-w-xs mx-auto pt-1 leading-relaxed">
+        <p className="text-xs inv-muted font-light max-w-xs mx-auto pt-1 leading-relaxed">
           A glimpse into our sweetest celebrations and unforgettable memories.
         </p>
       </div>
 
       {/* MEMORIES GRID */}
       {displayedMoments.length === 0 ? (
-        <div className="bg-white/90 rounded-2xl p-8 text-center border-2 border-dashed border-stone-200 my-4 space-y-3">
-          <div className="w-12 h-12 rounded-full bg-pink-50 text-pink-500 mx-auto flex items-center justify-center">
+        <div className="inv-card rounded-2xl p-8 text-center border-2 border-dashed my-4 space-y-3">
+          <div className="inv-pill border w-12 h-12 rounded-full mx-auto flex items-center justify-center">
             <Camera className="w-6 h-6" />
           </div>
-          <h4 className="font-serif text-lg text-stone-800">No guest photos yet!</h4>
-          <p className="text-xs text-stone-500">Be the first guest to upload a candid memory or selfie with the couple.</p>
+          <h4 className="font-royal text-lg inv-heading">No guest photos yet!</h4>
+          <p className="text-xs inv-muted">Be the first guest to upload a candid memory or selfie with the couple.</p>
           <button
             type="button"
             onClick={() => setIsUploadOpen(true)}
-            className="px-4 py-2 rounded-full bg-[#FCE7F3] text-[#BE185D] text-xs font-bold uppercase tracking-wider hover:bg-[#FBCFE8] transition-colors cursor-pointer"
+            className="inv-pill border px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-colors cursor-pointer"
           >
             📸 Upload First Photo
           </button>
@@ -262,9 +262,9 @@ export default function MomentsAndMemories({
               <div
                 key={item.id}
                 onClick={() => setSelectedPhoto(item)}
-                className={`relative bg-white/95 backdrop-blur-xs p-2 pb-3 rounded-xl shadow-md border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer group flex flex-col justify-between ${
-                  isGuest ? 'border-pink-200 ring-2 ring-pink-100/60' : 'border-stone-200'
-                } ${idx % 2 === 0 ? '-rotate-1 hover:rotate-0' : 'rotate-1 hover:rotate-0'}`}
+                className={`inv-polaroid relative p-2 pb-3 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer group flex flex-col justify-between ${
+                  idx % 2 === 0 ? '-rotate-1 hover:rotate-0' : 'rotate-1 hover:rotate-0'
+                }`}
               >
                 {/* Washi Tape */}
                 <div 
@@ -275,13 +275,13 @@ export default function MomentsAndMemories({
 
                 {/* Guest Badge if uploaded */}
                 {isGuest && (
-                  <div className="absolute top-1.5 right-1.5 z-10 bg-[#BE185D] text-white text-[7.5px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-full shadow-xs">
+                  <div className="inv-btn-primary absolute top-1.5 right-1.5 z-10 text-[7.5px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-full shadow-xs">
                     Guest
                   </div>
                 )}
 
                 {/* Photo Thumbnail */}
-                <div className="w-full aspect-square rounded-lg overflow-hidden bg-stone-100 mb-2 border border-stone-200 relative">
+                <div className="w-full aspect-square rounded-lg overflow-hidden mb-2 border relative" style={{ borderColor: 'var(--pal-card-border)', backgroundColor: 'var(--pal-card-surface)' }}>
                   <img
                     src={item.url}
                     alt={item.caption}
@@ -298,16 +298,16 @@ export default function MomentsAndMemories({
                 {/* Caption & Uploader */}
                 <div className="space-y-1 text-left flex-1 flex flex-col justify-between">
                   <div>
-                    <span className="inline-block px-1.5 py-0.5 rounded text-[8px] uppercase tracking-wider font-bold bg-[#FAF5ED] text-[#8B6F47]">
+                    <span className="inv-pill inline-block px-1.5 py-0.5 rounded text-[8px] uppercase tracking-wider font-bold border">
                       {item.tag || 'Moment'}
                     </span>
-                    <p className="text-[11px] font-medium text-stone-800 line-clamp-2 mt-1 leading-snug">
+                    <p className="text-[11px] font-medium inv-heading line-clamp-2 mt-1 leading-snug">
                       "{item.caption}"
                     </p>
                   </div>
 
-                  <div className="pt-2 border-t border-stone-100 flex items-center justify-between mt-auto">
-                    <span className="text-[9px] text-stone-500 font-medium truncate max-w-[90px]" title={item.uploader}>
+                  <div className="pt-2 border-t flex items-center justify-between mt-auto" style={{ borderColor: 'var(--pal-card-border)' }}>
+                    <span className="text-[9px] inv-muted font-medium truncate max-w-[90px]" title={item.uploader}>
                       {isGuest ? `By ${item.uploader}` : `✦ ${item.uploader}`}
                     </span>
                     
@@ -317,8 +317,8 @@ export default function MomentsAndMemories({
                       onClick={(e) => handleLike(item.id, e)}
                       className={`flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full transition-all cursor-pointer ${
                         isLiked 
-                          ? 'bg-rose-50 text-rose-600 scale-105' 
-                          : 'text-stone-400 hover:text-rose-500 hover:bg-stone-50'
+                          ? 'inv-pill border scale-105' 
+                          : 'inv-muted hover:text-rose-500'
                       }`}
                       title="Like this memory"
                     >
@@ -352,7 +352,7 @@ export default function MomentsAndMemories({
           onClick={() => setIsUploadOpen(false)}
         >
           <div 
-            className="relative w-full max-w-[360px] max-h-[90vh] overflow-y-auto bg-[#FFFDF9] rounded-3xl p-5 border-2 border-[#FDE68A] shadow-2xl space-y-4 animate-scaleUp select-none"
+            className="inv-modal relative w-full max-w-[360px] max-h-[90vh] overflow-y-auto rounded-3xl p-5 border-2 shadow-2xl space-y-4 animate-scaleUp select-none"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Top Washi Tape */}
@@ -369,13 +369,13 @@ export default function MomentsAndMemories({
 
             {/* Modal Header */}
             <div className="text-center space-y-1 pt-1">
-              <span className="text-[10px] uppercase font-bold tracking-widest text-[#DB2777]">
+              <span className="text-[11px] font-cursive inv-eyebrow block font-semibold">
                 Live Guest Album
               </span>
-              <h3 className="font-serif text-2xl font-light text-[#2B1E17]">
+              <h3 className="font-royal text-2xl font-light inv-heading">
                 Share a Memory
               </h3>
-              <p className="text-[11px] text-stone-500 font-light">
+              <p className="text-[11px] inv-muted font-light">
                 Upload your selfie, candid snap, or memory with {bride} & {groom}.
               </p>
             </div>
@@ -424,19 +424,17 @@ export default function MomentsAndMemories({
                     onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                     onDragLeave={() => setIsDragging(false)}
                     onDrop={handleDrop}
-                    className={`w-full aspect-[4/3] rounded-2xl border-2 border-dashed flex flex-col items-center justify-center p-4 text-center cursor-pointer transition-all ${
-                      isDragging 
-                        ? 'border-[#DB2777] bg-pink-50 scale-102' 
-                        : 'border-[#FBBF24] bg-[#FFFDF7] hover:bg-amber-50/50'
+                    className={`inv-surface w-full aspect-[4/3] rounded-2xl border-2 border-dashed flex flex-col items-center justify-center p-4 text-center cursor-pointer transition-all ${
+                      isDragging ? 'scale-102' : ''
                     }`}
                   >
-                    <div className="w-12 h-12 rounded-full bg-[#FEF08A] text-amber-700 flex items-center justify-center mb-2 shadow-sm animate-pulse">
+                    <div className="inv-pill w-12 h-12 rounded-full border flex items-center justify-center mb-2 shadow-sm animate-pulse">
                       <Camera className="w-6 h-6" />
                     </div>
-                    <span className="text-xs font-bold text-stone-800">
+                    <span className="text-xs font-bold inv-heading">
                       Tap to Choose or Take Photo
                     </span>
-                    <span className="text-[10px] text-stone-500 mt-1">
+                    <span className="text-[10px] inv-muted mt-1">
                       Supports phone gallery, camera, and drag & drop
                     </span>
                   </div>
@@ -445,7 +443,7 @@ export default function MomentsAndMemories({
 
               {/* Uploader Name Input */}
               <div className="space-y-1">
-                <label className="text-[10px] uppercase font-bold text-stone-600 tracking-wider block">
+                <label className="text-[10px] uppercase font-bold inv-muted tracking-wider block">
                   Your Name / Family <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -454,13 +452,13 @@ export default function MomentsAndMemories({
                   placeholder="e.g. Priya & Rohan, Delhi"
                   value={uploadForm.uploader}
                   onChange={(e) => setUploadForm(p => ({ ...p, uploader: e.target.value }))}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 bg-white text-xs text-stone-800 focus:outline-none focus:ring-2 focus:ring-pink-300"
+                  className="inv-surface w-full px-3.5 py-2.5 rounded-xl border text-xs focus:outline-none focus:ring-2 focus:ring-pink-300"
                 />
               </div>
 
               {/* Caption / Wish Input */}
               <div className="space-y-1">
-                <label className="text-[10px] uppercase font-bold text-stone-600 tracking-wider block">
+                <label className="text-[10px] uppercase font-bold inv-muted tracking-wider block">
                   Sweet Wish / Caption
                 </label>
                 <textarea
@@ -468,13 +466,13 @@ export default function MomentsAndMemories({
                   placeholder="e.g. Dancing the night away at Sangeet! So happy for you both 💕"
                   value={uploadForm.caption}
                   onChange={(e) => setUploadForm(p => ({ ...p, caption: e.target.value }))}
-                  className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-xs text-stone-800 focus:outline-none focus:ring-2 focus:ring-pink-300 resize-none"
+                  className="inv-surface w-full px-3.5 py-2 rounded-xl border text-xs focus:outline-none focus:ring-2 focus:ring-pink-300 resize-none"
                 />
               </div>
 
               {/* Ceremony Event Tag Selector */}
               <div className="space-y-1">
-                <label className="text-[10px] uppercase font-bold text-stone-600 tracking-wider block">
+                <label className="text-[10px] uppercase font-bold inv-muted tracking-wider block">
                   Ceremony / Event
                 </label>
                 <div className="flex flex-wrap gap-1.5">
@@ -485,8 +483,8 @@ export default function MomentsAndMemories({
                       onClick={() => setUploadForm(p => ({ ...p, eventTag: tag }))}
                       className={`text-[9.5px] px-2.5 py-1 rounded-full font-semibold transition-all cursor-pointer ${
                         uploadForm.eventTag === tag
-                          ? 'bg-[#BE185D] text-white shadow-xs'
-                          : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                          ? 'inv-btn-primary shadow-xs'
+                          : 'inv-surface border hover:opacity-85'
                       }`}
                     >
                       {tag}
@@ -518,17 +516,17 @@ export default function MomentsAndMemories({
           onClick={() => setSelectedPhoto(null)}
         >
           <div 
-            className="relative w-full max-w-[380px] bg-[#FFFDF9] rounded-3xl p-4 sm:p-5 border-2 border-[#FDE68A] shadow-2xl space-y-3 animate-scaleUp"
+            className="inv-modal relative w-full max-w-[380px] rounded-3xl p-4 sm:p-5 border-2 shadow-2xl space-y-3 animate-scaleUp"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Top Washi Tape */}
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-5 rounded bg-[#FEF08A] border border-[#FDE047] rotate-1 shadow-xs" />
+            <div className="inv-pill absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-5 rounded border rotate-1 shadow-xs" />
 
             {/* Close Button */}
             <button
               type="button"
               onClick={() => setSelectedPhoto(null)}
-              className="absolute top-3 right-3 w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center text-sm font-bold shadow-xs cursor-pointer z-10 transition-colors"
+              className="inv-surface absolute top-3 right-3 w-8 h-8 rounded-full border flex items-center justify-center text-sm font-bold shadow-xs cursor-pointer z-10 transition-colors"
             >
               ✕
             </button>
@@ -537,20 +535,20 @@ export default function MomentsAndMemories({
             <button
               type="button"
               onClick={() => navigateLightbox('prev')}
-              className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 text-stone-700 hover:bg-white shadow-md flex items-center justify-center cursor-pointer z-20"
+              className="inv-surface absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full border shadow-md flex items-center justify-center cursor-pointer z-20"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <button
               type="button"
               onClick={() => navigateLightbox('next')}
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 text-stone-700 hover:bg-white shadow-md flex items-center justify-center cursor-pointer z-20"
+              className="inv-surface absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full border shadow-md flex items-center justify-center cursor-pointer z-20"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
 
             {/* Main Lightbox Photo */}
-            <div className="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-stone-900 border-2 border-stone-200 shadow-inner mt-2 relative">
+            <div className="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-stone-900 border-2 shadow-inner mt-2 relative" style={{ borderColor: 'var(--pal-card-border)' }}>
               <img
                 src={selectedPhoto.url}
                 alt={selectedPhoto.caption}
@@ -560,23 +558,23 @@ export default function MomentsAndMemories({
 
             {/* Photo Metadata */}
             <div className="space-y-1 pt-1 text-center">
-              <span className="inline-block px-2.5 py-0.5 rounded-full text-[9px] uppercase tracking-wider font-bold bg-[#FAF5ED] text-[#8B6F47]">
+              <span className="inv-pill inline-block px-2.5 py-0.5 rounded-full text-[9px] uppercase tracking-wider font-bold border">
                 {selectedPhoto.tag || 'Memory'} · {selectedPhoto.date || 'Celebration'}
               </span>
-              <p className="font-serif text-lg text-[#2B1E17] font-medium leading-snug">
+              <p className="font-royal text-lg inv-heading font-medium leading-snug">
                 "{selectedPhoto.caption}"
               </p>
-              <p className="text-[10px] text-stone-500 font-sans">
-                Shared by: <strong className="text-stone-800">{selectedPhoto.uploader}</strong>
+              <p className="text-[10px] inv-muted font-sans">
+                Shared by: <strong className="inv-text">{selectedPhoto.uploader}</strong>
               </p>
             </div>
 
             {/* Actions Bar */}
-            <div className="pt-2 border-t border-stone-200 flex items-center justify-between">
+            <div className="pt-2 border-t flex items-center justify-between" style={{ borderColor: 'var(--pal-card-border)' }}>
               <button
                 type="button"
                 onClick={(e) => handleLike(selectedPhoto.id, e)}
-                className="flex items-center gap-1.5 text-xs font-bold text-rose-600 bg-rose-50 px-3 py-1.5 rounded-full hover:bg-rose-100 transition-colors cursor-pointer"
+                className="inv-pill border flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full transition-colors cursor-pointer"
               >
                 <Heart className={`w-3.5 h-3.5 ${userLiked[selectedPhoto.id] ? 'fill-rose-500 text-rose-500' : ''}`} />
                 <span>{likes[selectedPhoto.id] || 0} Likes</span>
@@ -585,7 +583,7 @@ export default function MomentsAndMemories({
               <a
                 href={selectedPhoto.url}
                 download={`memory_${selectedPhoto.id}.jpg`}
-                className="flex items-center gap-1.5 text-xs font-bold text-stone-600 bg-stone-100 px-3 py-1.5 rounded-full hover:bg-stone-200 transition-colors cursor-pointer"
+                className="inv-btn-secondary flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full transition-colors cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Save</span>
