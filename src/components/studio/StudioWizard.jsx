@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import PhotoAdjustCropModal from './PhotoAdjustCropModal';
 import { 
-  OCCASIONS, TEMPLATES, REVEAL_STYLES, PALETTES, MUSIC_TRACKS, 
+  DEFAULT_INVITATION_DATA, OCCASIONS, TEMPLATES, REVEAL_STYLES, PALETTES, MUSIC_TRACKS, 
   CELEBRATION_EFFECTS, ATMOSPHERE_STYLES, ATMOSPHERE_INTENSITIES,
   TYPOGRAPHY_SUITES, HEADING_FONTS, BODY_FONTS, SCRIPT_FONTS 
 } from '../../data/presets';
@@ -39,6 +39,16 @@ import {
   buildStandaloneRevealRuntimeScript,
 } from '../../utils/revealHtmlBuilder';
 import { publishStandaloneToGitHub } from '../../utils/githubPublish';
+import {
+  computeCoupleSlug,
+  cloneClientData,
+  listSavedClients,
+  getSavedClient,
+  getSavedClientAsync,
+  saveClientFull,
+  removeSavedClient,
+  setActiveClientSlug,
+} from '../../utils/clientStore';
 
 const REVEAL_ICON_MAP = {
   Mail,
@@ -137,6 +147,9 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
   });
   const [showGithubSyncConfig, setShowGithubSyncConfig] = useState(false);
   const [isEditCoupleModalOpen, setIsEditCoupleModalOpen] = useState(false);
+  const [savedClients, setSavedClients] = useState(() => listSavedClients());
+  const [clientModalNotice, setClientModalNotice] = useState(null);
+  const [clientSaveToast, setClientSaveToast] = useState('');
   const [clientForm, setClientForm] = useState({
     bride: initialData?.hosts?.bride || '',
     groom: initialData?.hosts?.groom || '',
@@ -147,10 +160,19 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
   // Accordion expanded row state
   const [openRow, setOpenRow] = useState('template');
 
-  // Video & PDF Export state
-  const [isRecordingVideo, setIsRecordingVideo] = useState(false);
-  const [videoProgress, setVideoProgress] = useState(0);
+  // PDF Export state
   const [isExportingPdf, setIsExportingPdf] = useState(false);
+
+  const refreshSavedClients = () => {
+    setSavedClients(listSavedClients());
+  };
+
+  const showSaveToast = (msg) => {
+    setClientSaveToast(msg);
+    setTimeout(() => {
+      setClientSaveToast(prev => (prev === msg ? '' : prev));
+    }, 3500);
+  };
 
   useEffect(() => {
     if (onSave) {
@@ -162,10 +184,29 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     setOpenRow(prev => prev === rowName ? null : rowName);
   };
 
-  const getCoupleSlug = (hosts = data.hosts) => {
-    const brideStr = (hosts?.bride || 'bride').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-    const groomStr = (hosts?.groom || 'groom').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-    return `${brideStr || 'bride'}-and-${groomStr || 'groom'}`;
+  const getCoupleSlug = (hosts = data.hosts) => computeCoupleSlug(hosts);
+
+  const handleLoadSavedClient = async (targetSlug) => {
+    if (!targetSlug) return;
+    await saveClientFull(data, { setActive: false });
+    const loaded = getSavedClient(targetSlug) || await getSavedClientAsync(targetSlug);
+    if (!loaded) {
+      setClientModalNotice({ type: 'warning', text: 'Saved data for this client could not be found.' });
+      return;
+    }
+    setActiveClientSlug(targetSlug);
+    setData(loaded);
+    setPublishedInfo(null);
+    setClientForm({
+      bride: loaded.hosts?.bride || '',
+      groom: loaded.hosts?.groom || '',
+      date: loaded.hosts?.date || '2026-12-09',
+      city: loaded.hosts?.city || '',
+    });
+    setClientModalNotice(null);
+    setIsEditCoupleModalOpen(false);
+    refreshSavedClients();
+    showSaveToast(`Loaded ${loaded.hosts?.bride || 'Bride'} & ${loaded.hosts?.groom || 'Groom'}`);
   };
 
   const updateHosts = (field, val) => {
@@ -681,10 +722,8 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     }
   };
 
-  const handleExportHtml = async () => {
-    setIsExportingHtml(true);
-    try {
-      const slug = getCoupleSlug();
+  const buildInvitationHtmlDocument = async ({ forPrint = false } = {}) => {
+    const slug = getCoupleSlug();
       const selectedTmpl = TEMPLATES.find(t => t.id === data.template) || TEMPLATES[0];
 
       const isCaricature = selectedTmpl.id === 'caricature';
@@ -817,10 +856,17 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     const firstDayIndex = validDate ? new Date(calYear, d.getMonth(), 1).getDay() : 3;
 
     const displayWeddingDate = formatDisplayDate(data.hosts?.date || '2026-12-09');
+    const targetDt = new Date(`${data.hosts?.date || '2026-12-09'}T18:00:00`);
+    const cdDiff = isNaN(targetDt.getTime()) ? 0 : Math.max(0, targetDt.getTime() - Date.now());
+    const cdDays = String(Math.floor(cdDiff / (1000 * 60 * 60 * 24))).padStart(2, '0');
+    const cdHours = String(Math.floor((cdDiff / (1000 * 60 * 60)) % 24)).padStart(2, '0');
+    const cdMins = String(Math.floor((cdDiff / 1000 / 60) % 60)).padStart(2, '0');
+    const cdSecs = String(Math.floor((cdDiff / 1000) % 60)).padStart(2, '0');
     const monogramInitials = getMonogramInitials(data.hosts, data.monogram);
     const activeRevealId = normalizeRevealId(data.revealStyle, selectedTmpl.id);
 
-    const standaloneHtml = `<!DOCTYPE html>
+    const htmlHeadInteractivePrefix = forPrint ? '' : `
+  <script>
 <html lang="en" data-publish-time="${Date.now()}" data-slug="${slug}">
 <head>
   <meta charset="utf-8" />
@@ -907,18 +953,32 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     var __PALETTE_THEMES__ = ${paletteMapJson};
     var __TEMPLATE_CARDS__ = ${templateCardMapJson};
 
-    // 3. High-speed Quota-Safe DOM Hydration from JSON (always succeeds)
+    // 3. High-speed Quota-Safe DOM Hydration from JSON — scoped strictly to this couple's slug
     function hydrateSavedData() {
       try {
         var currentSlug = "${slug}";
         var pathSlug = window.location.pathname.split('/').pop().replace('.html', '') || currentSlug;
-        var raw = localStorage.getItem('wishlys_published_data_' + pathSlug)
-               || localStorage.getItem('wishlys_published_data_' + currentSlug)
-               || localStorage.getItem('wishlys_published_data')
-               || localStorage.getItem('wishlys_free_saved_data');
+        var expectedSlug = (pathSlug && pathSlug !== 'index') ? pathSlug : currentSlug;
+        function slugOfHosts(h) {
+          var b = (h && h.bride ? String(h.bride) : 'bride').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'bride';
+          var g = (h && h.groom ? String(h.groom) : 'groom').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'groom';
+          return b + '-and-' + g;
+        }
+        var raw = localStorage.getItem('wishlys_published_data_' + expectedSlug)
+               || (pathSlug !== currentSlug ? null : localStorage.getItem('wishlys_published_data_' + currentSlug));
+        if (!raw) {
+          var legacyRaw = localStorage.getItem('wishlys_published_data') || localStorage.getItem('wishlys_free_saved_data');
+          if (legacyRaw) {
+            var legacyParsed = JSON.parse(legacyRaw);
+            if (legacyParsed && legacyParsed.hosts && slugOfHosts(legacyParsed.hosts) === expectedSlug) {
+              raw = legacyRaw;
+            }
+          }
+        }
         if (!raw) return;
         var d = JSON.parse(raw);
         if (!d || !d.hosts) return;
+        if (slugOfHosts(d.hosts) !== expectedSlug) return;
 
         // Apply saved Typography Fonts (headingFont, bodyFont, scriptFont)
         if (d.typography) {
@@ -1213,7 +1273,50 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
         }
       }
     }, true);
-  </script>
+  </script>`;
+
+    const printOnlyCss = forPrint ? `
+    @page {
+      size: A4 portrait;
+      margin: 10mm;
+    }
+    html, body {
+      margin: 0 !important;
+      padding: 0 !important;
+      background-color: var(--pal-bg, #FAF7F2) !important;
+      color: var(--pal-text, #2B1E17) !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .scroll-reveal, .reveal-tilt-left, .reveal-tilt-right, .reveal-pop-up, .reveal-calendar, .reveal-bounce {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+    }
+    .calendar-heart-path {
+      stroke-dashoffset: 0 !important;
+    }
+    .animate-pulse, .animate-bounce, .animate-sway, .animate-toran, .animate-bell-swing, .animate-rotate-slow, .animate-float-gentle {
+      animation: none !important;
+    }
+    section > div, .inv-card, .inv-polaroid, .inv-arch, .inv-hero-card {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    @media print {
+      html, body, .inv-print-sheet, #main-invitation {
+        overflow: visible !important;
+      }
+    }
+    ` : '';
+
+    const standaloneHtml = `<!DOCTYPE html>
+<html lang="en" data-publish-time="${Date.now()}" data-slug="${slug}">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title id="invitation-doc-title">${data.hosts?.bride || 'Preeti'} & ${data.hosts?.groom || 'Ashish'} — Wedding Invitation</title>
+  ${htmlHeadInteractivePrefix}
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     if (window.tailwind) {
@@ -1367,11 +1470,12 @@ export default function StudioWizard({ initialData, onSave, onExitToHome, onOpen
     }
     .animate-fadeIn { animation: fadeInModal 0.25s ease-out forwards; }
     .animate-scaleUp { animation: scaleUpModal 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    ${printOnlyCss}
   </style>
 </head>
-<body class="inv-theme-root ${palTheme.isDark ? 'inv-dark' : 'inv-light'} ${themeDesign.cardClass} selection:bg-[#C5A880]/30 min-h-screen relative overflow-x-hidden">
+<body class="inv-theme-root ${palTheme.isDark ? 'inv-dark' : 'inv-light'} ${themeDesign.cardClass} ${forPrint ? 'inv-print-doc' : ''} selection:bg-[#C5A880]/30 min-h-screen relative ${forPrint ? '' : 'overflow-x-hidden'}">
 
-  <!-- FULL-PAGE CONTINUOUS ANIMATED ATMOSPHERE (Canvas 60fps) -->
+  ${forPrint ? `<div class="inv-print-sheet min-h-screen w-full py-4 px-2" style="background-color: var(--pal-bg); color: var(--pal-text);">` : `<!-- FULL-PAGE CONTINUOUS ANIMATED ATMOSPHERE (Canvas 60fps) -->
   <canvas id="atmosphere-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-10" style="mix-blend-mode: ${palTheme.isDark ? 'screen' : 'normal'};"></canvas>
 
   <!-- FLOATING AUDIO CONTROL -->
@@ -1515,8 +1619,10 @@ ${buildStandaloneUniversalScreenHtml({
     isVisible: activeRevealId !== 'folding-doors' && activeRevealId !== 'scratch-date',
   })}
 
+`}
+
   <!-- MAIN INVITATION WEBPAGE (Revealed) -->
-  <main id="main-invitation" class="opacity-0 transition-opacity duration-1000 relative">
+  <main id="main-invitation" class="${forPrint ? 'opacity-100 max-w-[440px] mx-auto pb-8' : 'opacity-0 transition-opacity duration-1000'} relative">
 
     ${isCaricature ? `
     <!-- FULL-PAGE PARALLAX INDIAN WEDDING SVG LAYER -->
@@ -1799,37 +1905,37 @@ ${buildStandaloneUniversalScreenHtml({
           ${(isCaricature && !palTheme.isDark) ? `
           <div class="flex justify-center items-center gap-2 sm:gap-3">
             <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#FCE7F3] border-2 border-[#F472B6] shadow-2xs flex flex-col items-center justify-center p-1">
-              <span id="pastel-days" class="font-royal text-lg sm:text-xl font-bold text-[#9D174D] leading-none">00</span>
+              <span id="pastel-days" class="font-royal text-lg sm:text-xl font-bold text-[#9D174D] leading-none">${cdDays}</span>
               <span class="text-[7.5px] uppercase tracking-wider text-[#BE185D] font-bold mt-0.5">Days</span>
             </div>
             <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#D1FAE5] border-2 border-[#34D399] shadow-2xs flex flex-col items-center justify-center p-1">
-              <span id="pastel-hours" class="font-royal text-lg sm:text-xl font-bold text-[#065F46] leading-none">00</span>
+              <span id="pastel-hours" class="font-royal text-lg sm:text-xl font-bold text-[#065F46] leading-none">${cdHours}</span>
               <span class="text-[7.5px] uppercase tracking-wider text-[#047857] font-bold mt-0.5">Hours</span>
             </div>
             <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#FEF3C7] border-2 border-[#FBBF24] shadow-2xs flex flex-col items-center justify-center p-1">
-              <span id="pastel-mins" class="font-royal text-lg sm:text-xl font-bold text-[#92400E] leading-none">00</span>
+              <span id="pastel-mins" class="font-royal text-lg sm:text-xl font-bold text-[#92400E] leading-none">${cdMins}</span>
               <span class="text-[7.5px] uppercase tracking-wider text-[#B45309] font-bold mt-0.5">Mins</span>
             </div>
             <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#EDE9FE] border-2 border-[#A78BFA] shadow-2xs flex flex-col items-center justify-center p-1">
-              <span id="pastel-secs" class="font-royal text-lg sm:text-xl font-bold text-[#5B21B6] leading-none">00</span>
+              <span id="pastel-secs" class="font-royal text-lg sm:text-xl font-bold text-[#5B21B6] leading-none">${cdSecs}</span>
               <span class="text-[7.5px] uppercase tracking-wider text-[#6D28D9] font-bold mt-0.5">Secs</span>
             </div>
           </div>` : `
           <div class="flex justify-center items-center gap-2 sm:gap-3">
             <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full inv-surface border-2 shadow-2xs flex flex-col items-center justify-center p-1">
-              <span id="pastel-days" class="font-royal text-lg sm:text-xl font-bold inv-heading leading-none">00</span>
+              <span id="pastel-days" class="font-royal text-lg sm:text-xl font-bold inv-heading leading-none">${cdDays}</span>
               <span class="text-[7.5px] uppercase tracking-wider inv-eyebrow font-bold mt-0.5">Days</span>
             </div>
             <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full inv-surface border-2 shadow-2xs flex flex-col items-center justify-center p-1">
-              <span id="pastel-hours" class="font-royal text-lg sm:text-xl font-bold inv-heading leading-none">00</span>
+              <span id="pastel-hours" class="font-royal text-lg sm:text-xl font-bold inv-heading leading-none">${cdHours}</span>
               <span class="text-[7.5px] uppercase tracking-wider inv-eyebrow font-bold mt-0.5">Hours</span>
             </div>
             <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full inv-surface border-2 shadow-2xs flex flex-col items-center justify-center p-1">
-              <span id="pastel-mins" class="font-royal text-lg sm:text-xl font-bold inv-heading leading-none">00</span>
+              <span id="pastel-mins" class="font-royal text-lg sm:text-xl font-bold inv-heading leading-none">${cdMins}</span>
               <span class="text-[7.5px] uppercase tracking-wider inv-eyebrow font-bold mt-0.5">Mins</span>
             </div>
             <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full inv-surface border-2 shadow-2xs flex flex-col items-center justify-center p-1">
-              <span id="pastel-secs" class="font-royal text-lg sm:text-xl font-bold inv-heading leading-none">00</span>
+              <span id="pastel-secs" class="font-royal text-lg sm:text-xl font-bold inv-heading leading-none">${cdSecs}</span>
               <span class="text-[7.5px] uppercase tracking-wider inv-eyebrow font-bold mt-0.5">Secs</span>
             </div>
           </div>`}
@@ -1962,7 +2068,7 @@ ${buildStandaloneUniversalScreenHtml({
     </div>
   </main>
 
-  <!-- GROOM & BRIDE ENLARGED PORTRAIT CARD MODAL (BLURRED BACKDROP) -->
+  ${forPrint ? `</div>` : `<!-- GROOM & BRIDE ENLARGED PORTRAIT CARD MODAL (BLURRED BACKDROP) -->
   <div id="person-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/65 backdrop-blur-md transition-all animate-fadeIn" onclick="closePersonModal()">
     <div class="relative w-full max-w-[330px] inv-modal backdrop-blur-xs rounded-3xl p-5 border-2 shadow-2xl text-center space-y-3 animate-scaleUp" onclick="event.stopPropagation()">
       <div id="modal-washi" class="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-5 rounded shadow-xs inv-sticky border rotate-1"></div>
@@ -2740,21 +2846,24 @@ ${buildStandaloneUniversalScreenHtml({
       </div>
       <p id="moment-lightbox-cap" class="text-xs font-serif font-medium inv-heading"></p>
     </div>
-  </div>
+  </div>`}
 </body>
 </html>`;
 
-    // 1. Always save lightweight JSON state first (guaranteed never to exceed browser quota)
-    const nowTime = String(Date.now());
+    return { slug, html: standaloneHtml };
+  };
+
+  const handleExportHtml = async () => {
+    setIsExportingHtml(true);
     try {
-      localStorage.setItem('wishlys_free_saved_data', JSON.stringify(data));
-      localStorage.setItem('wishlys_published_data', JSON.stringify(data));
-      localStorage.setItem('wishlys_published_data_' + slug, JSON.stringify(data));
-      localStorage.setItem('wishlys_published_slug', slug);
-      localStorage.setItem('wishlys_published_time', nowTime);
-    } catch (jsonErr) {
-      console.warn('Could not save data JSON to localStorage:', jsonErr);
-    }
+      const { slug, html: standaloneHtml } = await buildInvitationHtmlDocument({ forPrint: false });
+      const isGitHubPages = typeof window !== 'undefined' && window.location.hostname.endsWith('github.io');
+      const liveUrl = isGitHubPages
+        ? `https://aami672.github.io/wedding-invitation/published/${slug}.html`
+        : `${window.location.origin}/published/${slug}.html`;
+
+      await saveClientFull(data, { publishedUrl: liveUrl, awaitServer: false });
+      refreshSavedClients();
 
     // 2. Clean up previous HTML caches to free up localStorage quota
     try {
@@ -2765,11 +2874,6 @@ ${buildStandaloneUniversalScreenHtml({
         }
       }
     } catch (storageErr) {}
-
-    const isGitHubPages = typeof window !== 'undefined' && window.location.hostname.endsWith('github.io');
-    const liveUrl = isGitHubPages
-      ? `https://aami672.github.io/wedding-invitation/published/${slug}.html`
-      : `${window.location.origin}/published/${slug}.html`;
 
     let syncMode = 'download-only';
     let syncMessage = 'Downloaded standalone HTML to your device.';
@@ -2859,462 +2963,61 @@ ${buildStandaloneUniversalScreenHtml({
     }
   };
 
-  // 2. PRINT-READY PDF EXPORT (High-Resolution Isolated Print Document)
-  // Cleanly formatted for A4 portrait physical print & digital PDF saves, popup-blocker safe
+  // 2. PRINT-READY PDF EXPORT (Exact Same Visual Layout as Interactive HTML View)
   const handleExportPdf = async () => {
     setIsExportingPdf(true);
     try {
-      // Preload high-res base64 images so nothing fails or is missing in print/PDF
-      const [b64Scooter, b64Cover, b64Groom, b64Bride] = await Promise.all([
-        toBase64Optimized('./images/caricature/scooter_couple.webp', 800, 0.85, true),
-        toBase64Optimized(data.photos?.cover, 900, 0.85, false),
-        toBase64Optimized(data.photos?.groom || './images/groom.webp', 400, 0.85, false),
-        toBase64Optimized(data.photos?.bride || './images/bride.webp', 400, 0.85, false),
-      ]);
+      const { html: printHtml } = await buildInvitationHtmlDocument({ forPrint: true });
 
-      const printHtml = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>${data.hosts?.groom || 'Groom'} & ${data.hosts?.bride || 'Bride'} — Wedding Invitation</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Alex+Brush&family=Allura&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Great+Vibes&family=Italianno&family=Lora:ital,wght@0,400..700;1,400..700&family=Marcellus&family=Montserrat:wght@300;400;500;600;700&family=Parisienne&family=Philosopher:ital,wght@0,400;0,700;1,400&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400..800;1,400..800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Prata&family=Rozha+One&family=Satisfy&family=Tangerine:wght@700&display=swap" rel="stylesheet" />
-  <style>
-    @page {
-      size: A4 portrait;
-      margin: 8mm;
-    }
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    body {
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: #FAF7F2;
-      color: #2B1E17;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-      padding: 0;
-    }
-    .print-page {
-      width: 100%;
-      max-width: 194mm;
-      min-height: 275mm;
-      margin: 0 auto;
-      background: #FFFDF9;
-      border: 3.5mm solid #FDE68A;
-      outline: 1.5px solid #F59E0B;
-      outline-offset: -3mm;
-      border-radius: 12mm;
-      padding: 12mm 10mm;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      text-align: center;
-      position: relative;
-      page-break-after: always;
-      break-after: page;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    }
-    .print-page:last-child {
-      page-break-after: auto;
-      break-after: auto;
-    }
-    .font-serif {
-      font-family: 'Cormorant Garamond', Georgia, serif;
-    }
-    .font-royal {
-      font-family: 'Cinzel', serif;
-    }
-    .corner-ornament {
-      position: absolute;
-      width: 14mm;
-      height: 14mm;
-      opacity: 0.75;
-    }
-    .top-left { top: 3mm; left: 3mm; }
-    .top-right { top: 3mm; right: 3mm; transform: scaleX(-1); }
-    .bottom-left { bottom: 3mm; left: 3mm; transform: scaleY(-1); }
-    .bottom-right { bottom: 3mm; right: 3mm; transform: scale(-1); }
-    .card-box {
-      background: #FFFFFF;
-      border: 1px solid #E6D5BF;
-      border-radius: 6mm;
-      padding: 4mm 6mm;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-    }
-    .event-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 1.5mm;
-    }
-    .tag-pill {
-      display: inline-block;
-      padding: 1mm 3mm;
-      border-radius: 4mm;
-      font-size: 8pt;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-  </style>
-</head>
-<body>
-  <!-- PAGE 1: LUXURY ROYAL COVER -->
-  <div class="print-page">
-    <svg class="corner-ornament top-left" viewBox="0 0 40 40" fill="none"><path d="M0,0 L40,0 C20,5 5,20 0,40 Z" fill="#FDE68A"/><path d="M0,0 L25,0 C12,5 5,12 0,25 Z" fill="#F59E0B"/></svg>
-    <svg class="corner-ornament top-right" viewBox="0 0 40 40" fill="none"><path d="M0,0 L40,0 C20,5 5,20 0,40 Z" fill="#FDE68A"/><path d="M0,0 L25,0 C12,5 5,12 0,25 Z" fill="#F59E0B"/></svg>
-    <svg class="corner-ornament bottom-left" viewBox="0 0 40 40" fill="none"><path d="M0,0 L40,0 C20,5 5,20 0,40 Z" fill="#FDE68A"/><path d="M0,0 L25,0 C12,5 5,12 0,25 Z" fill="#F59E0B"/></svg>
-    <svg class="corner-ornament bottom-right" viewBox="0 0 40 40" fill="none"><path d="M0,0 L40,0 C20,5 5,20 0,40 Z" fill="#FDE68A"/><path d="M0,0 L25,0 C12,5 5,12 0,25 Z" fill="#F59E0B"/></svg>
+      const existingFrame = document.getElementById('wishlys-pdf-print-frame');
+      if (existingFrame) existingFrame.remove();
 
-    <div>
-      <div style="font-size: 13pt; color: #B45309; font-weight: 600; margin-bottom: 2mm;" class="font-serif">
-        ॥ श्री गणेशाय नमः ॥
-      </div>
-      <p style="font-size: 9pt; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; color: #8B6F47; margin-bottom: 3mm;">
-        Together With Their Families
-      </p>
-      <h1 class="font-serif" style="font-size: 36pt; font-weight: 300; line-height: 1.1; color: #2B1E17; margin: 2mm 0;">
-        <span>${data.hosts?.groom || 'Groom'}</span>
-        <span style="color: #F43F5E; font-size: 26pt; vertical-align: middle; margin: 0 4mm;">♡</span>
-        <span>${data.hosts?.bride || 'Bride'}</span>
-      </h1>
-      <div style="width: 40mm; height: 1.5px; background: linear-gradient(to right, transparent, #F59E0B, transparent); margin: 3mm auto;"></div>
-      <p class="font-royal" style="font-size: 11pt; font-weight: 600; letter-spacing: 1.5px; color: #8B6F47; text-transform: uppercase; margin-top: 2mm;">
-        ${data.hosts?.date || '14th February 2027'} · ${data.hosts?.city || 'Udaipur, Rajasthan'}
-      </p>
-    </div>
+      const printFrame = document.createElement('iframe');
+      printFrame.id = 'wishlys-pdf-print-frame';
+      printFrame.setAttribute('aria-hidden', 'true');
+      printFrame.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;height:1123px;border:0;opacity:0;pointer-events:none;';
+      document.body.appendChild(printFrame);
 
-    <!-- Centerpiece Caricature -->
-    <div style="width: 140mm; height: 110mm; margin: 4mm auto; border-radius: 8mm; background: linear-gradient(to bottom, #FEF3C7, #FFFDF7); border: 1.5mm solid #FDE68A; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 3mm;">
-      <img src="${b64Scooter || b64Cover || './images/caricature/scooter_couple.webp'}" style="width: 100%; height: 100%; object-fit: contain;" />
-    </div>
-
-    <!-- Bride & Groom Profile Cards -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; max-width: 160mm; margin: 0 auto;">
-      <div class="card-box" style="text-align: center;">
-        <div style="width: 18mm; height: 18mm; border-radius: 50%; overflow: hidden; border: 1.5px solid #10B981; margin: 0 auto 2mm auto;">
-          <img src="${b64Groom || './images/groom.webp'}" style="width: 100%; height: 100%; object-fit: cover;" />
-        </div>
-        <span class="tag-pill" style="background: #E6F4EA; color: #137333;">The Groom</span>
-        <h3 class="font-serif" style="font-size: 14pt; margin: 1mm 0; font-weight: 600;">${data.hosts?.groom || 'Groom'}</h3>
-        <p style="font-size: 8pt; color: #64748B; font-style: italic; line-height: 1.3;">"${data.photos?.groomBio || 'Foodie, photography enthusiast, and the architect of their happiest memories.'}"</p>
-      </div>
-
-      <div class="card-box" style="text-align: center;">
-        <div style="width: 18mm; height: 18mm; border-radius: 50%; overflow: hidden; border: 1.5px solid #F43F5E; margin: 0 auto 2mm auto;">
-          <img src="${b64Bride || './images/bride.webp'}" style="width: 100%; height: 100%; object-fit: cover;" />
-        </div>
-        <span class="tag-pill" style="background: #FCE8E6; color: #C5221F;">The Bride</span>
-        <h3 class="font-serif" style="font-size: 14pt; margin: 1mm 0; font-weight: 600;">${data.hosts?.bride || 'Bride'}</h3>
-        <p style="font-size: 8pt; color: #64748B; font-style: italic; line-height: 1.3;">"${data.photos?.brideBio || 'Loves classic poetry, morning chai, and spontaneous mountain hikes.'}"</p>
-      </div>
-    </div>
-
-    <div style="margin-top: 3mm;">
-      <p style="font-size: 8.5pt; color: #64748B; font-style: italic;">"${data.hosts?.welcomeQuote || 'Please join us in celebrating our wedding.'}"</p>
-      <p style="font-size: 9pt; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #DB2777; margin-top: 1mm;">
-        ${data.hosts?.hashtag || '#Wedding'}
-      </p>
-    </div>
-  </div>
-
-  <!-- PAGE 2: PROGRAMME OF EVENTS -->
-  <div class="print-page">
-    <div>
-      <span class="tag-pill" style="background: #FEF3C7; color: #92400E; margin-bottom: 2mm;">Celebration Itinerary</span>
-      <h2 class="font-serif" style="font-size: 28pt; font-weight: 300; color: #2B1E17; margin: 2mm 0;">The Wedding Celebrations</h2>
-      <div style="width: 30mm; height: 1.5px; background: #F59E0B; margin: 2mm auto 6mm auto;"></div>
-
-      <div style="display: flex; flex-direction: column; gap: 3.5mm; max-width: 165mm; margin: 0 auto; text-align: left;">
-        ${(data.events || []).map(evt => `
-          <div class="card-box">
-            <div class="event-row">
-              <h3 class="font-serif" style="font-size: 15pt; font-weight: 700; color: #2B1E17;">${evt.name}</h3>
-              <span style="font-size: 9pt; font-weight: 700; color: #8B6F47; background: #FAF5ED; padding: 1mm 2.5mm; border-radius: 3mm; border: 1px solid #E6D5BF;">
-                ${evt.time}
-              </span>
-            </div>
-            <p style="font-size: 9pt; color: #334155; font-weight: 600; margin-bottom: 1mm;">📅 ${evt.date}</p>
-            <p style="font-size: 8.5pt; color: #64748B; line-height: 1.3;">
-              📍 <strong>${evt.venue}</strong> — ${evt.address}
-            </p>
-            ${evt.dressCode ? `<p style="font-size: 8pt; color: #8B6F47; font-style: italic; margin-top: 1.5mm;">👔 Dress Code: ${evt.dressCode}</p>` : ''}
-          </div>
-        `).join('')}
-      </div>
-    </div>
-
-    <!-- Concierge & Hospitality -->
-    ${data.logistics?.contact ? `
-    <div style="border-top: 1.5px dashed #F5D0C5; padding-top: 4mm; margin-top: 4mm;">
-      <p class="font-serif" style="font-size: 14pt; font-weight: 700; color: #2B1E17;">Celebration Concierge & Hospitality</p>
-      <p style="font-size: 10pt; font-weight: 700; color: #881337; margin: 1mm 0;">
-        ${data.logistics.contact} · ${data.hosts?.city || 'Udaipur'}
-      </p>
-      <p style="font-size: 8pt; color: #94A3B8;">With love & warm regards, ${data.hosts?.groom || 'Groom'} & ${data.hosts?.bride || 'Bride'} Families</p>
-    </div>` : `
-    <div style="border-top: 1.5px dashed #F5D0C5; padding-top: 4mm; margin-top: 4mm; text-align: center;">
-      <p style="font-size: 9pt; color: #94A3B8;">With love & warm regards, ${data.hosts?.groom || 'Groom'} & ${data.hosts?.bride || 'Bride'} Families</p>
-    </div>`}
-  </div>
-</body>
-</html>`;
-
-      // Safe printing via hidden iframe - 100% immune to popup blockers
-      let printFrame = document.getElementById('wishlys-pdf-print-frame');
-      if (!printFrame) {
-        printFrame = document.createElement('iframe');
-        printFrame.id = 'wishlys-pdf-print-frame';
-        printFrame.style.position = 'fixed';
-        printFrame.style.right = '0';
-        printFrame.style.bottom = '0';
-        printFrame.style.width = '0';
-        printFrame.style.height = '0';
-        printFrame.style.border = '0';
-        document.body.appendChild(printFrame);
-      }
-
-      const frameDoc = printFrame.contentWindow.document;
+      const frameWin = printFrame.contentWindow;
+      const frameDoc = frameWin.document;
       frameDoc.open();
       frameDoc.write(printHtml);
       frameDoc.close();
 
+      // Wait cleanly for Tailwind CDN CSS injection, Google Fonts, and embedded images before printing
+      const startedAt = Date.now();
+      await new Promise((resolve) => {
+        const checkReady = () => {
+          const docReady = frameDoc.readyState === 'complete';
+          const stylesLoaded = Array.from(frameDoc.querySelectorAll('style')).some(
+            (st) => st.textContent && (st.textContent.includes('opacity-100') || st.textContent.length > 1500)
+          );
+          const imgsLoaded = Array.from(frameDoc.images || []).every((img) => img.complete);
+          if ((docReady && stylesLoaded && imgsLoaded) || Date.now() - startedAt > 3000) {
+            resolve();
+            return;
+          }
+          setTimeout(checkReady, 80);
+        };
+        checkReady();
+      });
+
+      if (frameDoc.fonts && frameDoc.fonts.ready) {
+        await Promise.race([
+          frameDoc.fonts.ready,
+          new Promise((r) => setTimeout(r, 1200)),
+        ]);
+      }
+
       setTimeout(() => {
         setIsExportingPdf(false);
-        printFrame.contentWindow.focus();
-        printFrame.contentWindow.print();
-      }, 700);
-
+        frameWin.focus();
+        frameWin.print();
+      }, 150);
     } catch (err) {
       console.error('PDF Export Error:', err);
       setIsExportingPdf(false);
       window.print();
-    }
-  };
-
-  // 3. CINEMATIC VIDEO REEL EXPORT (9:16 Vertical Story / Reels Format)
-  // Exports MP4/WebM with preloaded caricature artwork, animated golden frames, particles & celebratory harmony
-  const handleExportVideo = async () => {
-    setIsRecordingVideo(true);
-    setVideoProgress(5);
-
-    try {
-      // Determine best supported MIME type across Safari, Chrome, Android, iOS
-      let mimeType = '';
-      let fileExt = 'webm';
-      if (typeof MediaRecorder !== 'undefined') {
-        if (MediaRecorder.isTypeSupported('video/mp4;codecs=avc1')) {
-          mimeType = 'video/mp4;codecs=avc1';
-          fileExt = 'mp4';
-        } else if (MediaRecorder.isTypeSupported('video/mp4')) {
-          mimeType = 'video/mp4';
-          fileExt = 'mp4';
-        } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')) {
-          mimeType = 'video/webm;codecs=vp9,opus';
-          fileExt = 'webm';
-        } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
-          mimeType = 'video/webm;codecs=vp9';
-          fileExt = 'webm';
-        } else if (MediaRecorder.isTypeSupported('video/webm')) {
-          mimeType = 'video/webm';
-          fileExt = 'webm';
-        }
-      }
-
-      const canvas = document.createElement('canvas');
-      canvas.width = 720;
-      canvas.height = 1280;
-      const ctx = canvas.getContext('2d');
-
-      // Preload couple caricature image
-      const coupleImg = new window.Image();
-      coupleImg.crossOrigin = 'anonymous';
-      coupleImg.src = data.photos?.cover || './images/caricature/scooter_couple.webp';
-      await new Promise(r => {
-        coupleImg.onload = r;
-        coupleImg.onerror = r;
-        setTimeout(r, 2000);
-      });
-
-      // Synthesize celebratory music chord progression using Web Audio API
-      let audioStreamTrack = null;
-      try {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (AudioContextClass) {
-          const audioCtx = new AudioContextClass();
-          const dest = audioCtx.createMediaStreamDestination();
-          
-          // Joyful celebration chord progression (Indian wedding festive harmony)
-          const notes = [311.13, 392.00, 466.16, 523.25, 622.25];
-          notes.forEach((freq, idx) => {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 6.0);
-            osc.connect(gain);
-            gain.connect(dest);
-            osc.start(audioCtx.currentTime + idx * 0.15);
-            osc.stop(audioCtx.currentTime + 6.5);
-          });
-          audioStreamTrack = dest.stream.getAudioTracks()[0];
-        }
-      } catch (e) {
-        console.warn('Audio synthesis fallback');
-      }
-
-      const canvasStream = canvas.captureStream(30);
-      const combinedTracks = [...canvasStream.getVideoTracks()];
-      if (audioStreamTrack) {
-        combinedTracks.push(audioStreamTrack);
-      }
-      const combinedStream = new MediaStream(combinedTracks);
-
-      const recOptions = mimeType ? { mimeType } : undefined;
-      const mediaRecorder = new MediaRecorder(combinedStream, recOptions);
-      const chunks = [];
-
-      mediaRecorder.ondataavailable = e => {
-        if (e.data.size > 0) chunks.push(e.data);
-      };
-
-      mediaRecorder.onstop = () => {
-        const finalBlob = new Blob(chunks, { type: mimeType || 'video/mp4' });
-        const videoUrl = URL.createObjectURL(finalBlob);
-        const a = document.createElement('a');
-        a.href = videoUrl;
-        const slug = `${data.hosts?.bride || 'bride'}-and-${data.hosts?.groom || 'groom'}`.toLowerCase().replace(/\s+/g, '-');
-        a.download = `wedding-reel-${slug}.${fileExt}`;
-        a.click();
-        URL.revokeObjectURL(videoUrl);
-        setIsRecordingVideo(false);
-        setVideoProgress(100);
-        triggerCelebration('confetti');
-      };
-
-      mediaRecorder.start();
-
-      let frame = 0;
-      const totalFrames = 180; // 6 seconds @ 30fps
-
-      const renderVideoFrame = () => {
-        // 1. Luxury Warm Sunset Gradient
-        const grad = ctx.createLinearGradient(0, 0, 720, 1280);
-        grad.addColorStop(0, '#1C0E07');
-        grad.addColorStop(0.35, '#3B1E12');
-        grad.addColorStop(0.7, '#24120B');
-        grad.addColorStop(1, '#140804');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, 720, 1280);
-
-        // 2. Double Gold Frame with Ornate Corners
-        ctx.strokeStyle = '#D4AF37';
-        ctx.lineWidth = 4;
-        ctx.strokeRect(28, 28, 664, 1224);
-        ctx.strokeStyle = '#F59E0B';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(38, 38, 644, 1204);
-
-        // 3. Floating Gold Sparkles & Petals
-        for (let i = 0; i < 45; i++) {
-          const px = (i * 59 + frame * 3.5) % 720;
-          const py = (i * 67 + Math.sin(frame * 0.05 + i) * 25 + frame * 4.5) % 1280;
-          ctx.beginPath();
-          ctx.fillStyle = i % 2 === 0 ? 'rgba(251, 191, 36, 0.75)' : 'rgba(244, 63, 94, 0.65)';
-          ctx.arc(px, 1280 - py, (i % 3) + 2.5, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        ctx.textAlign = 'center';
-
-        // 4. Auspicious Top Header
-        ctx.fillStyle = '#FBBF24';
-        ctx.font = 'bold 24px serif';
-        ctx.fillText('॥ श्री गणेशाय नमः ॥', 360, 100);
-
-        ctx.fillStyle = '#E6D5BF';
-        ctx.font = 'bold 16px sans-serif';
-        ctx.fillText('TOGETHER WITH THEIR FAMILIES', 360, 140);
-
-        // 5. Centerpiece Illustration with Gentle Breathing Scale
-        const scale = 1.0 + Math.sin(frame * 0.05) * 0.03;
-        const imgW = 420 * scale;
-        const imgH = 340 * scale;
-        const imgX = 360 - imgW / 2;
-        const imgY = 220 + (340 - imgH) / 2;
-
-        // Glowing Arch behind couple
-        ctx.beginPath();
-        ctx.fillStyle = 'rgba(254, 243, 199, 0.12)';
-        ctx.arc(360, 360, 210, 0, Math.PI * 2);
-        ctx.fill();
-
-        if (coupleImg && coupleImg.complete && coupleImg.naturalWidth > 0) {
-          ctx.drawImage(coupleImg, imgX, imgY, imgW, imgH);
-        }
-
-        // 6. Bride & Groom Names in Gleaming Gold
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = 'bold 54px serif';
-        ctx.fillText(data.hosts?.groom || 'Ashish', 360, 680);
-
-        // Heart pulse
-        const heartPulse = 1.0 + Math.sin(frame * 0.1) * 0.15;
-        ctx.fillStyle = '#F43F5E';
-        ctx.font = `${Math.round(36 * heartPulse)}px sans-serif`;
-        ctx.fillText('♡', 360, 740);
-
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = 'bold 54px serif';
-        ctx.fillText(data.hosts?.bride || 'Bride', 360, 810);
-
-        // Subtitle
-        ctx.fillStyle = '#FDE68A';
-        ctx.font = 'italic 22px serif';
-        ctx.fillText('Are Getting Married', 360, 870);
-
-        // 7. Date & City
-        ctx.fillStyle = '#F59E0B';
-        ctx.font = 'bold 30px serif';
-        ctx.fillText(data.hosts?.date || '14th February 2027', 360, 960);
-
-        ctx.fillStyle = '#E6D5BF';
-        ctx.font = '22px sans-serif';
-        ctx.fillText(data.hosts?.city || 'Udaipur, Rajasthan', 360, 1010);
-
-        // 8. Hashtag
-        if (data.hosts?.hashtag) {
-          ctx.fillStyle = '#F472B6';
-          ctx.font = 'bold 20px sans-serif';
-          ctx.fillText(data.hosts?.hashtag, 360, 1090);
-        }
-
-        // 9. Bottom Footer
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
-        ctx.font = '16px serif';
-        ctx.fillText('Tap to View Full Interactive Invitation · RSVP Online', 360, 1170);
-
-        frame++;
-        setVideoProgress(Math.round((frame / totalFrames) * 100));
-
-        if (frame < totalFrames) {
-          requestAnimationFrame(renderVideoFrame);
-        } else {
-          mediaRecorder.stop();
-        }
-      };
-
-      renderVideoFrame();
-
-    } catch (err) {
-      console.error('Video Export Error:', err);
-      setIsRecordingVideo(false);
-      alert('Video export completed or not supported on this browser version.');
     }
   };
 
@@ -3369,9 +3072,17 @@ ${buildStandaloneUniversalScreenHtml({
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
+          {clientSaveToast && (
+            <span className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] font-semibold text-emerald-700 animate-fadeIn">
+              <Check className="w-3 h-3" />
+              {clientSaveToast}
+            </span>
+          )}
           <button
             type="button"
             onClick={() => {
+              refreshSavedClients();
+              setClientModalNotice(null);
               setClientForm({
                 bride: data.hosts?.bride || '',
                 groom: data.hosts?.groom || '',
@@ -3381,10 +3092,11 @@ ${buildStandaloneUniversalScreenHtml({
               setIsEditCoupleModalOpen(true);
             }}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF5ED] border border-[#C5A880] text-xs font-bold text-[#8B6F47] hover:bg-[#8B6F47] hover:text-white transition-all cursor-pointer shadow-2xs"
-            title="Set Bride & Groom names"
+            title="Save, switch, or start a new client invitation"
           >
             <Users className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Couple / Client</span>
+            <span className="hidden sm:inline">{data.hosts?.bride || 'Bride'} & {data.hosts?.groom || 'Groom'}</span>
+            <span className="sm:hidden">Clients</span>
           </button>
           <button
             type="button"
@@ -5518,7 +5230,7 @@ ${buildStandaloneUniversalScreenHtml({
                   </div>
                   <div>
                     <h3 className="font-serif text-2xl font-light text-[#2B1E17]">Additional Export Formats</h3>
-                    <p className="text-xs text-stone-500">Standalone interactive HTML file, printable PDF document, or video reel.</p>
+                    <p className="text-xs text-stone-500">Standalone interactive HTML file or print-ready PDF matching the live HTML view.</p>
                   </div>
                 </div>
 
@@ -5558,36 +5270,11 @@ ${buildStandaloneUniversalScreenHtml({
                           {isExportingPdf ? 'Preparing High-Res Printable A4 Document...' : 'Export in PDF (Print-Ready A4)'}
                         </p>
                         <p className="text-[11px] text-stone-500 font-light">
-                          High-resolution A4 printable card layout with gold border, couple portraits & event itinerary.
+                          Matches your exact HTML design — same theme garlands, card styles, dark/light palette, and custom fonts.
                         </p>
                       </div>
                     </div>
                     <span className="text-xs font-bold uppercase tracking-wider text-stone-600 shrink-0 ml-2">PDF</span>
-                  </button>
-
-                  {/* 3. CINEMATIC VIDEO REEL EXPORT */}
-                  <button
-                    type="button"
-                    onClick={handleExportVideo}
-                    disabled={isRecordingVideo}
-                    className={`w-full flex items-center justify-between p-4 rounded-xl border border-stone-200 bg-white hover:border-[#8B6F47] transition-all cursor-pointer shadow-xs group ${
-                      isRecordingVideo ? 'opacity-85 ring-2 ring-[#8B6F47]' : ''
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Video className="w-5 h-5 text-stone-600 group-hover:text-[#8B6F47] shrink-0" />
-                      <div className="text-left">
-                        <p className="text-xs font-bold tracking-wider uppercase text-stone-800 group-hover:text-[#8B6F47]">
-                          {isRecordingVideo ? `Recording Wedding Reel... ${videoProgress}%` : 'Export in Video (.mp4 / .webm)'}
-                        </p>
-                        <p className="text-[11px] text-stone-500 font-light">
-                          6-second cinematic 9:16 vertical story reel with caricature artwork, music & animations for WhatsApp Status & Instagram.
-                        </p>
-                      </div>
-                    </div>
-                    <span className="text-xs font-bold uppercase tracking-wider text-stone-600 shrink-0 ml-2">
-                      {isRecordingVideo ? `${videoProgress}%` : 'Video'}
-                    </span>
                   </button>
                 </div>
               </div>
@@ -6197,7 +5884,7 @@ ${buildStandaloneUniversalScreenHtml({
       {/* QUICK CLIENT & COUPLE DETAILS MODAL */}
       {isEditCoupleModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-md rounded-3xl p-6 sm:p-7 shadow-2xl border border-stone-200 space-y-5 animate-scaleUp">
+          <div className="bg-white w-full max-w-md max-h-[90vh] overflow-y-auto rounded-3xl p-6 sm:p-7 shadow-2xl border border-stone-200 space-y-5 animate-scaleUp">
             <div className="flex items-center justify-between pb-3 border-b border-stone-100">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-xl bg-[#FAF5ED] border border-[#E6D5BF] flex items-center justify-center text-[#8B6F47]">
@@ -6205,7 +5892,7 @@ ${buildStandaloneUniversalScreenHtml({
                 </div>
                 <div>
                   <h3 className="font-serif text-xl font-normal text-[#2B1E17]">Client & Couple Information</h3>
-                  <p className="text-xs text-stone-500 font-light">Set the client name for this wedding invitation</p>
+                  <p className="text-xs text-stone-500 font-light">Save full template progress, switch saved clients, or start a clean client</p>
                 </div>
               </div>
               <button 
@@ -6217,6 +5904,18 @@ ${buildStandaloneUniversalScreenHtml({
               </button>
             </div>
 
+            {clientModalNotice && (
+              <div
+                className={`p-3 rounded-xl border text-xs leading-relaxed ${
+                  clientModalNotice.type === 'success'
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                    : 'bg-amber-50 border-amber-200 text-amber-800'
+                }`}
+              >
+                {clientModalNotice.text}
+              </div>
+            )}
+
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -6224,6 +5923,7 @@ ${buildStandaloneUniversalScreenHtml({
                     Bride's Name
                   </label>
                   <input
+                    id="client-modal-bride"
                     type="text"
                     placeholder="e.g. Riya"
                     value={clientForm.bride}
@@ -6236,6 +5936,7 @@ ${buildStandaloneUniversalScreenHtml({
                     Groom's Name
                   </label>
                   <input
+                    id="client-modal-groom"
                     type="text"
                     placeholder="e.g. Karan"
                     value={clientForm.groom}
@@ -6272,65 +5973,169 @@ ${buildStandaloneUniversalScreenHtml({
               </div>
             </div>
 
-            <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
+            <div className="pt-1 flex flex-col sm:flex-row gap-2.5">
               <button
                 type="button"
-                onClick={() => {
+                onClick={async () => {
                   const b = clientForm.bride.trim() || 'Bride';
                   const g = clientForm.groom.trim() || 'Groom';
                   const bI = b[0].toUpperCase();
                   const gI = g[0].toUpperCase();
-                  setData(prev => ({
-                    ...prev,
+                  const nextData = {
+                    ...data,
                     hosts: {
-                      ...prev.hosts,
+                      ...data.hosts,
                       bride: b,
                       groom: g,
                       date: clientForm.date,
                       city: clientForm.city,
-                      hashtag: `#${b}Weds${g}`,
+                      hashtag: `#${b.replace(/\s+/g, '')}Weds${g.replace(/\s+/g, '')}`,
                     },
                     monogram: {
-                      ...prev.monogram,
+                      ...data.monogram,
                       initials: `${bI} & ${gI}`,
                     }
-                  }));
+                  };
+                  setData(nextData);
+                  await saveClientFull(nextData, { awaitServer: true });
+                  refreshSavedClients();
                   setIsEditCoupleModalOpen(false);
+                  showSaveToast(`Saved ${b} & ${g} (preloads on reopen)`);
                 }}
                 className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-[#8B6F47] to-[#A9825F] text-white text-xs font-bold uppercase tracking-wider shadow-md hover:opacity-95 cursor-pointer text-center"
               >
-                Save Client Names
+                Save Client & Template
               </button>
 
               <button
                 type="button"
-                onClick={() => {
-                  const b = clientForm.bride.trim() || 'Bride';
-                  const g = clientForm.groom.trim() || 'Groom';
+                onClick={async () => {
+                  // 1. Always preserve the current client's full template & edits before starting a new client
+                  await saveClientFull(data, { setActive: false, awaitServer: false });
+
+                  const bRaw = clientForm.bride.trim();
+                  const gRaw = clientForm.groom.trim();
+                  const curBride = (data.hosts?.bride || '').trim().toLowerCase();
+                  const curGroom = (data.hosts?.groom || '').trim().toLowerCase();
+
+                  // 2. If names are blank or still match the active client, clear names cleanly so user can type the NEW couple
+                  if (!bRaw || !gRaw || (bRaw.toLowerCase() === curBride && gRaw.toLowerCase() === curGroom)) {
+                    setClientForm(prev => ({
+                      ...prev,
+                      bride: '',
+                      groom: '',
+                      city: '',
+                    }));
+                    setClientModalNotice({
+                      type: 'info',
+                      text: `Saved ${data.hosts?.bride || 'current'} & ${data.hosts?.groom || 'client'}. Now enter the NEW Bride & Groom names above and click "Start Clean Client" to begin their fresh invitation.`,
+                    });
+                    refreshSavedClients();
+                    setTimeout(() => {
+                      const inp = document.getElementById('client-modal-bride');
+                      if (inp) inp.focus();
+                    }, 30);
+                    return;
+                  }
+
+                  // 3. Create brand new clean invitation state seeded with DEFAULT_INVITATION_DATA
+                  const b = bRaw;
+                  const g = gRaw;
                   const bI = b[0].toUpperCase();
                   const gI = g[0].toUpperCase();
-                  setData({
-                    ...DEFAULT_INVITATION_DATA,
+                  const base = cloneClientData(DEFAULT_INVITATION_DATA);
+                  const freshData = {
+                    ...base,
                     hosts: {
-                      ...DEFAULT_INVITATION_DATA.hosts,
+                      ...base.hosts,
                       bride: b,
                       groom: g,
-                      date: clientForm.date,
-                      city: clientForm.city,
-                      hashtag: `#${b}Weds${g}`,
+                      date: clientForm.date || base.hosts.date,
+                      city: clientForm.city.trim() || base.hosts.city,
+                      hashtag: `#${b.replace(/\s+/g, '')}Weds${g.replace(/\s+/g, '')}`,
                     },
                     monogram: {
-                      ...DEFAULT_INVITATION_DATA.monogram,
+                      ...base.monogram,
                       initials: `${bI} & ${gI}`,
-                    }
-                  });
+                    },
+                  };
+                  const newSlug = computeCoupleSlug(freshData.hosts);
+                  setActiveClientSlug(newSlug);
+                  setData(freshData);
+                  setPublishedInfo(null);
+                  await saveClientFull(freshData, { awaitServer: true });
+                  refreshSavedClients();
+                  setClientModalNotice(null);
                   setIsEditCoupleModalOpen(false);
+                  showSaveToast(`Started clean client: ${b} & ${g}`);
                 }}
                 className="py-3 px-4 rounded-xl border border-stone-300 bg-white text-stone-700 text-xs font-bold uppercase tracking-wider hover:bg-stone-50 cursor-pointer text-center"
               >
                 Start Clean Client
               </button>
             </div>
+
+            {savedClients.length > 0 && (
+              <div className="pt-3 border-t border-stone-100 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] uppercase tracking-wider font-bold text-stone-500">
+                    Saved Clients ({savedClients.length})
+                  </span>
+                  <span className="text-[10px] text-stone-400">
+                    Click any client to resume editing
+                  </span>
+                </div>
+                <div className="max-h-44 overflow-y-auto space-y-1.5 pr-1">
+                  {savedClients.map((cl) => {
+                    const currentSlug = getCoupleSlug();
+                    const isActive = cl.slug === currentSlug;
+                    return (
+                      <div
+                        key={cl.slug}
+                        className={`flex items-center justify-between p-2.5 rounded-xl border text-left transition-all ${
+                          isActive
+                            ? 'border-[#8B6F47] bg-[#FAF5ED]'
+                            : 'border-stone-200 bg-white hover:border-[#C5A880]'
+                        }`}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => handleLoadSavedClient(cl.slug)}
+                          className="flex-1 min-w-0 text-left cursor-pointer"
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-bold text-[#2B1E17] truncate">
+                              {cl.bride} & {cl.groom}
+                            </span>
+                            {isActive && (
+                              <span className="px-1.5 py-0.5 rounded-full bg-[#8B6F47] text-white text-[9px] font-bold uppercase">
+                                Active
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[10px] text-stone-500 truncate">
+                            {cl.template} · {cl.palette} · {cl.city || 'No city'} · /published/{cl.slug}.html
+                          </p>
+                        </button>
+                        {!isActive && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              removeSavedClient(cl.slug);
+                              refreshSavedClients();
+                            }}
+                            title="Remove from saved list"
+                            className="ml-2 p-1.5 rounded-lg text-stone-400 hover:text-rose-600 hover:bg-rose-50 cursor-pointer shrink-0"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

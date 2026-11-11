@@ -90,13 +90,27 @@
       try {
         var currentSlug = "preeti-and-ashish";
         var pathSlug = window.location.pathname.split('/').pop().replace('.html', '') || currentSlug;
-        var raw = localStorage.getItem('wishlys_published_data_' + pathSlug)
-               || localStorage.getItem('wishlys_published_data_' + currentSlug)
-               || localStorage.getItem('wishlys_published_data')
-               || localStorage.getItem('wishlys_free_saved_data');
+        var expectedSlug = (pathSlug && pathSlug !== 'index') ? pathSlug : currentSlug;
+        function slugOfHosts(h) {
+          var b = (h && h.bride ? String(h.bride) : 'bride').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'bride';
+          var g = (h && h.groom ? String(h.groom) : 'groom').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'groom';
+          return b + '-and-' + g;
+        }
+        var raw = localStorage.getItem('wishlys_published_data_' + expectedSlug)
+               || (pathSlug !== currentSlug ? null : localStorage.getItem('wishlys_published_data_' + currentSlug));
+        if (!raw) {
+          var legacyRaw = localStorage.getItem('wishlys_published_data') || localStorage.getItem('wishlys_free_saved_data');
+          if (legacyRaw) {
+            var legacyParsed = JSON.parse(legacyRaw);
+            if (legacyParsed && legacyParsed.hosts && slugOfHosts(legacyParsed.hosts) === expectedSlug) {
+              raw = legacyRaw;
+            }
+          }
+        }
         if (!raw) return;
         var d = JSON.parse(raw);
         if (!d || !d.hosts) return;
+        if (slugOfHosts(d.hosts) !== expectedSlug) return;
 
         // Apply saved Typography Fonts (headingFont, bodyFont, scriptFont)
         if (d.typography) {
