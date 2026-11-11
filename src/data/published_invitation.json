@@ -14,8 +14,8 @@
   "customMusicUrl": "",
   "effect": "dots",
   "atmosphere": {
-    "style": "petals",
-    "intensity": "medium"
+    "style": "auto",
+    "intensity": "subtle"
   },
   "monogram": {
     "initials": "P & A",
