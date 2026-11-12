@@ -276,7 +276,7 @@ export function saveClientLocal(data, extraMeta = {}) {
   }
 
   try {
-    localStorage.setItem(LEGACY_SAVED_KEY, json);
+    if (!data?.occasion || data.occasion === 'wedding') localStorage.setItem(LEGACY_SAVED_KEY, json);
   } catch {
     // Ignore duplicate quota overflow cleanly; client data stays in PUBLISHED_PREFIX + IDB
   }
@@ -475,7 +475,7 @@ export function getInitialClientData(preferredOccasion = null) {
     const activeSlug = getActiveClientSlug(occKey);
     if (activeSlug) {
       const fromActive = getSavedClient(activeSlug);
-      if (fromActive && (!preferredOccasion || preferredOccasion === 'wedding' || (fromActive.occasion || 'wedding') === preferredOccasion)) {
+      if (fromActive && (fromActive.occasion || 'wedding') === occKey) {
         return fromActive;
       }
     }
@@ -492,7 +492,7 @@ export function getInitialClientData(preferredOccasion = null) {
     const legacyRaw = localStorage.getItem(LEGACY_SAVED_KEY);
     if (legacyRaw) {
       const parsed = JSON.parse(legacyRaw);
-      if (parsed && typeof parsed === 'object' && parsed.hosts) {
+      if (parsed && typeof parsed === 'object' && parsed.hosts && (!parsed.occasion || parsed.occasion === 'wedding')) {
         const merged = mergeClientWithDefaults(parsed);
         const slug = computeCoupleSlug(merged.hosts);
         saveClientLocal(merged, { setActive: true });

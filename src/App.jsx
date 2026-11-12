@@ -133,7 +133,10 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const activeOccasion = initialPathOccasion || invitationData?.occasion || 'wedding';
+  const activeOccasion = initialPathOccasion
+    || (invitationData?.occasion && invitationData.occasion !== 'wedding' && new URLSearchParams(window.location.search).get('client')
+      ? invitationData.occasion
+      : 'wedding');
 
   return (
     <ErrorBoundary>
