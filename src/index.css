@@ -36,10 +36,10 @@
   --site-gold: #C8A055;
   --site-gold-bright: #E6C88A;
   --site-gold-deep: #9A722E;
-  --site-font-display: 'Bodoni Moda', 'Cormorant Garamond', Georgia, serif;
-  --site-font-serif: 'Cormorant Garamond', Georgia, serif;
-  --site-font-sans: 'Manrope', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  --site-font-script: 'Pinyon Script', 'Great Vibes', cursive;
+  --site-font-display: 'Montserrat', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --site-font-serif: 'Plus Jakarta Sans', 'Montserrat', system-ui, -apple-system, sans-serif;
+  --site-font-sans: 'Plus Jakarta Sans', 'Montserrat', system-ui, -apple-system, sans-serif;
+  --site-font-script: 'Montserrat', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   font-family: var(--site-font-sans);
 }
 
@@ -55,6 +55,7 @@
   font-family: var(--site-font-script);
 }
 
+.paigaam-site :where(h1, h2, h3, h4):not(.inv-theme-root):not(.inv-theme-root *):not(.occ-inv-root):not(.occ-inv-root *) { font-family: var(--site-font-display); }
 .paigaam-site .site-sans {
   font-family: var(--site-font-sans);
 }

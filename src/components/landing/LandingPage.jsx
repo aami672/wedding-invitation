@@ -107,10 +107,10 @@ function InteractiveGoldScratch({ bride = 'Ananya', groom = 'Vikram', date = 'No
     }
 
     ctx.fillStyle = '#3B2814';
-    ctx.font = '600 11px Manrope, sans-serif';
+    ctx.font = '600 11px "Plus Jakarta Sans", "Montserrat", sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('RUB GOLD FOIL TO REVEAL DATE', w / 2, h / 2 - 4);
-    ctx.font = 'italic 13px Georgia, serif';
+    ctx.font = '700 12px "Montserrat", "Plus Jakarta Sans", sans-serif';
     ctx.fillText('✦  Paigaam Atelier Seal  ✦', w / 2, h / 2 + 16);
     setRevealedPct(0);
     setIsDone(false);
@@ -164,7 +164,7 @@ function InteractiveGoldScratch({ bride = 'Ananya', groom = 'Vikram', date = 'No
       </div>
 
       <div className="relative rounded-2xl border border-[#C8A055]/35 bg-[#120C0A] p-6 text-center overflow-hidden">
-        <p className="site-script text-2xl text-[#E6C88A] mb-1">Save the Date</p>
+        <p className="site-display text-[11px] uppercase tracking-[0.26em] font-semibold text-[#E6C88A] mb-1">Save the Date</p>
         <h4 className="site-display text-2xl sm:text-3xl text-[#FBF7F0] tracking-tight">
           {bride} <span className="text-[#C8A055] font-light">&amp;</span> {groom}
         </h4>
@@ -235,7 +235,7 @@ export default function LandingPage({ onOpenStudio }) {
             className="flex items-center gap-3 group"
           >
             <div className="w-10 h-10 rounded-full border border-[#C8A055]/55 bg-gradient-to-br from-[#2B1E17] to-[#120C0A] flex items-center justify-center shadow-lg group-hover:border-[#E6C88A] transition-colors">
-              <span className="site-display italic text-xl text-[#E6C88A] font-semibold leading-none">
+              <span className="site-display text-lg text-[#E6C88A] font-bold leading-none">
                 P
               </span>
             </div>
@@ -285,14 +285,14 @@ export default function LandingPage({ onOpenStudio }) {
               <span>Bespoke Celebration Atelier</span>
             </div>
 
-            <h1 className="site-display text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-[#FBF7F0] leading-[1.08]">
+            <h1 className="site-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#FBF7F0] leading-[1.08]">
               Not Just an Invite.{' '}
-              <span className="paigaam-gold-text italic block sm:inline">
+              <span className="paigaam-gold-text font-extrabold block sm:inline">
                 A Living Heirloom.
               </span>
             </h1>
 
-            <p className="site-serif text-xl sm:text-2xl text-[#DDD0BE] max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal">
+            <p className="site-sans text-base sm:text-lg text-[#DDD0BE] max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal">
               <strong className="text-[#E6C88A] font-medium">Paigaam</strong> — Delivering Life’s Most Cherished Moments with opening rituals, bespoke motifs, your music, and signature client links.
             </p>
 
@@ -342,7 +342,7 @@ export default function LandingPage({ onOpenStudio }) {
             <p className="text-[11px] uppercase tracking-[0.22em] text-[#C8A055] font-semibold">
               Signature Visual Worlds
             </p>
-            <span className="site-serif italic text-sm text-[#B5A48E]">
+            <span className="site-sans text-xs sm:text-sm text-[#B5A48E]">
               Crafted for Light Ivory &amp; Velvet Noir palettes
             </span>
           </div>
@@ -378,10 +378,10 @@ export default function LandingPage({ onOpenStudio }) {
             <span className="text-[11px] uppercase tracking-[0.26em] text-[#C8A055] font-semibold block">
               Dedicated Studios
             </span>
-            <h2 className="site-display text-3xl sm:text-5xl text-[#FBF7F0] font-normal">
+            <h2 className="site-display text-3xl sm:text-4xl text-[#FBF7F0] font-bold tracking-tight">
               Pick Your Occasion
             </h2>
-            <p className="site-serif text-lg sm:text-xl text-[#D0C1AC]">
+            <p className="site-sans text-sm sm:text-base text-[#D0C1AC]">
               Every celebration opens its own bespoke Studio URL, pre-styled with tailored ceremonies and artwork while keeping your saved wedding invitations untouched.
             </p>
           </div>
@@ -452,7 +452,7 @@ export default function LandingPage({ onOpenStudio }) {
             <span className="text-[11px] uppercase tracking-[0.26em] text-[#C8A055] font-semibold block">
               The Paigaam Craft
             </span>
-            <h2 className="site-display text-3xl sm:text-4xl text-[#FBF7F0] font-normal">
+            <h2 className="site-display text-3xl sm:text-4xl text-[#FBF7F0] font-bold tracking-tight">
               Every Detail, Deliberately Elevated
             </h2>
           </div>
@@ -570,10 +570,10 @@ export default function LandingPage({ onOpenStudio }) {
       <section className="py-16 sm:py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-5">
           <Music className="w-6 h-6 text-[#C8A055] mx-auto" />
-          <h2 className="site-display text-3xl sm:text-5xl text-[#FBF7F0] leading-tight">
+          <h2 className="site-display text-3xl sm:text-4xl text-[#FBF7F0] font-bold tracking-tight leading-tight">
             Compose Your Celebration in Paigaam Studio
           </h2>
-          <p className="site-serif text-xl text-[#D0C1AC] max-w-xl mx-auto">
+          <p className="site-sans text-base sm:text-lg text-[#D0C1AC] max-w-xl mx-auto">
             Select an occasion above or enter the Studio directly to design, preview live, and publish your standalone invitation.
           </p>
           <div className="pt-2">
@@ -594,7 +594,7 @@ export default function LandingPage({ onOpenStudio }) {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full border border-[#C8A055]/50 bg-[#1B120E] flex items-center justify-center">
-              <span className="site-display italic text-lg text-[#E6C88A] font-semibold">P</span>
+              <span className="site-display text-base text-[#E6C88A] font-bold">P</span>
             </div>
             <div>
               <p className="site-display text-lg text-[#FBF7F0]">Paigaam</p>

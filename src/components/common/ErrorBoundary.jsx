@@ -24,10 +24,10 @@ export default class ErrorBoundary extends React.Component {
       return (
         <div className="paigaam-site min-h-screen bg-[#120C0A] flex items-center justify-center p-6 text-center text-[#FBF7F0]">
           <div className="paigaam-atelier-card max-w-md p-8 rounded-3xl space-y-4">
-            <div className="w-12 h-12 rounded-full border border-[#C8A055]/40 bg-[#C8A055]/10 text-[#E6C88A] mx-auto flex items-center justify-center site-display text-xl italic">
+            <div className="w-12 h-12 rounded-full border border-[#C8A055]/40 bg-[#C8A055]/10 text-[#E6C88A] mx-auto flex items-center justify-center site-display text-xl font-bold">
               P
             </div>
-            <h3 className="site-display text-2xl text-[#FBF7F0] font-normal">
+            <h3 className="site-display text-2xl text-[#FBF7F0] font-semibold">
               Something went wrong
             </h3>
             <p className="text-xs text-[#C7B8A3] leading-relaxed">

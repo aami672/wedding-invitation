@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import LandingPage from './components/landing/LandingPage';
 import StudioWizard from './components/studio/StudioWizard';
+import OccasionStudioWizard from './components/occasions/OccasionStudioWizard';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import { OCCASIONS } from './data/presets';
 import {
@@ -24,7 +25,8 @@ export default function App() {
   const [view, setView] = useState(() => {
     const hash = window.location.hash.replace('#', '');
     if (hash === 'live') {
-      const slug = computeCoupleSlug(getInitialClientData(initialPathOccasion)?.hosts);
+      const liveData = getInitialClientData(initialPathOccasion);
+      const slug = computeCoupleSlug(liveData?.hosts, liveData?.customSlug);
       window.location.replace(resolvePublishedUrl(slug));
       return 'studio';
     }
@@ -33,7 +35,8 @@ export default function App() {
     const params = new URLSearchParams(window.location.search);
     const v = params.get('view');
     if (v === 'live') {
-      const slug = computeCoupleSlug(getInitialClientData(initialPathOccasion)?.hosts);
+      const liveData = getInitialClientData(initialPathOccasion);
+      const slug = computeCoupleSlug(liveData?.hosts, liveData?.customSlug);
       window.location.replace(resolvePublishedUrl(slug));
       return 'studio';
     }
@@ -130,6 +133,8 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const activeOccasion = initialPathOccasion || invitationData?.occasion || 'wedding';
+
   return (
     <ErrorBoundary>
       <div className="paigaam-site min-h-screen bg-[#120C0A] text-[#FBF7F0]">
@@ -139,7 +144,16 @@ export default function App() {
           />
         )}
 
-        {view === 'studio' && (
+        {view === 'studio' && activeOccasion !== 'wedding' && (
+          <OccasionStudioWizard
+            occasionId={activeOccasion}
+            initialData={invitationData}
+            onSave={data => setInvitationData(data)}
+            onExitToHome={handleExitToHome}
+          />
+        )}
+
+        {view === 'studio' && activeOccasion === 'wedding' && (
           <StudioWizard
             initialData={invitationData}
             onSave={data => setInvitationData(data)}

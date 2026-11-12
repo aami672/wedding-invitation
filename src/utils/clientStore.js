@@ -1,4 +1,5 @@
 import { DEFAULT_INVITATION_DATA, OCCASIONS } from '../data/presets';
+import { NON_WEDDING_OCCASION_IDS, createOccasionClientTemplate } from '../data/occasionStudios';
 
 const ACTIVE_SLUG_KEY = 'wishlys_active_client_slug';
 const OCCASION_ACTIVE_SLUG_PREFIX = 'wishlys_active_client_slug_';
@@ -9,7 +10,11 @@ const PUBLISHED_PREFIX = 'wishlys_published_data_';
 // Eagerly bundle any saved client JSONs from src/data/clients/*.json so deployed builds also preload saved clients
 const BUNDLED_CLIENT_MODULES = import.meta.glob('../data/clients/*.json', { eager: true });
 
-export function computeCoupleSlug(hosts) {
+export function computeCoupleSlug(hosts, customSlug = '') {
+  if (customSlug && typeof customSlug === 'string' && customSlug.trim()) {
+    const clean = customSlug.trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '');
+    if (clean) return clean;
+  }
   const brideStr = (hosts?.bride || 'bride')
     .trim()
     .toLowerCase()
@@ -31,7 +36,9 @@ export function mergeClientWithDefaults(raw) {
   if (!raw || typeof raw !== 'object') {
     return cloneClientData(DEFAULT_INVITATION_DATA);
   }
-  const base = cloneClientData(DEFAULT_INVITATION_DATA);
+
+  const isCustomOccasion = Boolean(raw?.occasion && NON_WEDDING_OCCASION_IDS.includes(raw.occasion));
+  const base = cloneClientData(isCustomOccasion ? createOccasionClientTemplate(raw.occasion, raw.birthdayStyle) : DEFAULT_INVITATION_DATA);
   const normalizedText = JSON.stringify(raw)
     .replaceAll('"/images/', '"./images/')
     .replaceAll('"/audio/', '"./audio/');
@@ -46,8 +53,9 @@ export function mergeClientWithDefaults(raw) {
     photos: { ...base.photos, ...(src.photos || {}) },
     hosts: { ...base.hosts, ...(src.hosts || {}) },
     rsvp: { ...base.rsvp, ...(src.rsvp || {}) },
+    ...(isCustomOccasion ? { rsvpConfig: { ...(base.rsvpConfig || {}), ...(src.rsvpConfig || {}) } } : {}),
     events: Array.isArray(src.events) && src.events.length > 0 ? src.events : base.events,
-    gallery: Array.isArray(src.gallery) && !(src.gallery[0]?.url && src.gallery[0].url.includes('unsplash')) ? src.gallery : base.gallery,
+    gallery: isCustomOccasion ? (Array.isArray(src.gallery) ? src.gallery : base.gallery) : (Array.isArray(src.gallery) && !(src.gallery[0]?.url && src.gallery[0].url.includes('unsplash')) ? src.gallery : base.gallery),
     travel: Array.isArray(src.travel) ? src.travel : base.travel,
     customSections: Array.isArray(src.customSections) ? src.customSections : base.customSections,
   };
@@ -57,13 +65,13 @@ export function mergeClientWithDefaults(raw) {
     const gI = (merged.hosts?.groom || 'G').trim()[0]?.toUpperCase() || 'G';
     merged.monogram.initials = `${bI} & ${gI}`;
   }
-  if (!merged.photos.cover || /caricature\.webp|scooter_couple\.webp|zardozi|truck|04-pheras\.webp/.test(merged.photos.cover)) {
+  if (!isCustomOccasion && (!merged.photos.cover || /caricature\.webp|scooter_couple\.webp|zardozi|truck|04-pheras\.webp/.test(merged.photos.cover))) {
     merged.photos.cover = base.photos.cover;
   }
-  if (!merged.photos.bride || merged.photos.bride.includes('unsplash')) {
+  if (!isCustomOccasion && (!merged.photos.bride || merged.photos.bride.includes('unsplash'))) {
     merged.photos.bride = base.photos.bride;
   }
-  if (!merged.photos.groom || merged.photos.groom.includes('unsplash')) {
+  if (!isCustomOccasion && (!merged.photos.groom || merged.photos.groom.includes('unsplash'))) {
     merged.photos.groom = base.photos.groom;
   }
   return merged;
@@ -255,7 +263,7 @@ export async function getSavedClientAsync(slug) {
 }
 
 export function saveClientLocal(data, extraMeta = {}) {
-  const slug = computeCoupleSlug(data?.hosts);
+  const slug = computeCoupleSlug(data?.hosts, data?.customSlug);
   const registry = readRegistry();
   const existing = registry[slug] || {};
   const meta = buildMetaFromData(slug, data, existing, extraMeta);
@@ -287,7 +295,7 @@ export function saveClientLocal(data, extraMeta = {}) {
 }
 
 export async function saveClientToServer(slug, data) {
-  if (typeof window === 'undefined' || window.location.hostname.includes('github.io')) {
+  if (typeof window === 'undefined' || !import.meta.env.DEV || window.location.hostname.includes('github.io')) {
     return false;
   }
   try {
@@ -421,7 +429,11 @@ const OCCASION_STARTERS = {
 };
 
 export function createOccasionStarterData(occasionId = 'wedding') {
+  if (NON_WEDDING_OCCASION_IDS.includes(occasionId)) {
+    return cloneClientData(createOccasionClientTemplate(occasionId));
+  }
   const base = cloneClientData(DEFAULT_INVITATION_DATA);
+
   if (!occasionId || occasionId === 'wedding') {
     return base;
   }
